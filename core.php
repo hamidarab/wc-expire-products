@@ -39,7 +39,11 @@ function check_expired_products() {
         'meta_query'     => [
             [
                 'key'     => '_expiration_date',
-                'value'   => date('Y-m-d', strtotime('+2 months')), // روی ۲ ماه مانده به انقضا تنظیم شده
+                'compare' => 'EXISTS' // این شرط فقط محصولاتی که این فیلد را دارند، انتخاب می‌کند
+            ],
+            [
+                'key'     => '_expiration_date',
+                'value'   => date('Y-m-d', strtotime('+2 months')),
                 'compare' => '<=',
                 'type'    => 'DATE'
             ]
@@ -53,17 +57,19 @@ function check_expired_products() {
     $email_body  = "محصولات زیر ۲ ماه دیگر منقضی می‌شوند و ناموجود شده‌اند:\n\n";
 
     foreach ($products as $product) {
-        update_post_meta($product->ID, '_stock_status', 'outofstock'); // ناموجود کردن محصول
-        wc_delete_product_transients($product->ID); // به‌روزرسانی کش محصول
+        $product_id = $product->ID;
+
+        update_post_meta($product_id, '_stock_status', 'outofstock'); // ناموجود کردن محصول
+        wc_delete_product_transients($product_id); // به‌روزرسانی کش محصول
 
         // دریافت اطلاعات محصول
-        $product_obj = wc_get_product($product->ID);
+        $product_obj = wc_get_product($product_id);
         $title = $product_obj->get_name();
-        $link  = get_edit_post_link($product->ID);
+        $edit_link = admin_url('post.php?post=' . $product_id . '&action=edit');
         
         $email_body .= "نام محصول: {$title}\n";
-        $email_body .= "آیدی محصول: {$product->ID}\n";
-        $email_body .= "ویرایش محصول: {$link}\n\n";
+        $email_body .= "آیدی محصول: {$product_id}\n";
+        $email_body .= "ویرایش محصول: {$edit_link}\n\n";
     }
 
     // ارسال ایمیل به مدیر
