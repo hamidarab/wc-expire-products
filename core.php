@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Expiration Products
  * Description: افزودن تاریخ انقضا به محصولات و ناموجود کردن آن‌ها به‌صورت خودکار همراه با ارسال ایمیل به مدیر.
- * Version: 1.0
+ * Version: 1.0.3
  * Author: حمید اعراب
  * Text Domain: woocommerce-expiration-products
  */
