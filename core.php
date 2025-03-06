@@ -37,9 +37,10 @@ function check_expired_products() {
         'post_type'      => 'product',
         'posts_per_page' => -1,
         'meta_query'     => [
+            'relation' => 'AND',
             [
                 'key'     => '_expiration_date',
-                'compare' => 'EXISTS' // این شرط فقط محصولاتی که این فیلد را دارند، انتخاب می‌کند
+                'compare' => 'EXISTS'
             ],
             [
                 'key'     => '_expiration_date',
@@ -58,22 +59,40 @@ function check_expired_products() {
 
     foreach ($products as $product) {
         $product_id = $product->ID;
+        
+        // Double check if the product actually has an expiration date
+        $expiration_date = get_post_meta($product_id, '_expiration_date', true);
+        if (empty($expiration_date)) {
+            continue; // Skip products without expiration date
+        }
 
-        update_post_meta($product_id, '_stock_status', 'outofstock'); // ناموجود کردن محصول
-        wc_delete_product_transients($product_id); // به‌روزرسانی کش محصول
+        // Validate the expiration date format
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiration_date)) {
+            continue; // Skip products with invalid date format
+        }
 
-        // دریافت اطلاعات محصول
+        // Only update stock status if the product is currently in stock
         $product_obj = wc_get_product($product_id);
+        if (!$product_obj || $product_obj->get_stock_status() !== 'instock') {
+            continue; // Skip products that are already out of stock
+        }
+
+        update_post_meta($product_id, '_stock_status', 'outofstock');
+        wc_delete_product_transients($product_id);
+
         $title = $product_obj->get_name();
         $edit_link = admin_url('post.php?post=' . $product_id . '&action=edit');
         
         $email_body .= "نام محصول: {$title}\n";
         $email_body .= "آیدی محصول: {$product_id}\n";
+        $email_body .= "تاریخ انقضا: {$expiration_date}\n";
         $email_body .= "ویرایش محصول: {$edit_link}\n\n";
     }
 
-    // ارسال ایمیل به مدیر
-    wp_mail($admin_email, 'محصولات نزدیک به تاریخ انقضا', $email_body);
+    // Only send email if there are products to report
+    if (strlen($email_body) > strlen("محصولات زیر ۲ ماه دیگر منقضی می‌شوند و ناموجود شده‌اند:\n\n")) {
+        wp_mail($admin_email, 'محصولات نزدیک به تاریخ انقضا', $email_body);
+    }
 }
 
 // ثبت کرون جاب برای اجرای روزانه
