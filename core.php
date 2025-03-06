@@ -1,15 +1,17 @@
 <?php
 /**
  * Plugin Name: WooCommerce Expiration Products
- * Description: افزودن تاریخ انقضا به محصولات و ناموجود کردن آن‌ها به‌صورت خودکار همراه با ارسال ایمیل به مدیر.
- * Version: 1.0.3
- * Author: حمید اعراب
+ * Description: Add expiration date to products and automatically mark them as out of stock with admin email notification.
+ * Version: 1.0.4
+ * Author: Hamid Araab
  * Text Domain: woocommerce-expiration-products
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
+
+
 
 // افزودن فیلد تاریخ انقضا به صفحه محصول
 add_action('woocommerce_product_options_general_product_data', function () {
@@ -23,6 +25,21 @@ add_action('woocommerce_product_options_general_product_data', function () {
     ]);
 });
 
+// اضافه کردن فیلد تاریخ انقضا به متغیرهای محصول
+add_action('woocommerce_product_after_variable_attributes', function($loop, $variation_data, $variation) {
+    woocommerce_wp_text_input([
+        'id'          => "_variation_expiration_date{$loop}",
+        'name'        => "_variation_expiration_date[{$loop}]",
+        'value'       => get_post_meta($variation->ID, '_expiration_date', true),
+        'label'       => __('تاریخ انقضا (YYYY-MM-DD)', 'woocommerce'),
+        'placeholder' => 'مثلاً 2025-05-10',
+        'desc_tip'    => 'true',
+        'description' => 'تاریخ انقضا متغیر را به فرمت YYYY-MM-DD وارد کنید.',
+        'type'        => 'date',
+        'wrapper_class' => 'form-row form-row-full'
+    ]);
+}, 10, 3);
+
 // ذخیره مقدار فیلد تاریخ انقضا
 add_action('woocommerce_process_product_meta', function ($post_id) {
     if (isset($_POST['_expiration_date'])) {
@@ -30,11 +47,19 @@ add_action('woocommerce_process_product_meta', function ($post_id) {
     }
 });
 
+// ذخیره مقدار فیلد تاریخ انقضا برای متغیرهای محصول
+add_action('woocommerce_save_product_variation', function($variation_id, $loop) {
+    if (isset($_POST['_variation_expiration_date'][$loop])) {
+        $expiration_date = sanitize_text_field($_POST['_variation_expiration_date'][$loop]);
+        update_post_meta($variation_id, '_expiration_date', $expiration_date);
+    }
+}, 10, 2);
+
 // تابع بررسی تاریخ انقضا و ناموجود کردن محصول
 add_action('check_expired_products_cron', 'check_expired_products');
 function check_expired_products() {
     $args = [
-        'post_type'      => 'product',
+        'post_type'      => ['product', 'product_variation'],
         'posts_per_page' => -1,
         'meta_query'     => [
             'relation' => 'AND',
@@ -60,21 +85,18 @@ function check_expired_products() {
     foreach ($products as $product) {
         $product_id = $product->ID;
         
-        // Double check if the product actually has an expiration date
         $expiration_date = get_post_meta($product_id, '_expiration_date', true);
         if (empty($expiration_date)) {
-            continue; // Skip products without expiration date
+            continue;
         }
 
-        // Validate the expiration date format
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiration_date)) {
-            continue; // Skip products with invalid date format
+            continue;
         }
 
-        // Only update stock status if the product is currently in stock
         $product_obj = wc_get_product($product_id);
         if (!$product_obj || $product_obj->get_stock_status() !== 'instock') {
-            continue; // Skip products that are already out of stock
+            continue;
         }
 
         update_post_meta($product_id, '_stock_status', 'outofstock');
@@ -83,13 +105,46 @@ function check_expired_products() {
         $title = $product_obj->get_name();
         $edit_link = admin_url('post.php?post=' . $product_id . '&action=edit');
         
-        $email_body .= "نام محصول: {$title}\n";
-        $email_body .= "آیدی محصول: {$product_id}\n";
+        if ($product->post_type === 'product_variation') {
+            $parent_product = wc_get_product($product_obj->get_parent_id());
+            $variation_attributes = $product_obj->get_variation_attributes();
+            
+            $variation_details = [];
+            foreach ($variation_attributes as $attribute => $value) {
+                $taxonomy = str_replace('attribute_', '', $attribute);
+
+                if (taxonomy_exists($taxonomy)) {
+                    $term = get_term_by('slug', $value, $taxonomy);
+                    $value = $term ? $term->name : $value;
+                }
+
+                $attribute_label = wc_attribute_label($taxonomy);
+                $variation_details[] = $attribute_label . ': ' . $value;
+            }
+            
+            $product_type = sprintf(
+                "متغیر - %s\n%s",
+                $parent_product->get_name(),
+                '- ' . implode("\n- ", $variation_details)
+            );
+            
+            $email_body .= "نام محصول: {$title}\n";
+            $email_body .= "نوع محصول: {$product_type}\n";
+            $email_body .= "شناسه متغیر: {$product_id}\n";
+            $email_body .= "شناسه محصول اصلی: {$parent_product->get_id()}\n";
+
+        } else {
+
+            $email_body .= "نام محصول: {$title}\n";
+            $email_body .= "نوع محصول: ساده\n";
+            $email_body .= "شناسه محصول: {$product_id}\n";
+
+        }
+        
         $email_body .= "تاریخ انقضا: {$expiration_date}\n";
         $email_body .= "ویرایش محصول: {$edit_link}\n\n";
     }
 
-    // Only send email if there are products to report
     if (strlen($email_body) > strlen("محصولات زیر ۲ ماه دیگر منقضی می‌شوند و ناموجود شده‌اند:\n\n")) {
         wp_mail($admin_email, 'محصولات نزدیک به تاریخ انقضا', $email_body);
     }
@@ -113,20 +168,54 @@ function unschedule_expiration_check() {
 add_filter('woocommerce_get_price_html', function ($price, $product) {
     global $wp_query;
 
-    // بررسی اینکه آیا محصولی که در حال نمایش است، همان محصول اصلی صفحه است
     if (!is_singular('product') || (isset($wp_query->queried_object_id) && $wp_query->queried_object_id != $product->get_id())) {
         return $price;
     }
 
-    $expiration_date = get_post_meta($product->get_id(), '_expiration_date', true);
-
-    if ($expiration_date) {
-        $timestamp = strtotime($expiration_date);
-        $formatted_date = date('m/Y', $timestamp); // تبدیل تاریخ به فرمت mm/YYYY
-        $price .= '<br><span class="expiration-date" style="font-size: 14px; margin: 30px 0 0; display: flex ; font-weight: bold;">انقضا: ' . esc_html($formatted_date) . '</span>';
+    $expiration_html = '';
+    
+    if ($product->is_type('variable')) {
+        // برای محصولات متغیر، تاریخ انقضا را در JavaScript ذخیره می‌کنیم
+        $variations = $product->get_available_variations();
+        $variation_expiry_dates = [];
+        
+        foreach ($variations as $variation) {
+            $variation_id = $variation['variation_id'];
+            $expiration_date = get_post_meta($variation_id, '_expiration_date', true);
+            if ($expiration_date) {
+                $variation_expiry_dates[$variation_id] = date('m/Y', strtotime($expiration_date));
+            }
+        }
+        
+        if (!empty($variation_expiry_dates)) {
+            $expiration_html = '<br><span class="expiration-date variable-expiration" style="font-size: 14px; margin: 30px 0 0; display: flex; font-weight: bold;">انقضا: <span class="expiry-value"></span></span>';
+            // اضافه کردن JavaScript برای به‌روزرسانی تاریخ انقضا
+            wc_enqueue_js("
+                var variationExpiryDates = " . json_encode($variation_expiry_dates) . ";
+                jQuery(document).on('found_variation', '.variations_form', function(event, variation) {
+                    var expiryDate = variationExpiryDates[variation.variation_id];
+                    if (expiryDate) {
+                        jQuery('.variable-expiration .expiry-value').text(expiryDate);
+                        jQuery('.variable-expiration').show();
+                    } else {
+                        jQuery('.variable-expiration').hide();
+                    }
+                });
+                jQuery(document).on('reset_data', '.variations_form', function() {
+                    jQuery('.variable-expiration').hide();
+                });
+            ");
+        }
+    } else {
+        // برای محصولات ساده
+        $expiration_date = get_post_meta($product->get_id(), '_expiration_date', true);
+        if ($expiration_date) {
+            $formatted_date = date('m/Y', strtotime($expiration_date));
+            $expiration_html = '<br><span class="expiration-date" style="font-size: 14px; margin: 30px 0 0; display: flex; font-weight: bold;">انقضا: ' . esc_html($formatted_date) . '</span>';
+        }
     }
 
-    return $price;
+    return $price . $expiration_html;
 }, 10, 2);
 
 // اضافه کردن فیلد تاریخ انقضا به ویرایش سریع
