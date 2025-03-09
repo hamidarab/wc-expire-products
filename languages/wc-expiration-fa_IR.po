@@ -1,0 +1,362 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Persian WooCommerce Product Expiration\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 12:00+0000\n"
+"PO-Revision-Date: 2024-01-01 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Persian\n"
+"Language: fa_IR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n==0 || n==1);\n"
+"X-Domain: wc-expiration\n"
+"X-Generator: Poedit 3.2\n"
+"X-Poedit-KeywordsList: __;_e;esc_html__;esc_html_e;esc_attr__;esc_attr_e\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SearchPath-0: .\n"
+
+# Plugin Info
+msgid "Persian WooCommerce Product Expiration"
+msgstr "تاریخ انقضای محصولات ووکامرس (شمسی)"
+
+msgid "Manage product expiration dates in WooCommerce with Persian calendar support"
+msgstr "مدیریت تاریخ انقضای محصولات در ووکامرس با پشتیبانی از تقویم شمسی"
+
+# Admin Menu
+msgid "Product Expiration Settings"
+msgstr "تنظیمات تاریخ انقضای محصولات"
+
+msgid "Expiration"
+msgstr "تاریخ انقضا"
+
+msgid "You do not have sufficient permissions to access this page."
+msgstr "شما مجوز کافی برای دسترسی به این صفحه را ندارید."
+
+# Settings Page
+msgid "Settings saved successfully."
+msgstr "تنظیمات با موفقیت ذخیره شد."
+
+msgid "Error saving settings."
+msgstr "خطا در ذخیره تنظیمات."
+
+msgid "Notification Period Type"
+msgstr "نوع دوره اعلان"
+
+msgid "Days"
+msgstr "روز"
+
+msgid "Months"
+msgstr "ماه"
+
+msgid "Notification Period"
+msgstr "دوره اعلان"
+
+msgid "Time before expiration to send notification"
+msgstr "زمان قبل از انقضا برای ارسال اعلان"
+
+msgid "Show Expiration Date"
+msgstr "نمایش تاریخ انقضا"
+
+msgid "Yes"
+msgstr "بله"
+
+msgid "No"
+msgstr "خیر"
+
+msgid "Display Text"
+msgstr "متن نمایشی"
+
+msgid "Use %date% to show the expiration date"
+msgstr "از %date% برای نمایش تاریخ انقضا استفاده کنید"
+
+msgid "Display Position"
+msgstr "موقعیت نمایش"
+
+msgid "After Price"
+msgstr "بعد از قیمت"
+
+msgid "After Title"
+msgstr "بعد از عنوان"
+
+msgid "Email Recipients"
+msgstr "گیرندگان ایمیل"
+
+msgid "Site Admin"
+msgstr "مدیر سایت"
+
+msgid "Shop Manager"
+msgstr "مدیر فروشگاه"
+
+msgid "Custom Email"
+msgstr "ایمیل سفارشی"
+
+msgid "Show in Order Email"
+msgstr "نمایش در ایمیل سفارش"
+
+msgid "Save Settings"
+msgstr "ذخیره تنظیمات"
+
+# Product List
+msgid "Expiration Date"
+msgstr "تاریخ انقضا"
+
+msgid "Expiration Date: All"
+msgstr "تاریخ انقضا: همه"
+
+msgid "Expired"
+msgstr "منقضی شده"
+
+msgid "Not Expired"
+msgstr "منقضی نشده"
+
+msgid "No Expiration Date"
+msgstr "بدون تاریخ انقضا"
+
+msgid "Expires: %date%"
+msgstr "انقضا: %date%"
+
+# Notifications
+msgid "Product Expired: %s"
+msgstr "محصول منقضی شده: %s"
+
+msgid "Product \"%s\" expired on %s and has been automatically out of stock."
+msgstr "محصول \"%s\" در تاریخ %s منقضی شده است و به صورت خودکار ناموجود شد."
+
+msgid "The following products will expire in 2 months and have been set to out of stock:"
+msgstr "محصولات زیر ۲ ماه دیگر منقضی می‌شوند و ناموجود شده‌اند:"
+
+msgid "Products Near Expiration Date"
+msgstr "محصولات نزدیک به تاریخ انقضا"
+
+# Product Details
+msgid "Variable - %s\n%s"
+msgstr "متغیر - %s\n%s"
+
+msgid "Product Name: %s\n"
+msgstr "نام محصول: %s\n"
+
+msgid "Product Type: %s\n"
+msgstr "نوع محصول: %s\n"
+
+msgid "Variation ID: %s\n"
+msgstr "شناسه متغیر: %s\n"
+
+msgid "Parent Product ID: %s\n"
+msgstr "شناسه محصول اصلی: %s\n"
+
+msgid "Simple"
+msgstr "ساده"
+
+msgid "Product ID: %s\n"
+msgstr "شناسه محصول: %s\n"
+
+msgid "Expiration Date: %s\n"
+msgstr "تاریخ انقضا: %s\n"
+
+msgid "Edit Product: %s\n\n"
+msgstr "ویرایش محصول: %s\n\n"
+
+# WooCommerce Dependency
+msgid "WooCommerce Product Expiration requires WooCommerce to be installed and activated."
+msgstr "افزونه تاریخ انقضای محصولات نیاز به نصب و فعال‌سازی ووکامرس دارد."
+
+msgid "Use these variables to display the date:"
+msgstr "از این متغیرها برای نمایش تاریخ استفاده کنید:"
+
+msgid "Full date display (example: 2025/03/30)"
+msgstr "نمایش تاریخ کامل (مثال: 1404/01/11)"
+
+msgid "Year only (example: 2025)"
+msgstr "فقط سال (مثال: 1404)"
+
+msgid "Month only (example: 03)"
+msgstr "فقط ماه (مثال: 01)"
+
+msgid "Day only (example: 30)"
+msgstr "فقط روز (مثال: 11)"
+
+#: includes/class-admin.php:85
+msgid "Expiration"
+msgstr "تاریخ انقضا"
+
+#: includes/class-admin.php:92 views/settings-page.php:8
+msgid "Product Expiration Settings"
+msgstr "تنظیمات تاریخ انقضا محصول"
+
+#: includes/class-admin.php:105
+msgid "You do not have sufficient permissions to access this page."
+msgstr "شما مجوز کافی برای دسترسی به این صفحه را ندارید."
+
+#: includes/class-admin.php:120
+msgid "Expiration Date"
+msgstr "تاریخ انقضا"
+
+#: includes/class-admin.php:124
+msgid "Set the product expiration date"
+msgstr "تاریخ انقضای محصول را تنظیم کنید"
+
+#: includes/class-admin.php:129
+msgid "No Expiration"
+msgstr "بدون تاریخ انقضا"
+
+#: includes/class-admin.php:155
+msgid "All Expiration Dates"
+msgstr "همه تاریخ‌های انقضا"
+
+#: includes/class-admin.php:156
+msgid "Expires Soon (30 Days)"
+msgstr "به زودی منقضی می‌شود (30 روز)"
+
+#: includes/class-admin.php:157
+msgid "Expired"
+msgstr "منقضی شده"
+
+#: includes/class-admin.php:158
+msgid "No Expiration Date"
+msgstr "بدون تاریخ انقضا"
+
+#: includes/class-admin.php:178
+msgid "Expiration"
+msgstr "انقضا"
+
+#: includes/class-settings.php:48
+msgid "Settings saved successfully."
+msgstr "تنظیمات با موفقیت ذخیره شد."
+
+#: views/settings-page.php:28
+msgid "Notification Period Type"
+msgstr "نوع دوره اطلاع‌رسانی"
+
+#: views/settings-page.php:32
+msgid "Days"
+msgstr "روز"
+
+#: views/settings-page.php:33
+msgid "Months"
+msgstr "ماه"
+
+#: views/settings-page.php:40
+msgid "Notification Period"
+msgstr "دوره اطلاع‌رسانی"
+
+#: views/settings-page.php:45
+msgid "Time before expiration to send notification"
+msgstr "زمان قبل از انقضا برای ارسال اطلاع‌رسانی"
+
+#: views/settings-page.php:51
+msgid "Show Expiration Date"
+msgstr "نمایش تاریخ انقضا"
+
+#: views/settings-page.php:55 views/settings-page.php:124
+msgid "Yes"
+msgstr "بله"
+
+#: views/settings-page.php:56 views/settings-page.php:125
+msgid "No"
+msgstr "خیر"
+
+#: views/settings-page.php:63
+msgid "Display Text"
+msgstr "متن نمایش"
+
+#: views/settings-page.php:67
+msgid "Use these variables to display the date:"
+msgstr "از این متغیرها برای نمایش تاریخ استفاده کنید:"
+
+#: views/settings-page.php:69
+msgid "Full date display (example: 2025/03/30)"
+msgstr "نمایش تاریخ کامل (مثال: 1404/01/11)"
+
+#: views/settings-page.php:71
+msgid "Year only (example: 2025)"
+msgstr "فقط سال (مثال: 1404)"
+
+#: views/settings-page.php:73
+msgid "Month only (example: 03)"
+msgstr "فقط ماه (مثال: 01)"
+
+#: views/settings-page.php:75
+msgid "Day only (example: 30)"
+msgstr "فقط روز (مثال: 11)"
+
+#: views/settings-page.php:81
+msgid "Date Format"
+msgstr "فرمت تاریخ"
+
+#: views/settings-page.php:85
+msgid "Default (WordPress Format)"
+msgstr "پیش‌فرض (فرمت وردپرس)"
+
+#: views/settings-page.php:86
+msgid "Year/Month/Day (1402/01/15)"
+msgstr "سال/ماه/روز (1402/01/15)"
+
+#: views/settings-page.php:87
+msgid "Year/Month (1402/01)"
+msgstr "سال/ماه (1402/01)"
+
+#: views/settings-page.php:88
+msgid "YearMonth (140201)"
+msgstr "سال و ماه بدون جدا کننده (140201)"
+
+#: views/settings-page.php:89
+msgid "Year-Month-Day (1402-01-15)"
+msgstr "سال-ماه-روز (1402-01-15)"
+
+#: views/settings-page.php:90
+msgid "Day Month Year (15 فروردین 1402)"
+msgstr "روز ماه سال (15 فروردین 1402)"
+
+#: views/settings-page.php:92
+msgid "Choose how to display the date in the product"
+msgstr "چگونگی نمایش تاریخ در محصول را انتخاب کنید"
+
+#: views/settings-page.php:98
+msgid "Display Position"
+msgstr "موقعیت نمایش"
+
+#: views/settings-page.php:102
+msgid "After Price"
+msgstr "بعد از قیمت"
+
+#: views/settings-page.php:103
+msgid "After Title"
+msgstr "بعد از عنوان"
+
+#: views/settings-page.php:109
+msgid "Email Recipients"
+msgstr "گیرندگان ایمیل"
+
+#: views/settings-page.php:114
+msgid "Site Admin"
+msgstr "مدیر سایت"
+
+#: views/settings-page.php:120
+msgid "Shop Manager"
+msgstr "مدیر فروشگاه"
+
+#: views/settings-page.php:126
+msgid "Custom Email"
+msgstr "ایمیل سفارشی"
+
+#: views/settings-page.php:133
+msgid "Custom Email"
+msgstr "ایمیل سفارشی"
+
+#: views/settings-page.php:141
+msgid "Show in Order Email"
+msgstr "نمایش در ایمیل سفارش"
+
+#: views/settings-page.php:153
+msgid "Save Settings"
+msgstr "ذخیره تنظیمات"
+
+#: wc-product-expiration.php:122
+msgid "Persian WooCommerce Product Expiration requires WooCommerce to be active."
+msgstr "افزونه تاریخ انقضای محصول فارسی ووکامرس نیاز به فعال بودن ووکامرس دارد."
+
+#: includes/class-frontend.php:120
+msgid "Expires: %date%"
+msgstr "انقضا: %date%"
