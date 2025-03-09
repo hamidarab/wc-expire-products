@@ -26,6 +26,20 @@ This WordPress plugin allows WooCommerce store owners to set an expiration date 
 ## Support
 For any issues or feature requests, please open a GitHub issue or contact us through the WooCommerce support forum.
 
+## Changelog
+
+### Version 1.0.4
+- Improved: Enhanced variation details in expiration notification emails
+- Added: Parent product name and ID display for variations
+- Added: Formatted variation attributes listing
+- Optimized: Combined query for simple and variable products
+
+### Version 1.0.3
+- Fixed: Products without expiration dates being incorrectly marked as out of stock
+- Added: Additional validation for expiration date format
+- Added: Only process products that are currently in stock
+
+
 ---
 Developed with ❤️ for WooCommerce store owners!
 
