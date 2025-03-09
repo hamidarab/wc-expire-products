@@ -28,6 +28,17 @@ For any issues or feature requests, please open a GitHub issue or contact us thr
 
 ## Changelog
 
+### Version 2.10
+- Added: Configurable date format options (Y/m/d, Y/m, Ym, etc.)
+- Added: Custom styling for expiration dates with expiration-date class
+- Added: Improved display of expiration dates in product pages, cart, and order emails
+- Fixed: Persian language translation issues
+- Fixed: Date format localization and display
+- Improved: Expiration date styling and container
+- Added: Support for Persian calendar date display when jdate is available
+- Added: Complete POT and PO translation files
+- Optimized: Admin interface for expiration date management
+
 ### Version 1.0.4
 - Improved: Enhanced variation details in expiration notification emails
 - Added: Parent product name and ID display for variations
