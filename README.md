@@ -28,7 +28,7 @@ For any issues or feature requests, please open a GitHub issue or contact us thr
 
 ## Changelog
 
-= 3.0.0 =
+### Version 3.0.0
 - Fixed: Optimized query to get expired products for better performance.
 
 ### Version 2.10
