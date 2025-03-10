@@ -2,36 +2,34 @@
 # This file is distributed under the same license as the Persian WooCommerce Product Expiration plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Persian WooCommerce Product Expiration 1.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-product-expiration\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Project-Id-Version: Product Expiration Easy Peasy 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/product-"
+"expiration-easy-peasy\n"
+"Last-Translator: Shadow <arab@arab-system-product-name>\n"
+"Language-Team: Persian <translation-team-fa@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-05-25T12:00:00+00:00\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2025-03-10 12:21+0330\n"
 "X-Generator: WP-CLI 2.8.1\n"
-"X-Domain: wc-expiration\n"
+"X-Domain: product-expiration-easy-peasy\n"
+"Language: fa\n"
 
 #. Plugin Name of the plugin
-msgid "Persian WooCommerce Product Expiration"
+msgid "Product Expiration Easy Peasy"
 msgstr ""
 
 #. Plugin URI of the plugin
-msgid "https://your-site.com"
+msgid "https://hamidarab.com"
 msgstr ""
 
 #. Description of the plugin
-msgid "Manage product expiration dates in WooCommerce with Persian calendar support"
+msgid "Manage product expiration dates in WooCommerce"
 msgstr ""
 
 #. Author of the plugin
-msgid "Your Name"
-msgstr ""
-
-#. Author URI of the plugin
-msgid "https://your-site.com"
+msgid "Hamid Aarab"
 msgstr ""
 
 #: includes/class-admin.php:85
@@ -72,10 +70,6 @@ msgstr ""
 
 #: includes/class-admin.php:158
 msgid "No Expiration Date"
-msgstr ""
-
-#: includes/class-admin.php:178
-msgid "Expiration"
 msgstr ""
 
 #: includes/class-settings.php:48
@@ -198,20 +192,13 @@ msgstr ""
 msgid "Custom Email"
 msgstr ""
 
-#: views/settings-page.php:133
-msgid "Custom Email"
-msgstr ""
-
-#: views/settings-page.php:141
-msgid "Show in Order Email"
-msgstr ""
-
 #: views/settings-page.php:153
 msgid "Save Settings"
 msgstr ""
 
 #: wc-product-expiration.php:122
-msgid "Persian WooCommerce Product Expiration requires WooCommerce to be active."
+msgid ""
+"Persian WooCommerce Product Expiration requires WooCommerce to be active."
 msgstr ""
 
 #: includes/class-frontend.php:120
@@ -243,11 +230,11 @@ msgid "View Products"
 msgstr ""
 
 #: includes/class-i18n.php:51
-msgid "wc-expiration domain is loaded!"
+msgid "product-expiration-easy-peasy domain is loaded!"
 msgstr ""
 
 #: includes/class-i18n.php:53
-msgid "wc-expiration domain is NOT loaded!"
+msgid "product-expiration-easy-peasy domain is NOT loaded!"
 msgstr ""
 
 #: includes/class-admin.php:235

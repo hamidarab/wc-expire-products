@@ -59,7 +59,7 @@ class Settings {
         add_settings_error(
             'wc_product_expiration_messages',
             'settings_updated',
-            __('Settings saved successfully.', 'wc-expiration'),
+            __('Settings saved successfully.', 'product-expiration-easy-peasy'),
             'updated'
         );
     }

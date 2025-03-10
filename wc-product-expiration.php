@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name: Persian WC Product Expiration
+ * Plugin Name: Product Expiration Easy Peasy
  * Plugin URI: https://hamidarab.com
  * Description: Manage product expiration dates in WooCommerce
  * Version: 2.10.0
  * Author: Hamid Aarab
  * Author URI: https://hamidarab.com
- * Text Domain: wc-expiration
+ * Text Domain: product-expiration-easy-peasy
  * Domain Path: /languages
  * Requires at least: 5.0
  * Requires PHP: 7.2
@@ -40,7 +40,7 @@ add_action('before_woocommerce_init', function() {
 add_filter('plugin_row_meta', function($links, $file) {
     if (plugin_basename(__FILE__) === $file) {
         $row_meta = array(
-            'description' => __('Manage product expiration dates in WooCommerce with Persian calendar support', 'wc-expiration')
+            'description' => __('Manage product expiration dates in WooCommerce with Persian calendar support', 'product-expiration-easy-peasy')
         );
         return array_merge($links, $row_meta);
     }
@@ -51,8 +51,8 @@ add_filter('plugin_row_meta', function($links, $file) {
 add_filter('all_plugins', function($plugins) {
     $plugin_file = plugin_basename(__FILE__);
     if (isset($plugins[$plugin_file])) {
-        $plugins[$plugin_file]['Name'] = __('Persian WooCommerce Product Expiration', 'wc-expiration');
-        $plugins[$plugin_file]['Description'] = __('Manage product expiration dates in WooCommerce with Persian calendar support', 'wc-expiration');
+        $plugins[$plugin_file]['Name'] = __('Persian WooCommerce Product Expiration', 'product-expiration-easy-peasy');
+        $plugins[$plugin_file]['Description'] = __('Manage product expiration dates in WooCommerce with Persian calendar support', 'product-expiration-easy-peasy');
     }
     return $plugins;
 });
@@ -68,12 +68,12 @@ function include_files() {
 // Only load translations at init - not earlier
 add_action('init', function() {
     $locale = determine_locale();
-    $mofile = WC_PRODUCT_EXPIRATION_PATH . 'languages/wc-expiration-' . $locale . '.mo';
+    $mofile = WC_PRODUCT_EXPIRATION_PATH . 'languages/product-expiration-easy-peasy-' . $locale . '.mo';
     
     if (file_exists($mofile)) {
-        load_textdomain('wc-expiration', $mofile);
+        load_textdomain('product-expiration-easy-peasy', $mofile);
     } else {
-        load_plugin_textdomain('wc-expiration', false, dirname(plugin_basename(WC_PRODUCT_EXPIRATION_FILE)) . '/languages');
+        load_plugin_textdomain('product-expiration-easy-peasy', false, dirname(plugin_basename(WC_PRODUCT_EXPIRATION_FILE)) . '/languages');
     }
 }, 5); // Priority 5 to load before other init actions
 
@@ -136,7 +136,7 @@ class WC_Product_Expiration {
         if (!class_exists('WooCommerce')) {
             add_action('admin_notices', function() {
                 echo '<div class="error"><p>' . 
-                     esc_html__('WooCommerce Product Expiration requires WooCommerce to be installed and activated.', 'wc-expiration') . 
+                     esc_html__('WooCommerce Product Expiration requires WooCommerce to be installed and activated.', 'product-expiration-easy-peasy') . 
                      '</p></div>';
             });
             return;
