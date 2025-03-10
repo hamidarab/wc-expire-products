@@ -29,73 +29,90 @@ class Cron {
     }
 
     /**
-     * Check for expired products with pagination for better performance
+     * Check for expired products with optimized queries for better performance
+     *
+     * @return int Number of products processed
      */
     public function check_expired_products() {
-        $batch_size = 50; // Process products in smaller batches
-        $page = 1;
+        global $wpdb;
+    
+        $batch_size = 50;
+        $page = 0; // Start pagination at 0 for SQL LIMIT calculation
         $expiring_products = [];
-        $two_months_from_now = gmdate('Y-m-d', strtotime('+2 months'));
-        
+        $processed_products_count = 0;
+    
+        // Fetch settings
+        $settings = (new \WC_Product_Expiration\Settings())->get_settings();
+        $notification_period_type = isset($settings['notification_period_type']) ? $settings['notification_period_type'] : 'months';
+        $notification_period = isset($settings['notification_period']) ? (int)$settings['notification_period'] : 2;
+    
+        // Calculate expiration date
+        $date_from_now = match ($notification_period_type) {
+            'days' => gmdate('Y-m-d', strtotime("+{$notification_period} days")),
+            'weeks' => gmdate('Y-m-d', strtotime("+{$notification_period} weeks")),
+            default => gmdate('Y-m-d', strtotime("+{$notification_period} months"))
+        };
+    
         do {
-            $args = [
-                'post_type'      => ['product', 'product_variation'],
-                'posts_per_page' => $batch_size,
-                'paged'          => $page,
-                'meta_query'     => [
-                    'relation' => 'AND',
-                    [
-                        'key'     => '_expiration_date',
-                        'compare' => 'EXISTS'
-                    ],
-                    [
-                        'key'     => '_expiration_date',
-                        'value'   => $two_months_from_now,
-                        'compare' => '<=',
-                        'type'    => 'DATE'
-                    ]
-                ],
-                'fields'         => 'ids', // Only retrieve IDs for better performance
-            ];
-
-            $query = new \WP_Query($args);
-            $product_ids = $query->posts;
-            
-            // Process this batch of products
-            foreach ($product_ids as $product_id) {
-                $expiration_date = get_post_meta($product_id, '_expiration_date', true);
-                if (empty($expiration_date)) {
-                    continue;
-                }
-
-                // Ensure date format is valid
+            // Use $wpdb to query efficiently
+            $offset = $page * $batch_size;
+            $results = $wpdb->get_results(
+                $wpdb->prepare(
+                    "
+                    SELECT p.ID as product_id, pm.meta_value as expiration_date
+                    FROM {$wpdb->posts} p
+                    INNER JOIN {$wpdb->postmeta} pm
+                    ON p.ID = pm.post_id
+                    WHERE p.post_status = 'publish'
+                      AND p.post_type IN ('product', 'product_variation')
+                      AND pm.meta_key = '_expiration_date'
+                      AND CAST(pm.meta_value AS DATE) <= %s
+                    LIMIT %d, %d
+                    ",
+                    $date_from_now, 
+                    $offset, 
+                    $batch_size
+                )
+            );
+    
+            if (empty($results)) {
+                break;
+            }
+    
+            foreach ($results as $row) {
+                $product_id = (int) $row->product_id;
+                $expiration_date = $row->expiration_date;
+    
+                // Validate date format
                 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiration_date)) {
                     continue;
                 }
-
+    
+                // Load the WooCommerce product object
                 $product_obj = wc_get_product($product_id);
                 if (!$product_obj || $product_obj->get_stock_status() !== 'instock') {
                     continue;
                 }
-
-                // Set product to out of stock
+    
+                // Mark product as out of stock
                 update_post_meta($product_id, '_stock_status', 'outofstock');
                 wc_delete_product_transients($product_id);
-                
-                // Store for email notification
+    
                 $expiring_products[] = $product_obj;
+                $processed_products_count++;
             }
-            
+    
             $page++;
-            // Continue until we've processed all matching products
-        } while (count($product_ids) >= $batch_size);
-        
-        // If we found expiring products, send email
+        } while (count($results) === $batch_size);
+    
+        // Send the notification email
         if (!empty($expiring_products)) {
             $this->send_notification_email($expiring_products);
         }
+    
+        return $processed_products_count;
     }
-
+    
     /**
      * Send notification email for expiring products
      * 
@@ -110,9 +127,28 @@ class Cron {
         } else {
             $to = get_option('admin_email');
         }
+
+        // Get the notification period settings from the settings table
+        $settings = (new \WC_Product_Expiration\Settings())->get_settings();
+        
+        // Get expiration period in days, weeks, or months
+        $notification_period_type = $settings['notification_period_type']; // 'days', 'weeks', etc.
+        $notification_period = $settings['notification_period']; // 30, 60, etc.
+
+        // Calculate the date based on the notification period type
+        if ($notification_period_type === 'days') {
+            $date_from_now = gmdate('Y-m-d', strtotime("+$notification_period days"));
+        } elseif ($notification_period_type === 'weeks') {
+            $date_from_now = gmdate('Y-m-d', strtotime("+$notification_period weeks"));
+        } elseif ($notification_period_type === 'months') {
+            $date_from_now = gmdate('Y-m-d', strtotime("+$notification_period months"));
+        } else {
+            // Default to 2 months if the type is not valid
+            $date_from_now = gmdate('Y-m-d', strtotime('+2 months'));
+        }
         
         // translators: Initial message in the expiration notification email
-        $email_body = esc_html__("The following products will expire in 2 months and have been set to out of stock:", 'product-expiration-easy-peasy') . "\n\n";
+        $email_body = sprintf(esc_html__("The following products will expire in %s and have been set to out of stock:", 'product-expiration-easy-peasy'), $date_from_now) . "\n\n";
         
         foreach ($products as $product_obj) {
             $product_id = $product_obj->get_id();

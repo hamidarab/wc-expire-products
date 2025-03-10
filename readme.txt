@@ -48,6 +48,9 @@ Yes, if the `jdate` function is available, the expiration date will be displayed
 
 == Changelog ==
 
+= 3.0.0 =
+- Fixed: Optimized query to get expired products for better performance.
+
 = 2.10.0 =
 - Added: Configurable date format options (Y/m/d, Y/m, Ym, etc.).
 - Added: Custom styling for expiration dates with `expiration-date` class.
