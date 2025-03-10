@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Persian WooCommerce Product Expiration
+ * Plugin Name: Persian WC Product Expiration
  * Plugin URI: https://hamidarab.com
  * Description: Manage product expiration dates in WooCommerce with Persian calendar support
  * Version: 2.10.0
@@ -13,6 +13,8 @@
  * WC requires at least: 3.0
  * WC tested up to: 8.0
  * Woo: persianwcexp:342928dfsfhsf8429842374wdf4234sfd
+ * License: GPL v3 or later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace WC_Product_Expiration;

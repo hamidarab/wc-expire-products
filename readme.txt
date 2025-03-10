@@ -1,0 +1,68 @@
+=== Persian WC Product Expiration ===
+Contributors: hamida2
+Tags: woocommerce, product expiration, inventory management, out of stock, persian
+Requires at least: 5.0
+Tested up to: 6.4
+Requires PHP: 7.2
+WC requires at least: 3.0
+WC tested up to: 8.0
+Stable tag: 2.10.0
+License: GPL v3 or later
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
+Donate link: https://zarinp.al/689844
+
+Manage product expiration with Persian calendar support. Auto mark products as "Out of Stock" before expiry.
+
+== Description ==
+Persian WC Product Expiration allows store owners to set expiration dates for products and automatically update stock status when they are near expiration.
+
+**Features:**
+- ✅ Add an expiration date to products via the product edit page or Quick Edit.
+- ✅ Display the expiration date on the product page.
+- ✅ Automatically set products to "Out of Stock" two months before expiration.
+- ✅ Send email notifications to administrators and shop managers.
+- ✅ Full support for the Persian calendar when `jdate` is available.
+- ✅ Compatible with WooCommerce.
+
+== Installation ==
+1. Upload the plugin folder to the `/wp-content/plugins/` directory.
+2. Activate the plugin through the **Plugins** menu in WordPress.
+3. Edit a product and set the expiration date under **Product Data → General**.
+4. (Optional) Use Quick Edit in the product list to modify the expiration date quickly.
+
+== Frequently Asked Questions ==
+
+= Does this plugin work with variable products? =
+Yes, expiration dates can be set for individual variations.
+
+= Can I customize the expiration date format? =
+Yes, as of version 2.10.0, you can choose from different date formats (Y/m/d, Y/m, Ym, etc.).
+
+= Is the Persian calendar supported? =
+Yes, if the `jdate` function is available, the expiration date will be displayed in the Persian calendar format.
+
+== Screenshots ==
+1. Product edit page showing expiration date field.
+2. Example of an expired product marked "Out of Stock".
+3. Email notification for expiring products.
+
+== Changelog ==
+
+= 2.10.0 =
+- Added: Configurable date format options (Y/m/d, Y/m, Ym, etc.).
+- Added: Custom styling for expiration dates with `expiration-date` class.
+- Fixed: Persian language translation issues.
+- Added: Support for Persian calendar when `jdate` is available.
+- Improved: Expiration date styling in product pages, cart, and order emails.
+
+= 1.0.4 =
+- Improved: Enhanced variation details in expiration notification emails.
+- Optimized: Combined query for simple and variable products.
+
+= 1.0.3 =
+- Fixed: Products without expiration dates being incorrectly marked as out of stock.
+- Added: Additional validation for expiration date format.
+
+== Upgrade Notice ==
+= 2.10.0 =
+- This update improves the display of expiration dates and adds support for the Persian calendar.
