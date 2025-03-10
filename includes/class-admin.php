@@ -73,11 +73,10 @@ class Admin {
     public function add_expiration_field() {
         woocommerce_wp_text_input([
             'id'          => '_expiration_date',
-            'label'       => __('Expiration Date (YYYY-MM-DD)', 'wc-expiration'),
+            'label'       => __('Expiration Date', 'wc-expiration'),
             'placeholder' => 'e.g., 2025-05-10',
-            'desc_tip'    => 'true',
-            'description' => 'Enter the product expiration date in YYYY-MM-DD format.',
-            'type'        => 'date'
+            'type'        => 'date',
+            'wrapper_class' => 'form-row-wide'
         ]);
     }
 
@@ -189,11 +188,11 @@ class Admin {
         $expiration_date = get_post_meta($post_id, '_expiration_date', true);
         
         if (!empty($expiration_date)) {
+            $expiration_timestamp = strtotime($expiration_date);
             $date_format = get_option('date_format');
-            echo date_i18n($date_format, $expiration_date);
-            
+            echo date_i18n($date_format, $expiration_timestamp);
             $today = current_time('timestamp');
-            if ($expiration_date < $today) {
+            if ($expiration_timestamp < $today) {
                 echo ' <span style="color:red;">(' . esc_html__('Expired', 'wc-expiration') . ')</span>';
             }
         } else {
