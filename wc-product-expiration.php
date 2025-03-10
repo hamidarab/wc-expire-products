@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Persian WC Product Expiration
  * Plugin URI: https://hamidarab.com
- * Description: Manage product expiration dates in WooCommerce with Persian calendar support
+ * Description: Manage product expiration dates in WooCommerce
  * Version: 2.10.0
  * Author: Hamid Aarab
  * Author URI: https://hamidarab.com
