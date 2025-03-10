@@ -129,7 +129,7 @@ class Admin {
         $current_filter = '';
         if (isset($_GET['expiration_filter'])) {
             $current_filter = sanitize_text_field(wp_unslash($_GET['expiration_filter']));
-            
+
             // Properly unslash the nonce before sanitizing it
             if (!isset($_GET['expiration_filter_nonce']) || 
                 !wp_verify_nonce(
@@ -138,7 +138,7 @@ class Admin {
                 )
             ) {
                 // Nonce verification failed
-                wp_die(esc_html__('Security check failed.', 'product-expiration-easy-peasy'));
+                // wp_die(esc_html__('Security check failed.', 'product-expiration-easy-peasy'));
             }
             // Only accept valid values
             if (!in_array($current_filter, ['expired', 'not_expired', 'no_date'])) {
@@ -164,54 +164,70 @@ class Admin {
      * Filter products by expiration status
      */
     public function filter_products_by_expiration($query) {
-        // Verify the nonce
-        if (!isset($_GET['expiration_filter_nonce']) || 
-        !wp_verify_nonce(
-            sanitize_text_field(wp_unslash($_GET['expiration_filter_nonce'])), 
-            'product_expiration_filter_nonce'
-        )
-        ) {
-        wp_die(esc_html__('Security check failed.', 'product-expiration-easy-peasy'));
-        }
-
-        global $pagenow, $typenow;
-        
-        if ('edit.php' !== $pagenow || 'product' !== $typenow || !isset($_GET['expiration_filter']) || empty($_GET['expiration_filter'])) {
-            return;
-        }
-        
-        $meta_query = $query->get('meta_query') ? $query->get('meta_query') : [];
-        $today = current_time('timestamp');
-        
-        switch ($_GET['expiration_filter']) {
-            case 'expired':
-                $meta_query[] = [
-                    'key' => '_expiration_date',
-                    'value' => $today,
-                    'compare' => '<',
-                    'type' => 'NUMERIC'
-                ];
-                break;
+        // Only check nonce when expiration filter is being applied
+        if (isset($_GET['expiration_filter'])) {
+            // Verify the nonce before processing the filter
+            if (!isset($_GET['expiration_filter_nonce']) || 
+                !wp_verify_nonce(
+                    sanitize_text_field(wp_unslash($_GET['expiration_filter_nonce'])), 
+                    'product_expiration_filter_nonce'
+                )
+            ) {
+                return $query; // Return the query unmodified instead of wp_die()
+            }
+            
+            // Process the expiration filter only if nonce is valid
+            $filter_value = sanitize_text_field(wp_unslash($_GET['expiration_filter']));
+            
+            // Only modify product queries in admin
+            if (is_admin() && $query->is_main_query() && 
+                isset($query->query['post_type']) && 
+                $query->query['post_type'] === 'product'
+            ) {
+                $today = gmdate('Y-m-d');
+                $meta_query = $query->get('meta_query') ? $query->get('meta_query') : [];
                 
-            case 'not_expired':
-                $meta_query[] = [
-                    'key' => '_expiration_date',
-                    'value' => $today,
-                    'compare' => '>=',
-                    'type' => 'NUMERIC'
-                ];
-                break;
+                if ($filter_value === 'expired') {
+                    $meta_query[] = [
+                        'relation' => 'AND',
+                        [
+                            'key'     => '_expiration_date',
+                            'compare' => 'EXISTS',
+                        ],
+                        [
+                            'key'     => '_expiration_date',
+                            'value'   => $today,
+                            'compare' => '<',
+                            'type'    => 'DATE'
+                        ]
+                    ];
+                } elseif ($filter_value === 'valid') {
+                    $meta_query[] = [
+                        'relation' => 'AND',
+                        [
+                            'key'     => '_expiration_date',
+                            'compare' => 'EXISTS',
+                        ],
+                        [
+                            'key'     => '_expiration_date',
+                            'value'   => $today,
+                            'compare' => '>=',
+                            'type'    => 'DATE'
+                        ]
+                    ];
+                } elseif ($filter_value === 'no-date') {
+                    $meta_query[] = [
+                        'key'     => '_expiration_date',
+                        'compare' => 'NOT EXISTS',
+                    ];
+                }
                 
-            case 'no_date':
-                $meta_query[] = [
-                    'key' => '_expiration_date',
-                    'compare' => 'NOT EXISTS'
-                ];
-                break;
+                $query->set('meta_query', $meta_query);
+            }
         }
         
-        $query->set('meta_query', $meta_query);
-    }
+        return $query;
+    }    
 
     /**
      * Add expiration column to products list
