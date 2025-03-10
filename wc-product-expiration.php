@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Product Expiration Easy Peasy
- * Plugin URI: https://hamidarab.com
+ * Plugin URI: https://hamidarab.com/product-expiration
  * Description: Manage product expiration dates in WooCommerce
  * Version: 3.0.0
  * Author: Hamid Aarab
