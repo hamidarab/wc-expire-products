@@ -44,6 +44,10 @@ class Frontend {
      * Display expiration date on product page
      */
     public function display_expiration($price_html, $product) {
+        if (is_admin()) {
+            return $price_html;
+        }
+        
         $settings = new Settings();
         
         if ('yes' !== $settings->get_setting('show_expiration')) {
