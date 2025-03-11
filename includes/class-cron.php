@@ -6,6 +6,12 @@ namespace WC_Product_Expiration;
  */
 class Cron {
     /**
+     * Batch size for product processing
+     * @var int
+     */
+    private $batch_size = 50;
+
+    /**
      * Initialize cron functionality
      */
     public function __construct() {
@@ -35,83 +41,79 @@ class Cron {
      */
     public function check_expired_products() {
         global $wpdb;
-    
-        $batch_size = 50;
-        $page = 0; // Start pagination at 0 for SQL LIMIT calculation
+        $offset = 0; // Start with offset 0
         $expiring_products = [];
         $processed_products_count = 0;
     
         // Fetch settings
         $settings = (new \WC_Product_Expiration\Settings())->get_settings();
-        $notification_period_type = isset($settings['notification_period_type']) ? $settings['notification_period_type'] : 'months';
+        $notification_period_type = isset($settings['notification_period_type']) ? sanitize_text_field($settings['notification_period_type']) : 'months';
         $notification_period = isset($settings['notification_period']) ? (int)$settings['notification_period'] : 2;
     
-        // Calculate expiration date
-        $date_from_now = match ($notification_period_type) {
-            'days' => gmdate('Y-m-d', strtotime("+{$notification_period} days")),
-            'weeks' => gmdate('Y-m-d', strtotime("+{$notification_period} weeks")),
-            default => gmdate('Y-m-d', strtotime("+{$notification_period} months"))
-        };
+        // Calculate expiration date - proper namespacing for DateTime classes
+        $date_from_now = (new \DateTime('now', new \DateTimeZone('UTC')))
+            ->modify("+{$notification_period} {$notification_period_type}")
+            ->format('Y-m-d');
     
         do {
-            // Use $wpdb to query efficiently
-            $offset = $page * $batch_size;
-            $results = $wpdb->get_results(
+            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $product_ids = $wpdb->get_col(
                 $wpdb->prepare(
-                    "
-                    SELECT p.ID as product_id, pm.meta_value as expiration_date
-                    FROM {$wpdb->posts} p
-                    INNER JOIN {$wpdb->postmeta} pm
-                    ON p.ID = pm.post_id
-                    WHERE p.post_status = 'publish'
-                      AND p.post_type IN ('product', 'product_variation')
-                      AND pm.meta_key = '_expiration_date'
-                      AND CAST(pm.meta_value AS DATE) <= %s
-                    LIMIT %d, %d
-                    ",
-                    $date_from_now, 
-                    $offset, 
-                    $batch_size
+                    "SELECT p.ID FROM {$wpdb->posts} p
+                    INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+                    WHERE p.post_type IN ('product', 'product_variation')
+                    AND p.post_status = 'publish'
+                    AND pm.meta_key = '_expiration_date'
+                    AND pm.meta_value <= %s
+                    GROUP BY p.ID
+                    LIMIT %d OFFSET %d",
+                    $date_from_now,
+                    $this->batch_size,
+                    $offset
                 )
             );
+            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     
-            if (empty($results)) {
+            // Exit loop if no products found
+            if (empty($product_ids)) {
                 break;
             }
     
-            foreach ($results as $row) {
-                $product_id = (int) $row->product_id;
-                $expiration_date = $row->expiration_date;
+            foreach ($product_ids as $product_id) {
+                $expiration_date = get_post_meta($product_id, '_expiration_date', true);
     
-                // Validate date format
-                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiration_date)) {
-                    continue;
+                // Validate expiration date format
+                if (!$expiration_date || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiration_date)) {
+                    continue; // Skip invalid entries
                 }
     
-                // Load the WooCommerce product object
+                // Load WooCommerce product object
                 $product_obj = wc_get_product($product_id);
                 if (!$product_obj || $product_obj->get_stock_status() !== 'instock') {
-                    continue;
+                    continue; // Skip products already marked 'outofstock'
                 }
     
                 // Mark product as out of stock
                 update_post_meta($product_id, '_stock_status', 'outofstock');
                 wc_delete_product_transients($product_id);
     
+                // Collect expired products for notifications
                 $expiring_products[] = $product_obj;
                 $processed_products_count++;
             }
     
-            $page++;
-        } while (count($results) === $batch_size);
+            $offset += $this->batch_size; // Increase offset for next batch
+        } while (!empty($product_ids));
     
-        // Send the notification email
+        // Send notification email if there are expired products
         if (!empty($expiring_products)) {
             $this->send_notification_email($expiring_products);
         }
     
+        // Return count of processed products
         return $processed_products_count;
     }
+    
     
     /**
      * Send notification email for expiring products
