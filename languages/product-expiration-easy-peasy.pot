@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Persian WooCommerce Product Expiration plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Product Expiration Easy Peasy 1.0.0\n"
+"Project-Id-Version: Product Expiration Easy Peasy 3.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/product-expiration-easy-peasy\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,228 +16,232 @@ msgstr ""
 
 #. Plugin Name of the plugin
 msgid "Product Expiration Easy Peasy"
-msgstr ""
+msgstr "انقضای محصولات ووکامرس"
 
 #. Plugin URI of the plugin
 msgid "https://hamidarab.com"
-msgstr ""
+msgstr "https://hamidarab.com"
 
 #. Description of the plugin
 msgid "Manage product expiration dates in WooCommerce"
-msgstr ""
+msgstr "مدیریت تاریخ‌های انقضای محصولات در ووکامرس"
 
 #. Author of the plugin
 msgid "Hamid Aarab"
-msgstr ""
+msgstr "حمید اعراب"
 
 #: includes/class-admin.php:85
 msgid "Expiration"
-msgstr ""
+msgstr "انقضا"
 
 #: includes/class-admin.php:92 views/settings-page.php:8
 msgid "Product Expiration Settings"
-msgstr ""
+msgstr "تنظیمات انقضای محصول"
 
 #: includes/class-admin.php:105
 msgid "You do not have sufficient permissions to access this page."
-msgstr ""
+msgstr "شما دسترسی کافی برای مشاهده این صفحه را ندارید."
 
 #: includes/class-admin.php:120
 msgid "Expiration Date"
-msgstr ""
+msgstr "تاریخ انقضا"
 
 #: includes/class-admin.php:124
 msgid "Set the product expiration date"
-msgstr ""
+msgstr "تاریخ انقضای محصول را تنظیم کنید"
 
 #: includes/class-admin.php:129
 msgid "No Expiration"
-msgstr ""
+msgstr "بدون انقضا"
 
 #: includes/class-admin.php:155
 msgid "All Expiration Dates"
-msgstr ""
+msgstr "تمام تاریخ‌های انقضا"
 
 #: includes/class-admin.php:156
 msgid "Expires Soon (30 Days)"
-msgstr ""
+msgstr "به زودی منقضی می‌شود (30 روز)"
 
 #: includes/class-admin.php:157
 msgid "Expired"
-msgstr ""
+msgstr "منقضی شده"
 
 #: includes/class-admin.php:158
 msgid "No Expiration Date"
-msgstr ""
+msgstr "بدون تاریخ انقضا"
 
 #: includes/class-settings.php:48
 msgid "Settings saved successfully."
-msgstr ""
+msgstr "تنظیمات با موفقیت ذخیره شد."
 
 #: views/settings-page.php:28
 msgid "Notification Period Type"
-msgstr ""
+msgstr "نوع دوره اطلاع‌رسانی"
 
 #: views/settings-page.php:32
 msgid "Days"
-msgstr ""
+msgstr "روز"
 
 #: views/settings-page.php:33
 msgid "Months"
-msgstr ""
+msgstr "ماه‌"
 
 #: views/settings-page.php:40
 msgid "Notification Period"
-msgstr ""
+msgstr "دوره اطلاع‌رسانی"
 
 #: views/settings-page.php:45
 msgid "Time before expiration to send notification"
-msgstr ""
+msgstr "زمان قبل از انقضا برای ارسال اطلاع‌رسانی"
 
 #: views/settings-page.php:51
 msgid "Show Expiration Date"
-msgstr ""
+msgstr "نمایش تاریخ انقضا"
 
 #: views/settings-page.php:55 views/settings-page.php:124
 msgid "Yes"
-msgstr ""
+msgstr "بله"
 
 #: views/settings-page.php:56 views/settings-page.php:125
 msgid "No"
-msgstr ""
+msgstr "خیر"
 
 #: views/settings-page.php:63
 msgid "Display Text"
-msgstr ""
+msgstr "متن نمایشی"
 
 #: views/settings-page.php:67
 msgid "Use these variables to display the date:"
-msgstr ""
+msgstr "از این متغیرها برای نمایش تاریخ استفاده کنید:"
 
 #: views/settings-page.php:69
 msgid "Full date display (example: 2025/03/30)"
-msgstr ""
+msgstr "نمایش تاریخ کامل (مثال: 2025/03/30)"
 
 #: views/settings-page.php:71
 msgid "Year only (example: 2025)"
-msgstr ""
+msgstr "فقط سال (مثال: 2025)"
 
 #: views/settings-page.php:73
 msgid "Month only (example: 03)"
-msgstr ""
+msgstr "فقط ماه (مثال: 03)"
 
 #: views/settings-page.php:75
 msgid "Day only (example: 30)"
-msgstr ""
+msgstr "فقط روز (مثال: 30)"
 
 #: views/settings-page.php:81
 msgid "Date Format"
-msgstr ""
+msgstr "فرمت تاریخ"
 
 #: views/settings-page.php:85
 msgid "Default (WordPress Format)"
-msgstr ""
+msgstr "پیش‌فرض (فرمت وردپرس)"
 
 #: views/settings-page.php:86
 msgid "Year/Month/Day (1402/01/15)"
-msgstr ""
+msgstr "سال/ماه/روز (1402/01/15)"
 
 #: views/settings-page.php:87
 msgid "Year/Month (1402/01)"
-msgstr ""
+msgstr "سال/ماه (1402/01)"
 
 #: views/settings-page.php:88
 msgid "YearMonth (140201)"
-msgstr ""
+msgstr "سال ماه (140201)"
 
 #: views/settings-page.php:89
 msgid "Year-Month-Day (1402-01-15)"
-msgstr ""
+msgstr "سال-ماه-روز (1402-01-15)"
 
 #: views/settings-page.php:90
-msgid "Day Month Year (15 فروردین 1402)"
-msgstr ""
+msgid "Day Month Year (15 March 2025)"
+msgstr "روز ماه سال (15 مارس 2025)"
 
 #: views/settings-page.php:92
 msgid "Choose how to display the date in the product"
-msgstr ""
+msgstr "نحوه نمایش تاریخ در محصول را انتخاب کنید"
 
 #: views/settings-page.php:98
 msgid "Display Position"
-msgstr ""
+msgstr "موقعیت نمایش"
 
 #: views/settings-page.php:102
 msgid "After Price"
-msgstr ""
+msgstr "بعد از قیمت"
 
 #: views/settings-page.php:103
 msgid "After Title"
-msgstr ""
+msgstr "بعد از عنوان"
 
 #: views/settings-page.php:109
 msgid "Email Recipients"
-msgstr ""
+msgstr "گیرندگان ایمیل"
 
 #: views/settings-page.php:114
 msgid "Site Admin"
-msgstr ""
+msgstr "مدیر سایت"
 
 #: views/settings-page.php:120
 msgid "Shop Manager"
-msgstr ""
+msgstr "مدیر فروشگاه"
 
 #: views/settings-page.php:126
 msgid "Custom Email"
-msgstr ""
+msgstr "ایمیل سفارشی"
 
 #: views/settings-page.php:153
 msgid "Save Settings"
-msgstr ""
+msgstr "ذخیره تنظیمات"
 
 #: wc-product-expiration.php:122
 msgid "Persian WooCommerce Product Expiration requires WooCommerce to be active."
-msgstr ""
+msgstr "افزونه انقضای محصولات ووکامرس فارسی نیاز به فعال بودن ووکامرس دارد."
 
 #: includes/class-frontend.php:120
 msgid "Expires: %date%"
-msgstr ""
+msgstr "منقضی می‌شود: %date%"
 
 #: includes/class-cron.php:34
 msgid "Product Expiration Check"
-msgstr ""
+msgstr "بررسی انقضای محصول"
 
 #: includes/class-cron.php:74
 msgid "Products Expiring Soon"
-msgstr ""
+msgstr "محصولات به زودی منقضی می‌شوند"
 
 #: includes/class-cron.php:75
 msgid "The following products will expire soon:"
-msgstr ""
+msgstr "محصولات زیر به زودی منقضی می‌شوند:"
 
 #: includes/class-cron.php:82
 msgid "Product:"
-msgstr ""
+msgstr "محصول:"
 
 #: includes/class-cron.php:83
 msgid "Expires on:"
-msgstr ""
+msgstr "منقضی می‌شود در:"
 
 #: includes/class-cron.php:89
 msgid "View Products"
-msgstr ""
+msgstr "مشاهده محصولات"
 
 #: includes/class-i18n.php:51
 msgid "product-expiration-easy-peasy domain is loaded!"
-msgstr ""
+msgstr "دامنه product-expiration-easy-peasy بارگذاری شد!"
 
 #: includes/class-i18n.php:53
 msgid "product-expiration-easy-peasy domain is NOT loaded!"
-msgstr ""
+msgstr "دامنه product-expiration-easy-peasy بارگذاری نشد!"
 
 #: includes/class-admin.php:235
 msgid "Edit Expiration Date"
-msgstr ""
+msgstr "ویرایش تاریخ انقضا"
 
 #: includes/class-admin.php:243
 msgid "Clear date"
-msgstr ""
+msgstr "پاک کردن تاریخ"
+
+#: includes/settings.php:124
+msgid "Show in Order Email"
+msgstr "نمایش  تاریخ انقضا در ایمیل سفارش"

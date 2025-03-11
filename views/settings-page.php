@@ -95,7 +95,7 @@ $settings = new Settings();
                         <option value="Y/m" <?php selected($current_settings['date_format'], 'Y/m'); ?>><?php echo esc_html__('Year/Month (1402/01)', 'product-expiration-easy-peasy'); ?></option>
                         <option value="Ym" <?php selected($current_settings['date_format'], 'Ym'); ?>><?php echo esc_html__('YearMonth (140201)', 'product-expiration-easy-peasy'); ?></option>
                         <option value="Y-m-d" <?php selected($current_settings['date_format'], 'Y-m-d'); ?>><?php echo esc_html__('Year-Month-Day (1402-01-15)', 'product-expiration-easy-peasy'); ?></option>
-                        <option value="d M Y" <?php selected($current_settings['date_format'], 'd M Y'); ?>><?php echo esc_html__('Day Month Year (15 فروردین 1402)', 'product-expiration-easy-peasy'); ?></option>
+                        <option value="d M Y" <?php selected($current_settings['date_format'], 'd M Y'); ?>><?php echo esc_html__('Day Month Year (15 March 2025)', 'product-expiration-easy-peasy'); ?></option>
                     </select>
                     <p class="description">
                         <?php echo esc_html__('Choose how to display the date in the product', 'product-expiration-easy-peasy'); ?>
