@@ -1,5 +1,5 @@
 <?php
-namespace WC_Product_Expiration;
+namespace PEEP_Product_Expiration;
 
 /**
  * Main plugin class

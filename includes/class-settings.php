@@ -1,11 +1,11 @@
 <?php
-namespace WC_Product_Expiration;
+namespace PEEP_Product_Expiration;
 
 /**
  * Settings handler
  */
 class Settings {
-    private $option_name = 'wc_product_expiration_settings';
+    private $option_name = 'peep_settings';
     private $default_settings;
 
     public function __construct() {
@@ -57,7 +57,7 @@ class Settings {
         update_option($this->option_name, $settings);
 
         add_settings_error(
-            'wc_product_expiration_messages',
+            'peep_product_expiration_messages',
             'settings_updated',
             __('Settings saved successfully.', 'product-expiration-easy-peasy'),
             'updated'

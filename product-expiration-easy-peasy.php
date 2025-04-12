@@ -17,17 +17,17 @@
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace WC_Product_Expiration;
+namespace PEEP_Product_Expiration;
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
 // Constants
-define('WC_PRODUCT_EXPIRATION_VERSION', '3.0.0');
-define('WC_PRODUCT_EXPIRATION_FILE', __FILE__);
-define('WC_PRODUCT_EXPIRATION_PATH', plugin_dir_path(__FILE__));
-define('WC_PRODUCT_EXPIRATION_URL', plugin_dir_url(__FILE__));
+define('PEEP_VERSION', '3.0.0');
+define('PEEP_FILE', __FILE__);
+define('PEEP_PATH', plugin_dir_path(__FILE__));
+define('PEEP_URL', plugin_dir_url(__FILE__));
 
 // Declare compatibility with HPOS
 add_action('before_woocommerce_init', function() {
@@ -59,29 +59,17 @@ add_filter('all_plugins', function($plugins) {
 
 // Always include files directly, avoid class caching issues
 function include_files() {
-    require_once WC_PRODUCT_EXPIRATION_PATH . 'includes/class-admin.php';
-    require_once WC_PRODUCT_EXPIRATION_PATH . 'includes/class-frontend.php';
-    require_once WC_PRODUCT_EXPIRATION_PATH . 'includes/class-cron.php';
-    require_once WC_PRODUCT_EXPIRATION_PATH . 'includes/class-settings.php';
-    require_once WC_PRODUCT_EXPIRATION_PATH . 'includes/class-main.php';
+    require_once PEEP_PATH . 'includes/class-admin.php';
+    require_once PEEP_PATH . 'includes/class-frontend.php';
+    require_once PEEP_PATH . 'includes/class-cron.php';
+    require_once PEEP_PATH . 'includes/class-settings.php';
+    require_once PEEP_PATH . 'includes/class-main.php';
 }
 
 // Make sure file inclusion function is available
 include_files();
 
-// Only load translations at init - not earlier
-add_action('init', function() {
-    $locale = determine_locale();
-    $mofile = WC_PRODUCT_EXPIRATION_PATH . 'languages/product-expiration-easy-peasy-' . $locale . '.mo';
-    
-    if (file_exists($mofile)) {
-        load_textdomain('product-expiration-easy-peasy', $mofile);
-    } else {
-        load_plugin_textdomain('product-expiration-easy-peasy', false, dirname(plugin_basename(WC_PRODUCT_EXPIRATION_FILE)) . '/languages');
-    }
-}, 5);
-
 // Initialize plugin
 add_action('plugins_loaded', function() {
-    return \WC_Product_Expiration\Main::instance();
+    return \PEEP_Product_Expiration\Main::instance();
 }, 20);

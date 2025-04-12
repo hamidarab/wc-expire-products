@@ -1,5 +1,5 @@
 <?php
-namespace WC_Product_Expiration;
+namespace PEEP_Product_Expiration;
 
 /**
  * Cron jobs handler
@@ -15,15 +15,15 @@ class Cron {
      * Initialize cron functionality
      */
     public function __construct() {
-        add_action('check_expired_products_cron', array($this, 'check_expired_products'));
+        add_action('peep_check_expired_products', array($this, 'check_expired_products'));
     }
 
     /**
      * Schedule cron job
      */
     public static function schedule_check() {
-        if (!wp_next_scheduled('check_expired_products_cron')) {
-            wp_schedule_event(time(), 'daily', 'check_expired_products_cron');
+        if (!wp_next_scheduled('peep_check_expired_products')) {
+            wp_schedule_event(time(), 'daily', 'peep_check_expired_products');
         }
     }
 
@@ -31,7 +31,7 @@ class Cron {
      * Unschedule cron job
      */
     public static function unschedule_check() {
-        wp_clear_scheduled_hook('check_expired_products_cron');
+        wp_clear_scheduled_hook('peep_check_expired_products');
     }
 
     /**
@@ -46,7 +46,7 @@ class Cron {
         $processed_products_count = 0;
     
         // Fetch settings
-        $settings = (new \WC_Product_Expiration\Settings())->get_settings();
+        $settings = (new \PEEP_Product_Expiration\Settings())->get_settings();
         $notification_period_type = isset($settings['notification_period_type']) ? sanitize_text_field($settings['notification_period_type']) : 'months';
         $notification_period = isset($settings['notification_period']) ? (int)$settings['notification_period'] : 2;
     
@@ -131,7 +131,7 @@ class Cron {
         }
 
         // Get the notification period settings from the settings table
-        $settings = (new \WC_Product_Expiration\Settings())->get_settings();
+        $settings = (new \PEEP_Product_Expiration\Settings())->get_settings();
         
         // Get expiration period in days, weeks, or months
         $notification_period_type = $settings['notification_period_type']; // 'days', 'weeks', etc.

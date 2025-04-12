@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use WC_Product_Expiration\Settings;
+use PEEP_Product_Expiration\Settings;
 
 $settings = new Settings();
 ?>
@@ -12,7 +12,7 @@ $settings = new Settings();
     <h1><?php echo esc_html__('Product Expiration Settings', 'product-expiration-easy-peasy'); ?></h1>
 
     <?php
-    settings_errors('wc_product_expiration_messages');
+    settings_errors('peep_product_expiration_messages');
 
     if (isset($_POST['save_expiration_settings'])) {
         check_admin_referer('expiration_settings_nonce');

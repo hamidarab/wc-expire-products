@@ -2,7 +2,7 @@
 /**
  * Frontend functionality handler
  */
-namespace WC_Product_Expiration;
+namespace PEEP_Product_Expiration;
 
 class Frontend {
     /**
@@ -33,9 +33,9 @@ class Frontend {
         if (is_product() || is_cart() || is_checkout() || is_account_page()) {
             wp_enqueue_style(
                 'wc-product-expiration', 
-                WC_PRODUCT_EXPIRATION_URL . 'assets/css/style.css', 
+                PEEP_URL . 'assets/css/style.css', 
                 [], 
-                WC_PRODUCT_EXPIRATION_VERSION
+                PEEP_VERSION
             );
         }
     }
@@ -57,6 +57,10 @@ class Frontend {
         $expiration_date = get_post_meta($product->get_id(), '_expiration_date', true);
         
         if (empty($expiration_date)) {
+            return $price_html;
+        }
+
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiration_date)) {
             return $price_html;
         }
         
@@ -152,6 +156,12 @@ class Frontend {
         $settings = new Settings();
         $display_template = $settings->get_setting('display_text');
         $date_format = $settings->get_setting('date_format');
+
+        // Check if the date is valid
+        $expiration_timestamp = strtotime($expiration_timestamp);
+        if (!$expiration_timestamp) {
+            return;
+        }
         
         // Get date components
         $year = date_i18n('Y', $expiration_timestamp);

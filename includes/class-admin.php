@@ -1,5 +1,5 @@
 <?php
-namespace WC_Product_Expiration;
+namespace PEEP_Product_Expiration;
 
 /**
  * Admin functionality handler
@@ -28,7 +28,7 @@ class Admin {
         // Quick edit support
         add_action('quick_edit_custom_box', [$this, 'add_to_quick_edit'], 10, 2);
         add_action('save_post', [$this, 'save_quick_edit_data']);
-        add_action('admin_footer', [$this, 'quick_edit_javascript']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
     }
 
     /**
@@ -64,7 +64,7 @@ class Admin {
             wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'product-expiration-easy-peasy'));
         }
 
-        require_once WC_PRODUCT_EXPIRATION_PATH . 'views/settings-page.php';
+        require_once PEEP_PATH . 'views/settings-page.php';
     }
 
     /**
@@ -257,13 +257,17 @@ class Admin {
         $expiration_date = get_post_meta($post_id, '_expiration_date', true);
         
         if (!empty($expiration_date)) {
-            $expiration_timestamp = strtotime($expiration_date);
-            $date_format = get_option('date_format');
-
-            echo esc_html(date_i18n($date_format, $expiration_timestamp));
-
+            // Format the date for display
+            $formatted = date_i18n('m/d/Y', strtotime($expiration_date));
+    
+            echo '<span class="expiration-formatted">' . esc_html($formatted) . '</span>';
+    
+            // Hidden date for sorting
+            echo '<span class="expiration-hidden" data-date="' . esc_attr($expiration_date) . '"></span>';
+    
+            // Expiration status
             $today = current_time('timestamp');
-            if ($expiration_timestamp < $today) {
+            if ($expiration_date < $today) {
                 echo ' <span style="color:red;">(' . esc_html__('Expired', 'product-expiration-easy-peasy') . ')</span>';
             }
         } else {
@@ -301,13 +305,14 @@ class Admin {
         if ('expiration_date' !== $column_name || 'product' !== $post_type) {
             return;
         }
+
         ?>
         <fieldset class="inline-edit-col-right">
             <div class="inline-edit-col">
                 <label>
                     <span class="title"><?php esc_html_e('Expiration Date', 'product-expiration-easy-peasy'); ?></span>
                     <span class="input-text-wrap">
-                        <input type="date" name="expiration_date" class="expiration-date-input" value="">
+                        <input type="date" name="expiration_date" class="expiration-date-input" id="expiration-date-input" value="">
                         <?php wp_nonce_field('product_expiration_quick_edit', 'product_expiration_quick_edit_nonce'); ?>
                     </span>
                 </label>
@@ -342,48 +347,38 @@ class Admin {
         
         // Process and save the expiration date
         if (isset($_POST['expiration_date']) && !empty($_POST['expiration_date'])) {
-            $expiration_date = strtotime(sanitize_text_field(wp_unslash($_POST['expiration_date'])));
-            update_post_meta($post_id, '_expiration_date', $expiration_date);
+            $expiration_date = sanitize_text_field(wp_unslash($_POST['expiration_date']));
+        
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiration_date)) {
+                update_post_meta($post_id, '_expiration_date', $expiration_date);
+            }
         }
     }
 
     /**
-     * Add JavaScript for quick edit
+     * Enqueue admin scripts and styles
      */
-    public function quick_edit_javascript() {
-        global $typenow;
-        
-        if ('product' !== $typenow) {
+    public function enqueue_admin_assets($hook) {
+        global $post_type;
+        if ('product' !== $post_type && strpos($hook, 'woocommerce') === false) {
             return;
         }
-        ?>
-        <script type="text/javascript">
-        jQuery(function($) {
-            var $inline_editor = $('#inlineedit');
-            
-            $('.editinline').on('click', function() {
-                var post_id = $(this).closest('tr').attr('id');
-                post_id = post_id.replace('post-', '');
-                
-                var $expiration_date = $('#' + post_id + ' .column-expiration_date').text().trim();
-                
-                if ($expiration_date && $expiration_date !== '—') {
-                    // Remove '(Expired)' text if present
-                    $expiration_date = $expiration_date.replace(/\s*\(.*\)$/, '');
-                    
-                    // Convert to yyyy-mm-dd format for input
-                    var date_parts = $expiration_date.split('/');
-                    if (date_parts.length === 3) {
-                        $expiration_date = date_parts[2] + '-' + date_parts[1] + '-' + date_parts[0];
-                    }
-                    
-                    $inline_editor.find('.expiration-date-input').val($expiration_date);
-                } else {
-                    $inline_editor.find('.expiration-date-input').val('');
-                }
-            });
-        });
-        </script>
-        <?php
+
+        $plugin_url = plugin_dir_url(__DIR__);
+
+        wp_enqueue_style(
+            'wc-product-expiration-admin-style',
+            $plugin_url . 'admin/css/admin-style.css',
+            [],
+            '1.0.0'
+        );
+
+        wp_enqueue_script(
+            'wc-product-expiration-admin-script',
+            $plugin_url . 'admin/js/admin-script.js',
+            ['jquery'],
+            '1.0.0',
+            true
+        );
     }
 }
