@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use PEEP_Product_Expiration\Settings;
+use ProductExpirationEasyPeasy\Settings;
 
 $settings = new Settings();
 ?>

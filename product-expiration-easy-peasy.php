@@ -17,17 +17,17 @@
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace PEEP_Product_Expiration;
+namespace ProductExpirationEasyPeasy;
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
 // Constants
-define('PEEP_VERSION', '3.0.0');
-define('PEEP_FILE', __FILE__);
-define('PEEP_PATH', plugin_dir_path(__FILE__));
-define('PEEP_URL', plugin_dir_url(__FILE__));
+define('PRODUCT_EXPIRATION_EASY_PEASY_VERSION', '3.0.0');
+define('PRODUCT_EXPIRATION_EASY_PEASY_FILE', __FILE__);
+define('PRODUCT_EXPIRATION_EASY_PEASY_PATH', plugin_dir_path(__FILE__));
+define('PRODUCT_EXPIRATION_EASY_PEASY_URL', plugin_dir_url(__FILE__));
 
 // Declare compatibility with HPOS
 add_action('before_woocommerce_init', function() {
@@ -59,17 +59,15 @@ add_filter('all_plugins', function($plugins) {
 
 // Always include files directly, avoid class caching issues
 function include_files() {
-    require_once PEEP_PATH . 'includes/class-admin.php';
-    require_once PEEP_PATH . 'includes/class-frontend.php';
-    require_once PEEP_PATH . 'includes/class-cron.php';
-    require_once PEEP_PATH . 'includes/class-settings.php';
-    require_once PEEP_PATH . 'includes/class-main.php';
+    require_once PRODUCT_EXPIRATION_EASY_PEASY_PATH . 'includes/class-admin.php';
+    require_once PRODUCT_EXPIRATION_EASY_PEASY_PATH . 'includes/class-frontend.php';
+    require_once PRODUCT_EXPIRATION_EASY_PEASY_PATH . 'includes/class-cron.php';
+    require_once PRODUCT_EXPIRATION_EASY_PEASY_PATH . 'includes/class-settings.php';
+    require_once PRODUCT_EXPIRATION_EASY_PEASY_PATH . 'includes/class-main.php';
 }
 
 // Make sure file inclusion function is available
-include_files();
-
-// Initialize plugin
 add_action('plugins_loaded', function() {
-    return \PEEP_Product_Expiration\Main::instance();
-}, 20);
+    include_files();
+    \ProductExpirationEasyPeasy\Main::instance();
+}, 10);

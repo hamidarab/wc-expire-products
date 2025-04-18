@@ -2,7 +2,7 @@
 /**
  * Frontend functionality handler
  */
-namespace PEEP_Product_Expiration;
+namespace ProductExpirationEasyPeasy;
 
 class Frontend {
     /**
@@ -32,10 +32,10 @@ class Frontend {
         // Only load CSS on product and cart/checkout pages
         if (is_product() || is_cart() || is_checkout() || is_account_page()) {
             wp_enqueue_style(
-                'wc-product-expiration', 
-                PEEP_URL . 'assets/css/style.css', 
+                'product-expiration-easy-peasy-style', 
+                PRODUCT_EXPIRATION_EASY_PEASY_URL . 'assets/css/style.css', 
                 [], 
-                PEEP_VERSION
+                PRODUCT_EXPIRATION_EASY_PEASY_VERSION
             );
         }
     }

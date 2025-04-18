@@ -1,5 +1,5 @@
 <?php
-namespace PEEP_Product_Expiration;
+namespace ProductExpirationEasyPeasy;
 
 /**
  * Cron jobs handler
@@ -46,7 +46,7 @@ class Cron {
         $processed_products_count = 0;
     
         // Fetch settings
-        $settings = (new \PEEP_Product_Expiration\Settings())->get_settings();
+        $settings = (new \ProductExpirationEasyPeasy\Settings())->get_settings();
         $notification_period_type = isset($settings['notification_period_type']) ? sanitize_text_field($settings['notification_period_type']) : 'months';
         $notification_period = isset($settings['notification_period']) ? (int)$settings['notification_period'] : 2;
     
@@ -121,21 +121,19 @@ class Cron {
      * @param array $products Array of WC_Product objects
      */
     private function send_notification_email($products) {
-        $recipients = WC_Expiration_Settings::get_option('email_recipients', 'admin');
-        $custom_email = WC_Expiration_Settings::get_option('custom_email', '');
+        $settings = new \ProductExpirationEasyPeasy\Settings();
+        $recipients = $settings->get_setting('email_recipients') ?? ['admin'];
+        $custom_email = $settings->get_setting('custom_email') ?? '';
         
         if ($recipients === 'custom' && !empty($custom_email)) {
             $to = sanitize_email($custom_email);
         } else {
             $to = get_option('admin_email');
         }
-
-        // Get the notification period settings from the settings table
-        $settings = (new \PEEP_Product_Expiration\Settings())->get_settings();
         
         // Get expiration period in days, weeks, or months
-        $notification_period_type = $settings['notification_period_type']; // 'days', 'weeks', etc.
-        $notification_period = $settings['notification_period']; // 30, 60, etc.
+        $notification_period_type = $settings->get_setting('notification_period_type'); // 'days', 'weeks', etc.
+        $notification_period = $settings->get_setting('notification_period'); // 30, 60, etc.
 
         // Calculate the date based on the notification period type
         if ($notification_period_type === 'days') {

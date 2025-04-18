@@ -1,5 +1,5 @@
 <?php
-namespace PEEP_Product_Expiration;
+namespace ProductExpirationEasyPeasy;
 
 /**
  * Admin functionality handler
@@ -42,15 +42,15 @@ class Admin {
             $submenu['woocommerce'][] = [
                 esc_html__('Expiration', 'product-expiration-easy-peasy'),
                 'manage_woocommerce',
-                'admin.php?page=wc-product-expiration'
+                'admin.php?page=product-expiration-easy-peasy-settings'
             ];
             
             add_submenu_page(
-                null,                                         // no parent menu
+                null,
                 esc_html__('Product Expiration Settings', 'product-expiration-easy-peasy'),
-                '',                                          // no menu title
+                '',
                 'manage_woocommerce',
-                'wc-product-expiration',
+                'product-expiration-easy-peasy-settings',
                 [$this, 'render_settings_page']
             );
         }
@@ -64,7 +64,7 @@ class Admin {
             wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'product-expiration-easy-peasy'));
         }
 
-        require_once PEEP_PATH . 'views/settings-page.php';
+        require_once \PRODUCT_EXPIRATION_EASY_PEASY_PATH . 'views/settings-page.php';
     }
 
     /**
@@ -117,46 +117,35 @@ class Admin {
      */
     public function add_expiration_filter($filters) {
         global $typenow;
-        
+    
         if ('product' !== $typenow) {
             return $filters;
         }
-
-        // Add nonce to the filter form
-        $nonce = wp_create_nonce('product_expiration_filter_nonce');
-        
-        // Get current filter value
+    
         $current_filter = '';
-        if (isset($_GET['expiration_filter'])) {
-            $current_filter = sanitize_text_field(wp_unslash($_GET['expiration_filter']));
-
-            // Properly unslash the nonce before sanitizing it
-            if (!isset($_GET['expiration_filter_nonce']) || 
-                !wp_verify_nonce(
-                    sanitize_text_field(wp_unslash($_GET['expiration_filter_nonce'])), 
-                    'product_expiration_filter_nonce'
-                )
-            ) {
-                // Nonce verification failed
-                // wp_die(esc_html__('Security check failed.', 'product-expiration-easy-peasy'));
+    
+        if (
+            isset($_GET['expiration_filter']) &&
+            isset($_GET['expiration_filter_nonce']) &&
+            wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['expiration_filter_nonce'])), 'product_expiration_filter_nonce') &&
+            current_user_can('manage_woocommerce')
+        ) {
+            $filter_raw = sanitize_text_field(wp_unslash($_GET['expiration_filter']));
+            if (in_array($filter_raw, ['expired', 'not_expired', 'no_date'], true)) {
+                $current_filter = $filter_raw;
             }
-            // Only accept valid values
-            if (!in_array($current_filter, ['expired', 'not_expired', 'no_date'])) {
-                $current_filter = '';
-            }
-        } else {
-            $current_filter = '';
         }
-        
-        // Build filter dropdown
+    
+        $nonce = wp_create_nonce('product_expiration_filter_nonce');
+    
         $dropdown_html = '<select name="expiration_filter" id="dropdown_expiration_filter">';
         $dropdown_html .= '<option value="">' . esc_html__('Expiration Date: All', 'product-expiration-easy-peasy') . '</option>';
         $dropdown_html .= '<option value="expired" ' . selected($current_filter, 'expired', false) . '>' . esc_html__('Expired', 'product-expiration-easy-peasy') . '</option>';
         $dropdown_html .= '<option value="not_expired" ' . selected($current_filter, 'not_expired', false) . '>' . esc_html__('Not Expired', 'product-expiration-easy-peasy') . '</option>';
         $dropdown_html .= '<option value="no_date" ' . selected($current_filter, 'no_date', false) . '>' . esc_html__('No Expiration Date', 'product-expiration-easy-peasy') . '</option>';
         $dropdown_html .= '</select>';
-        
-        // Return modified filters
+        $dropdown_html .= '<input type="hidden" name="expiration_filter_nonce" value="' . esc_attr($nonce) . '" />';
+    
         return $filters . $dropdown_html;
     }
 
@@ -367,14 +356,14 @@ class Admin {
         $plugin_url = plugin_dir_url(__DIR__);
 
         wp_enqueue_style(
-            'wc-product-expiration-admin-style',
+            'product-expiration-easy-peasy-admin-style',
             $plugin_url . 'admin/css/admin-style.css',
             [],
             '1.0.0'
         );
 
         wp_enqueue_script(
-            'wc-product-expiration-admin-script',
+            'product-expiration-easy-peasy-admin-script',
             $plugin_url . 'admin/js/admin-script.js',
             ['jquery'],
             '1.0.0',

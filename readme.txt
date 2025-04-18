@@ -2,7 +2,7 @@
 Contributors: hamidarab
 Tags: woocommerce, product expiration, inventory management, out of stock, persian
 Requires at least: 5.0
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.2
 WC requires at least: 3.0
 WC tested up to: 8.0

@@ -196,7 +196,7 @@ msgstr "ایمیل سفارشی"
 msgid "Save Settings"
 msgstr "ذخیره تنظیمات"
 
-#: wc-product-expiration.php:122
+#: product-expiration-easy-peasy.php:122
 msgid ""
 "Persian WooCommerce Product Expiration requires WooCommerce to be active."
 msgstr "افزونه انقضای محصولات ووکامرس فارسی نیاز به فعال بودن ووکامرس دارد."
