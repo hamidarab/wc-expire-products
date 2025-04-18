@@ -7,7 +7,11 @@ This WordPress plugin allows WooCommerce store owners to set an expiration date 
 ✅ Display the expiration date on the product page after the price.  
 ✅ Automatically set products to "Out of Stock" when they are two months away from expiration.  
 ✅ Send an email notification to WooCommerce administrators and shop managers when a product is expiring soon.  
+✅ Support for **Persian (Jalali) calendar** if `jdate()` is available.  
 ✅ Fully compatible with WooCommerce.
+
+## Persian Calendar Support
+If the `jdate()` function is available (e.g., via the [WP-Parsidate](https://wordpress.org/plugins/wp-parsidate/) plugin), expiration dates will be displayed in the Persian (Jalali) calendar format automatically. If not, the plugin will fall back to the default Gregorian format.
 
 ## Installation
 1. Upload the plugin folder to the `/wp-content/plugins/` directory.  
@@ -15,13 +19,15 @@ This WordPress plugin allows WooCommerce store owners to set an expiration date 
 3. Edit a product and set the expiration date under **Product Data → General**.  
 4. (Optional) Use Quick Edit in the product list to modify the expiration date quickly.
 
+> To enable Persian date format: Just install and activate a plugin that provides the `jdate()` function such as **WP-Parsidate**.
+
 ## Screenshot
 ![WooCommerce Product Expiration Plugin Screenshot](screenshot.png)
 
 ## Usage
 - When a product is close to expiration (2 months remaining), it will automatically be set to "Out of Stock."
 - Administrators and Shop Managers will receive an email with product details, including a direct edit link.
-- The expiration date will be displayed on the product page in `MM/YYYY` format.
+- The expiration date will be displayed on the product page in your preferred format (`MM/YYYY`, etc.).
 
 ## Support
 For any issues or feature requests, please open a GitHub issue or contact us through the WooCommerce support forum.
@@ -53,7 +59,6 @@ For any issues or feature requests, please open a GitHub issue or contact us thr
 - Added: Additional validation for expiration date format
 - Added: Only process products that are currently in stock
 
-
 ---
-Developed with ❤️ for WooCommerce store owners!
 
+Developed with ❤️ for WooCommerce store owners!
