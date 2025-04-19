@@ -1,6 +1,6 @@
 === Product Expiration Easy Peasy ===
 Contributors: hamidarab
-Tags: woocommerce, product expiration, inventory management, out of stock, persian, jalali, calendar
+Tags: product, woocommerce, expiration, stock, persian
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.2
@@ -48,9 +48,12 @@ Yes, you can choose from different formats (Y/m/d, Y/m, Ym, etc.).
 Yes! If the `jdate()` function is available (e.g., via WP-Parsidate), expiration dates will automatically appear in the Persian calendar format. Otherwise, they will use the default Gregorian format.
 
 == Screenshots ==
-1. Product edit page showing expiration date field.
-2. Example of an expired product marked "Out of Stock".
-3. Email notification for expiring products.
+1. Plugin settings page with expiration configuration options.
+2. Expiration date field in WooCommerce product edit screen.
+3. Expiration date column in the products list.
+4. Expiration date displayed on the product page (frontend).
+5. Quick Edit feature showing the expiration field.
+6. Sample email notification for expiring products.
 
 == Changelog ==
 
