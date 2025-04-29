@@ -15,6 +15,8 @@ class Admin {
         // Product expiration field
         add_action('woocommerce_product_options_general_product_data', [$this, 'add_expiration_field']);
         add_action('woocommerce_process_product_meta', [$this, 'save_expiration_field']);
+        add_action('woocommerce_product_after_variable_attributes', [$this, 'add_expiration_field_to_variations'], 10, 3);
+        add_action('woocommerce_save_product_variation', [$this, 'save_expiration_field_for_variations'], 10, 2);
 
         // Product list filters
         add_filter('woocommerce_product_filters', [$this, 'add_expiration_filter']);
@@ -81,6 +83,33 @@ class Admin {
             'type'        => 'date',
             'wrapper_class' => 'form-row-wide'
         ]);
+    }
+
+    /**
+     * Add expiration date field to variations
+     */
+    public function add_expiration_field_to_variations($loop, $variation_data, $variation) {
+        woocommerce_wp_text_input([
+            'id' => "_variation_expiration_date{$loop}",
+            'name' => "_variation_expiration_date[{$loop}]",
+            'value' => get_post_meta($variation->ID, '_expiration_date', true),
+            'label' => __('Expiration Date', 'product-expiration-easy-peasy'),
+            'placeholder' => 'e.g. 2025-05-10',
+            'type' => 'date',
+            'wrapper_class' => 'form-row form-row-full',
+            'desc_tip' => true,
+            'description' => __('Set expiration date for this variation.', 'product-expiration-easy-peasy'),
+        ]);
+    }
+
+    /**
+     * Save expiration date field for variations
+     */
+    public function save_expiration_field_for_variations($variation_id, $loop) {
+        if (isset($_POST['_variation_expiration_date'][$loop])) {
+            $expiration_date = sanitize_text_field($_POST['_variation_expiration_date'][$loop]);
+            update_post_meta($variation_id, '_expiration_date', $expiration_date);
+        }
     }
 
     /**
@@ -242,27 +271,43 @@ class Admin {
         if ('expiration_date' !== $column) {
             return;
         }
-        
-        $expiration_date = get_post_meta($post_id, '_expiration_date', true);
-        
+    
+        $product = wc_get_product($post_id);
+    
+        if (!$product) {
+            echo '—';
+            return;
+        }
+    
+        $expiration_date = '';
+    
+        if ($product->is_type('variable')) {
+            $children = $product->get_children();
+            foreach ($children as $child_id) {
+                $child_expiration = get_post_meta($child_id, '_expiration_date', true);
+                if (!empty($child_expiration)) {
+                    $expiration_date = $child_expiration;
+                    break;
+                }
+            }
+        } else {
+            $expiration_date = get_post_meta($post_id, '_expiration_date', true);
+        }
+    
         if (!empty($expiration_date)) {
-            // Format the date for display
             $formatted = date_i18n('m/d/Y', strtotime($expiration_date));
     
             echo '<span class="expiration-formatted">' . esc_html($formatted) . '</span>';
-    
-            // Hidden date for sorting
             echo '<span class="expiration-hidden" data-date="' . esc_attr($expiration_date) . '"></span>';
     
-            // Expiration status
-            $today = current_time('timestamp');
+            $today = gmdate('Y-m-d');
             if ($expiration_date < $today) {
                 echo ' <span style="color:red;">(' . esc_html__('Expired', 'product-expiration-easy-peasy') . ')</span>';
             }
         } else {
             echo '—';
         }
-    }
+    }    
 
     /**
      * Make expiration column sortable
@@ -292,6 +337,10 @@ class Admin {
      */
     public function add_to_quick_edit($column_name, $post_type) {
         if ('expiration_date' !== $column_name || 'product' !== $post_type) {
+            return;
+        }
+
+        if (!isset($_GET['post_type']) || $_GET['post_type'] !== 'product') {
             return;
         }
 
@@ -331,6 +380,12 @@ class Admin {
                 'product_expiration_quick_edit'
             )
         ) {
+            return;
+        }
+
+        // Check if the product is variable
+        $product = wc_get_product($post_id);
+        if ($product && $product->is_type('variable')) {
             return;
         }
         

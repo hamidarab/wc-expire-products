@@ -37,6 +37,14 @@ class Frontend {
                 [], 
                 PRODUCT_EXPIRATION_EASY_PEASY_VERSION
             );
+
+            wp_enqueue_script(
+                'product-expiration-easy-peasy-js',
+                PRODUCT_EXPIRATION_EASY_PEASY_URL . 'assets/js/script.js',
+                ['jquery'],
+                '1.0.0',
+                true
+            );
         }
     }
 
@@ -47,62 +55,79 @@ class Frontend {
         if (is_admin()) {
             return $price_html;
         }
-        
+    
         $settings = new Settings();
-        
+    
         if ('yes' !== $settings->get_setting('show_expiration')) {
             return $price_html;
         }
-        
-        $expiration_date = get_post_meta($product->get_id(), '_expiration_date', true);
-        
-        if (empty($expiration_date)) {
-            return $price_html;
-        }
-
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiration_date)) {
-            return $price_html;
-        }
-        
-        $display_position = $settings->get_setting('display_position');
-        
-        // Only add to main product page, not to related products
+    
         global $wp_query;
-        if (isset($wp_query->queried_object) && isset($wp_query->queried_object->ID) && 
-            $wp_query->queried_object->ID !== $product->get_id() && 'after_title' === $display_position) {
+    
+        if (isset($wp_query->queried_object_id) && $wp_query->queried_object_id !== $product->get_id()) {
             return $price_html;
         }
-        
-        $display_text = $this->get_formatted_expiration_text($expiration_date);
-        $expiration_html = '<div class="expiration-date">' . $display_text . '</div>';
-        
+    
+        $display_position = $settings->get_setting('display_position');
+    
+        $expiration_html = '';
+    
+        if ($product->is_type('variable')) {
+            $variations = $product->get_available_variations();
+    
+            foreach ($variations as $variation) {
+                $variation_id = $variation['variation_id'];
+                $expiration_date = get_post_meta($variation_id, '_expiration_date', true);
+    
+                if (!empty($expiration_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiration_date)) {
+                    $display_text = $this->get_formatted_expiration_text($expiration_date);
+    
+                    $expiration_html .= '<div class="expiration-date variable-expiration" data-variation-id="' . esc_attr($variation_id) . '" style="display:none; font-size: 14px; margin-top: 10px;">
+                        <strong>' . esc_html($display_text) . '</strong>
+                    </div>';
+                }
+            }
+        } else {
+            $expiration_date = get_post_meta($product->get_id(), '_expiration_date', true);
+    
+            if (empty($expiration_date) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiration_date)) {
+                return $price_html;
+            }
+    
+            $display_text = $this->get_formatted_expiration_text($expiration_date);
+    
+            $expiration_html = '<div class="expiration-date" style="font-size: 14px; margin-top: 10px;">
+                <strong>' . esc_html__('Expiration:', 'product-expiration-easy-peasy') . ' ' . esc_html($display_text) . '</strong>
+            </div>';
+        }
+    
         if ('after_price' === $display_position) {
             return $price_html . $expiration_html;
         }
-        
+    
         return $price_html;
-    }
+    }    
 
     /**
      * Display expiration date in cart
      */
     public function display_expiration_in_cart($item_name, $cart_item, $cart_item_key) {
         $settings = new Settings();
-        
+    
         if ('yes' !== $settings->get_setting('show_expiration')) {
             return $item_name;
         }
-        
-        $product_id = $cart_item['product_id'];
+    
+        $product_id = !empty($cart_item['variation_id']) ? $cart_item['variation_id'] : $cart_item['product_id'];
         $expiration_date = get_post_meta($product_id, '_expiration_date', true);
-        
+    
         if (empty($expiration_date)) {
             return $item_name;
         }
-        
+    
         $display_text = $this->get_formatted_expiration_text($expiration_date);
-        
-        return $item_name . '<div class="expiration-date">' . $display_text . '</div>';
+    
+        return $item_name . '<div class="expiration-date">' . esc_html($display_text) . '</div>';
     }
 
     /**
@@ -110,20 +135,23 @@ class Frontend {
      */
     public function display_expiration_in_order($item_id, $item, $order) {
         $settings = new Settings();
-        
+    
         if ('yes' !== $settings->get_setting('show_expiration')) {
             return;
         }
-        
-        $product_id = $item->get_product_id();
+    
+        $product = $item->get_product();
+        if (!$product) return;
+    
+        $product_id = $product->get_id();
         $expiration_date = get_post_meta($product_id, '_expiration_date', true);
-        
+    
         if (empty($expiration_date)) {
             return;
         }
-        
+    
         $display_text = $this->get_formatted_expiration_text($expiration_date);
-        
+    
         echo '<div class="expiration-date">' . esc_html($display_text) . '</div>';
     }
 
@@ -132,20 +160,23 @@ class Frontend {
      */
     public function display_expiration_in_email($item_id, $item, $order) {
         $settings = new Settings();
-        
+    
         if ('yes' !== $settings->get_setting('show_in_order_email')) {
             return;
         }
-        
-        $product_id = $item->get_product_id();
+    
+        $product = $item->get_product();
+        if (!$product) return;
+    
+        $product_id = $product->get_id();
         $expiration_date = get_post_meta($product_id, '_expiration_date', true);
-        
+    
         if (empty($expiration_date)) {
             return;
         }
-        
+    
         $display_text = $this->get_formatted_expiration_text($expiration_date);
-        
+    
         echo '<div class="expiration-date">' . esc_html($display_text) . '</div>';
     }
 

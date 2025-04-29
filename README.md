@@ -34,6 +34,14 @@ For any issues or feature requests, please open a GitHub issue or contact us thr
 
 ## Changelog
 
+### Version 3.1.0
+- Added: Smart handling of expiration dates for variable products.
+- Improved: Hide expiration field in Quick Edit for variable products.
+- Improved: Display expiration date based on first variation in product list.
+- Enhanced: Better Persian calendar (Jalali) support and usage instructions.
+- Fixed: Expiration date field formatting and validation issues.
+- Optimized: Script and style loading only when necessary.
+
 ### Version 3.0.0
 - Fixed: Optimized query to get expired products for better performance.
 

@@ -6,7 +6,7 @@ Tested up to: 6.8
 Requires PHP: 7.2
 WC requires at least: 3.0
 WC tested up to: 8.0
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 License: GPL v3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Donate link: https://zarinp.al/689844
@@ -56,6 +56,14 @@ Yes! If the `jdate()` function is available (e.g., via WP-Parsidate), expiration
 6. Sample email notification for expiring products.
 
 == Changelog ==
+
+= 3.1.0 =
+- Added: Smart handling of expiration dates for variable products.
+- Improved: Hide expiration field in Quick Edit for variable products.
+- Improved: Display expiration date based on first variation in product list.
+- Enhanced: Better Persian calendar (Jalali) support and usage instructions.
+- Fixed: Expiration date field formatting and validation issues.
+- Optimized: Script and style loading only when necessary.
 
 = 3.0.0 =
 - Fixed: Optimized query to get expired products for better performance.
