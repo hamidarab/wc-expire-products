@@ -97,7 +97,7 @@ class Frontend {
             $display_text = $this->get_formatted_expiration_text($expiration_date);
     
             $expiration_html = '<div class="expiration-date" style="font-size: 14px; margin-top: 10px;">
-                <strong>' . esc_html__('Expiration:', 'product-expiration-easy-peasy') . ' ' . esc_html($display_text) . '</strong>
+                <strong>' . esc_html($display_text) . '</strong>
             </div>';
         }
     

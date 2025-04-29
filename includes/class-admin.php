@@ -106,10 +106,16 @@ class Admin {
      * Save expiration date field for variations
      */
     public function save_expiration_field_for_variations($variation_id, $loop) {
-        if (isset($_POST['_variation_expiration_date'][$loop])) {
-            $expiration_date = sanitize_text_field($_POST['_variation_expiration_date'][$loop]);
-            update_post_meta($variation_id, '_expiration_date', $expiration_date);
+        if (!isset($_POST['woocommerce_save_variations_nonce']) || 
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['woocommerce_save_variations_nonce'])), 'save_variations')) {
+            return;
         }
+
+        if (isset($_POST['_variation_expiration_date'][$loop])) {
+            $expiration_date_raw = sanitize_text_field(wp_unslash($_POST['_variation_expiration_date'][$loop]));
+            $expiration_date = sanitize_text_field($expiration_date_raw);
+            update_post_meta($variation_id, '_expiration_date', $expiration_date);
+        }        
     }
 
     /**
@@ -337,10 +343,6 @@ class Admin {
      */
     public function add_to_quick_edit($column_name, $post_type) {
         if ('expiration_date' !== $column_name || 'product' !== $post_type) {
-            return;
-        }
-
-        if (!isset($_GET['post_type']) || $_GET['post_type'] !== 'product') {
             return;
         }
 
