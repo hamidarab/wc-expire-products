@@ -89,6 +89,9 @@ class Admin {
      * Add expiration date field to variations
      */
     public function add_expiration_field_to_variations($loop, $variation_data, $variation) {
+        // Add nonce field for validation
+        wp_nonce_field('save_expiration_date', 'woocommerce_save_variations_nonce');
+
         woocommerce_wp_text_input([
             'id' => "_variation_expiration_date{$loop}",
             'name' => "_variation_expiration_date[{$loop}]",
@@ -107,7 +110,7 @@ class Admin {
      */
     public function save_expiration_field_for_variations($variation_id, $loop) {
         if (!isset($_POST['woocommerce_save_variations_nonce']) || 
-            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['woocommerce_save_variations_nonce'])), 'save_variations')) {
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['woocommerce_save_variations_nonce'])), 'save_expiration_date')) {
             return;
         }
 
