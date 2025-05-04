@@ -6,7 +6,7 @@ Tested up to: 6.8
 Requires PHP: 7.2
 WC requires at least: 3.0
 WC tested up to: 8.0
-Stable tag: 3.1.0
+Stable tag: 3.1.1
 License: GPL v3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Donate link: https://zarinp.al/689844
@@ -56,6 +56,9 @@ Yes! If the `jdate()` function is available (e.g., via WP-Parsidate), expiration
 6. Sample email notification for expiring products.
 
 == Changelog ==
+
+= 3.1.1 =
+* Fixed: Expiration date for variations was not saving properly due to missing nonce in variation form.
 
 = 3.1.0 =
 - Added: Smart handling of expiration dates for variable products.
