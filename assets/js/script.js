@@ -1,15 +1,13 @@
 jQuery(function($) {
-  const expiryData = window.product_expiration_data || {};
-
   function hideAllExpirationDivs() {
-    $('.expiration-date[data-variation-id]').hide();
+    $('.expiration-date[data-variation-id]').prop('hidden', true).hide();
   }
 
   function showExpirationForVariation(variationId) {
     hideAllExpirationDivs();
     const $expirationDiv = $('.expiration-date[data-variation-id="' + variationId + '"]');
     if ($expirationDiv.length) {
-      $expirationDiv.show();
+      $expirationDiv.prop('hidden', false).show();
     }
   }
 

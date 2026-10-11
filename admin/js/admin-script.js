@@ -1,24 +1,24 @@
 jQuery(function($) {
-  $('.editinline').on('click', function() {
-    var $row = $(this).closest('tr');
-    var post_id = $row.attr('id').replace('post-', '');
-    var raw_date = $row.find('.expiration-hidden').data('date');
-    var product_type = $('#woocommerce_inline_' + post_id).find('.product_type').text().trim();
+  $(document).on('click', '.editinline', function() {
+    const $row = $(this).closest('tr');
+    const postId = String($row.attr('id') || '').replace('post-', '');
+    const rawDate = $row.find('.expiration-hidden').attr('data-date') || '';
+    const productType = $('#woocommerce_inline_' + postId).find('.product_type').text().trim();
 
     setTimeout(function() {
-      var $input = $('#edit-' + post_id).find('input[name="expiration_date"]');
+      const $input = $('#edit-' + postId).find('input[name="expiration_date"]');
+      const $fieldset = $input.closest('.peep-quick-edit-fieldset');
 
-      if (product_type === 'simple') {
-        if ($input.length) {
-          $input.closest('.inline-edit-col-right').show();
-          if (raw_date) {
-              $input.val(raw_date);
-          }
-        }
+      if (!$input.length) {
+        return;
+      }
+
+      if (productType === 'simple' || productType === 'external') {
+        $fieldset.prop('hidden', false).show();
+        $input.val(rawDate);
       } else {
-        if ($input.length) {
-          $input.closest('.inline-edit-col-right').hide();
-        }
+        $fieldset.prop('hidden', true).hide();
+        $input.val('');
       }
     }, 100);
   });

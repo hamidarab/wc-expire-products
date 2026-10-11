@@ -1,72 +1,31 @@
-# WooCommerce Product Expiration Plugin
+# Product Expiration Easy Peasy
 
-This WordPress plugin allows WooCommerce store owners to set an expiration date for products. Once a product is two months away from expiration, it will be marked as "Out of Stock" and an email notification will be sent to all administrators and shop managers.
+WooCommerce product-expiration management with validated product and variation dates, stock automation, staff notifications, order snapshots, and built-in Jalali display for Persian locales.
 
-## Features
-✅ Add an expiration date to products via the product edit page or Quick Edit.  
-✅ Display the expiration date on the product page after the price.  
-✅ Automatically set products to "Out of Stock" when they are two months away from expiration.  
-✅ Send an email notification to WooCommerce administrators and shop managers when a product is expiring soon.  
-✅ Support for **Persian (Jalali) calendar** if `jdate()` is available.  
-✅ Fully compatible with WooCommerce.
+## Development checks
 
-## Persian Calendar Support
-If the `jdate()` function is available (e.g., via the [WP-Parsidate](https://wordpress.org/plugins/wp-parsidate/) plugin), expiration dates will be displayed in the Persian (Jalali) calendar format automatically. If not, the plugin will fall back to the default Gregorian format.
+Run the standalone safety tests:
 
-## Installation
-1. Upload the plugin folder to the `/wp-content/plugins/` directory.  
-2. Activate the plugin through the **Plugins** menu in WordPress.  
-3. Edit a product and set the expiration date under **Product Data → General**.  
-4. (Optional) Use Quick Edit in the product list to modify the expiration date quickly.
+```bash
+php tests/run.php
+```
 
-> To enable Persian date format: Just install and activate a plugin that provides the `jdate()` function such as **WP-Parsidate**.
+Run WordPress Coding Standards with the PHPCS bundled by the local Plugin Check installation:
 
-## Screenshot
-![WooCommerce Product Expiration Plugin Screenshot](screenshot.png)
+```bash
+php ../plugin-check/vendor/bin/phpcs --standard=phpcs.xml.dist
+```
 
-## Usage
-- When a product is close to expiration (2 months remaining), it will automatically be set to "Out of Stock."
-- Administrators and Shop Managers will receive an email with product details, including a direct edit link.
-- The expiration date will be displayed on the product page in your preferred format (`MM/YYYY`, etc.).
+Build the directly installable RTL-Theme package and outer submission structure:
 
-## Support
-For any issues or feature requests, please open a GitHub issue or contact us through the WooCommerce support forum.
+```bash
+./tools/build-release.sh
+```
 
-## Changelog
+The generated output is placed in `dist/`, with the installable ZIP under `dist/Plugin/` and the Persian guide at `dist/help.pdf`.
 
-### Version 3.1.0
-- Added: Smart handling of expiration dates for variable products.
-- Improved: Hide expiration field in Quick Edit for variable products.
-- Improved: Display expiration date based on first variation in product list.
-- Enhanced: Better Persian calendar (Jalali) support and usage instructions.
-- Fixed: Expiration date field formatting and validation issues.
-- Optimized: Script and style loading only when necessary.
+## Release policy
 
-### Version 3.0.0
-- Fixed: Optimized query to get expired products for better performance.
+The plugin bootstrap remains readable so WordPress can detect the header and fail safely. The generated `RTL_License_700d86aad12a6fe9.php` runtime is integrity-checked before it is loaded. Do not alter that file without regenerating the SDK and updating the expected SHA-1 in the adapter.
 
-### Version 2.10
-- Added: Configurable date format options (Y/m/d, Y/m, Ym, etc.)
-- Added: Custom styling for expiration dates with expiration-date class
-- Added: Improved display of expiration dates in product pages, cart, and order emails
-- Fixed: Persian language translation issues
-- Fixed: Date format localization and display
-- Improved: Expiration date styling and container
-- Added: Support for Persian calendar date display when jdate is available
-- Added: Complete POT and PO translation files
-- Optimized: Admin interface for expiration date management
-
-### Version 1.0.4
-- Improved: Enhanced variation details in expiration notification emails
-- Added: Parent product name and ID display for variations
-- Added: Formatted variation attributes listing
-- Optimized: Combined query for simple and variable products
-
-### Version 1.0.3
-- Fixed: Products without expiration dates being incorrectly marked as out of stock
-- Added: Additional validation for expiration date format
-- Added: Only process products that are currently in stock
-
----
-
-Developed with ❤️ for WooCommerce store owners!
+Do not distribute repository metadata, tests, graph output, or build tooling inside the customer ZIP. Before an RTL-Theme submission, complete the manual items in `docs/release-checklist-fa.md`, including a clean install, supported-version test matrix, VirusTotal scan, non-AI icon and cover, Persian demo, and review of the authenticated seller rules.

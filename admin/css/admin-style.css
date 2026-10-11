@@ -1,0 +1,36 @@
+.expiration-hidden {
+	display: none;
+}
+
+.expiration-status-expired {
+	color: #b32d2e;
+	font-weight: 600;
+}
+
+.peep-settings-wrap .form-table {
+	max-width: 960px;
+	margin-top: 1rem;
+	background: #fff;
+	border: 1px solid #dcdcde;
+}
+
+.peep-settings-wrap .form-table th,
+.peep-settings-wrap .form-table td {
+	padding: 18px 20px;
+}
+
+.peep-settings-wrap code {
+	direction: ltr;
+	display: inline-block;
+}
+
+.peep-quick-edit-fieldset[hidden] {
+	display: none;
+}
+
+#_expiration_date,
+input[name^="_variation_expiration_date"],
+.expiration-date-input {
+	direction: ltr;
+	text-align: left;
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ruleset name="Product Expiration Easy Peasy">
+	<description>WordPress coding standards for the release source.</description>
+
+	<file>product-expiration-easy-peasy.php</file>
+	<file>includes</file>
+	<file>views</file>
+	<file>uninstall.php</file>
+
+	<arg name="extensions" value="php"/>
+	<arg value="sp"/>
+
+	<rule ref="WordPress"/>
+
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="manage_woocommerce"/>
+				<element value="edit_products"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

@@ -1,213 +1,421 @@
 <?php
+/**
+ * Scheduled product expiration processing.
+ *
+ * @package ProductExpirationEasyPeasy
+ */
+
 namespace ProductExpirationEasyPeasy;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
- * Cron jobs handler
+ * Marks products approaching expiration as out of stock and notifies staff.
  */
-class Cron {
-    /**
-     * Batch size for product processing
-     * @var int
-     */
-    private $batch_size = 50;
+final class Cron {
+	/**
+	 * Cron hook name.
+	 *
+	 * @var string
+	 */
+	private const HOOK = 'peep_check_expired_products';
 
-    /**
-     * Initialize cron functionality
-     */
-    public function __construct() {
-        add_action('peep_check_expired_products', array($this, 'check_expired_products'));
-    }
+	/**
+	 * Atomic lock option name.
+	 *
+	 * @var string
+	 */
+	private const LOCK_OPTION = 'peep_expiration_cron_lock';
 
-    /**
-     * Schedule cron job
-     */
-    public static function schedule_check() {
-        if (!wp_next_scheduled('peep_check_expired_products')) {
-            wp_schedule_event(time(), 'daily', 'peep_check_expired_products');
-        }
-    }
+	/**
+	 * Number of products loaded at once.
+	 *
+	 * @var int
+	 */
+	private const BATCH_SIZE = 50;
 
-    /**
-     * Unschedule cron job
-     */
-    public static function unschedule_check() {
-        wp_clear_scheduled_hook('peep_check_expired_products');
-    }
+	/**
+	 * Settings service.
+	 *
+	 * @var Settings
+	 */
+	private $settings;
 
-    /**
-     * Check for expired products with optimized queries for better performance
-     *
-     * @return int Number of products processed
-     */
-    public function check_expired_products() {
-        global $wpdb;
-        $offset = 0; // Start with offset 0
-        $expiring_products = [];
-        $processed_products_count = 0;
-    
-        // Fetch settings
-        $settings = (new \ProductExpirationEasyPeasy\Settings())->get_settings();
-        $notification_period_type = isset($settings['notification_period_type']) ? sanitize_text_field($settings['notification_period_type']) : 'months';
-        $notification_period = isset($settings['notification_period']) ? (int)$settings['notification_period'] : 2;
-    
-        // Calculate expiration date - proper namespacing for DateTime classes
-        $date_from_now = (new \DateTime('now', new \DateTimeZone('UTC')))
-            ->modify("+{$notification_period} {$notification_period_type}")
-            ->format('Y-m-d');
-    
-        do {
-            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $product_ids = $wpdb->get_col(
-                $wpdb->prepare(
-                    "SELECT p.ID FROM {$wpdb->posts} p
-                    INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-                    WHERE p.post_type IN ('product', 'product_variation')
-                    AND p.post_status = 'publish'
-                    AND pm.meta_key = '_expiration_date'
-                    AND pm.meta_value <= %s
-                    GROUP BY p.ID
-                    LIMIT %d OFFSET %d",
-                    $date_from_now,
-                    $this->batch_size,
-                    $offset
-                )
-            );
-            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-    
-            // Exit loop if no products found
-            if (empty($product_ids)) {
-                break;
-            }
-    
-            foreach ($product_ids as $product_id) {
-                $expiration_date = get_post_meta($product_id, '_expiration_date', true);
-    
-                // Validate expiration date format
-                if (!$expiration_date || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiration_date)) {
-                    continue; // Skip invalid entries
-                }
-    
-                // Load WooCommerce product object
-                $product_obj = wc_get_product($product_id);
-                if (!$product_obj || $product_obj->get_stock_status() !== 'instock') {
-                    continue; // Skip products already marked 'outofstock'
-                }
-    
-                // Mark product as out of stock
-                update_post_meta($product_id, '_stock_status', 'outofstock');
-                wc_delete_product_transients($product_id);
-    
-                // Collect expired products for notifications
-                $expiring_products[] = $product_obj;
-                $processed_products_count++;
-            }
-    
-            $offset += $this->batch_size; // Increase offset for next batch
-        } while (!empty($product_ids));
-    
-        // Send notification email if there are expired products
-        if (!empty($expiring_products)) {
-            $this->send_notification_email($expiring_products);
-        }
-    
-        // Return count of processed products
-        return $processed_products_count;
-    }
-    
-    
-    /**
-     * Send notification email for expiring products
-     * 
-     * @param array $products Array of WC_Product objects
-     */
-    private function send_notification_email($products) {
-        $settings = new \ProductExpirationEasyPeasy\Settings();
-        $recipients = $settings->get_setting('email_recipients') ?? ['admin'];
-        $custom_email = $settings->get_setting('custom_email') ?? '';
-        
-        if ($recipients === 'custom' && !empty($custom_email)) {
-            $to = sanitize_email($custom_email);
-        } else {
-            $to = get_option('admin_email');
-        }
-        
-        // Get expiration period in days, weeks, or months
-        $notification_period_type = $settings->get_setting('notification_period_type'); // 'days', 'weeks', etc.
-        $notification_period = $settings->get_setting('notification_period'); // 30, 60, etc.
+	/**
+	 * Unique value owned by the current cron worker.
+	 *
+	 * @var string
+	 */
+	private $lock_value = '';
 
-        // Calculate the date based on the notification period type
-        if ($notification_period_type === 'days') {
-            $date_from_now = gmdate('Y-m-d', strtotime("+$notification_period days"));
-        } elseif ($notification_period_type === 'weeks') {
-            $date_from_now = gmdate('Y-m-d', strtotime("+$notification_period weeks"));
-        } elseif ($notification_period_type === 'months') {
-            $date_from_now = gmdate('Y-m-d', strtotime("+$notification_period months"));
-        } else {
-            // Default to 2 months if the type is not valid
-            $date_from_now = gmdate('Y-m-d', strtotime('+2 months'));
-        }
-        
-        // translators: Initial message in the expiration notification email
-        $email_body = sprintf(esc_html__("The following products will expire in %s and have been set to out of stock:", 'product-expiration-easy-peasy'), $date_from_now) . "\n\n";
-        
-        foreach ($products as $product_obj) {
-            $product_id = $product_obj->get_id();
-            $expiration_date = get_post_meta($product_id, '_expiration_date', true);
-            $title = $product_obj->get_name();
-            $edit_link = admin_url('post.php?post=' . $product_id . '&action=edit');
-            
-            if ($product_obj->is_type('variation')) {
-                $parent_product = wc_get_product($product_obj->get_parent_id());
-                $variation_attributes = $product_obj->get_variation_attributes();
-                
-                $variation_details = [];
-                foreach ($variation_attributes as $attribute => $value) {
-                    $taxonomy = str_replace('attribute_', '', $attribute);
+	/**
+	 * Register the scheduled callback.
+	 *
+	 * @param Settings $settings Settings service.
+	 */
+	public function __construct( Settings $settings ) {
+		$this->settings = $settings;
+		add_action( self::HOOK, array( $this, 'check_expired_products' ) );
+	}
 
-                    if (taxonomy_exists($taxonomy)) {
-                        $term = get_term_by('slug', $value, $taxonomy);
-                        $value = $term ? $term->name : $value;
-                    }
+	/**
+	 * Ensure the daily job exists.
+	 *
+	 * @return void
+	 */
+	public static function schedule_check() {
+		if ( ! wp_next_scheduled( self::HOOK ) ) {
+			wp_schedule_event( time() + MINUTE_IN_SECONDS, 'daily', self::HOOK );
+		}
+	}
 
-                    $attribute_label = wc_attribute_label($taxonomy);
-                    $variation_details[] = $attribute_label . ': ' . $value;
-                }
-                
-                // translators: %1$s is the parent product name, %2$s is the variation details list
-                $product_type = sprintf(
-                    esc_html__("Variable - %1\$s\n%2\$s", 'product-expiration-easy-peasy'),
-                    $parent_product->get_name(),
-                    '- ' . implode("\n- ", $variation_details)
-                );
-                
-                // translators: %s is the product name
-                $email_body .= sprintf(esc_html__("Product Name: %s\n", 'product-expiration-easy-peasy'), $title);
-                // translators: %s is the product type details
-                $email_body .= sprintf(esc_html__("Product Type: %s\n", 'product-expiration-easy-peasy'), $product_type);
-                // translators: %s is the variation ID
-                $email_body .= sprintf(esc_html__("Variation ID: %s\n", 'product-expiration-easy-peasy'), $product_id);
-                // translators: %s is the parent product ID
-                $email_body .= sprintf(esc_html__("Parent Product ID: %s\n", 'product-expiration-easy-peasy'), $parent_product->get_id());
-            } else {
-                // translators: %s is the product name
-                $email_body .= sprintf(esc_html__("Product Name: %s\n", 'product-expiration-easy-peasy'), $title);
-                // translators: %s is the product type (Simple)
-                $email_body .= sprintf(esc_html__("Product Type: %s\n", 'product-expiration-easy-peasy'), esc_html__("Simple", 'product-expiration-easy-peasy'));
-                // translators: %s is the product ID
-                $email_body .= sprintf(esc_html__("Product ID: %s\n", 'product-expiration-easy-peasy'), $product_id);
-            }
-            
-            // translators: %s is the expiration date
-            $email_body .= sprintf(esc_html__("Expiration Date: %s\n", 'product-expiration-easy-peasy'), $expiration_date);
-            // translators: %s is the edit product link
-            $email_body .= sprintf(esc_html__("Edit Product: %s\n\n", 'product-expiration-easy-peasy'), $edit_link);
-        }
-        
-        // translators: Email subject for products nearing expiration
-        wp_mail(
-            $to, 
-            esc_html__('Products Near Expiration Date', 'product-expiration-easy-peasy'), 
-            $email_body
-        );
-    }
+	/**
+	 * Remove the job and any stale lock.
+	 *
+	 * @return void
+	 */
+	public static function unschedule_check() {
+		wp_clear_scheduled_hook( self::HOOK );
+		delete_option( self::LOCK_OPTION );
+	}
+
+	/**
+	 * Calculate the inclusive cutoff date from validated settings.
+	 *
+	 * @param Settings $settings Settings service.
+	 * @return string Gregorian Y-m-d date.
+	 */
+	public static function get_cutoff_date( Settings $settings ) {
+		$period = absint( $settings->get_setting( 'notification_period' ) );
+		$type   = (string) $settings->get_setting( 'notification_period_type' );
+		$period = max( 1, min( 365, $period ) );
+
+		if ( 'weeks' === $type ) {
+			$interval = new \DateInterval( 'P' . ( $period * 7 ) . 'D' );
+		} elseif ( 'months' === $type ) {
+			$interval = new \DateInterval( 'P' . $period . 'M' );
+		} else {
+			$interval = new \DateInterval( 'P' . $period . 'D' );
+		}
+
+		return ( new \DateTimeImmutable( 'today', wp_timezone() ) )->add( $interval )->format( 'Y-m-d' );
+	}
+
+	/**
+	 * Restore stock previously changed by this plugin.
+	 *
+	 * @param int $product_id Product or variation ID.
+	 * @return bool Whether a managed stock value was restored.
+	 */
+	public static function restore_managed_stock( $product_id ) {
+		if ( 'yes' !== get_post_meta( $product_id, '_peep_stock_managed', true ) ) {
+			return false;
+		}
+
+		$previous_status = get_post_meta( $product_id, '_peep_previous_stock_status', true );
+		$product         = wc_get_product( $product_id );
+
+		if ( ! in_array( $previous_status, array( 'instock', 'outofstock', 'onbackorder' ), true ) ) {
+			$previous_status = 'instock';
+		}
+
+		if ( ! $product || 'outofstock' !== $product->get_stock_status() ) {
+			delete_post_meta( $product_id, '_peep_stock_managed' );
+			delete_post_meta( $product_id, '_peep_previous_stock_status' );
+			self::sync_variation_parent( $product_id );
+			return false;
+		}
+
+		$stock_quantity = $product->get_stock_quantity();
+
+		if ( 'instock' === $previous_status && $product->managing_stock() && null !== $stock_quantity && $stock_quantity <= 0 ) {
+			delete_post_meta( $product_id, '_peep_stock_managed' );
+			delete_post_meta( $product_id, '_peep_previous_stock_status' );
+			self::sync_variation_parent( $product_id );
+			return false;
+		}
+
+		wc_update_product_stock_status( $product_id, $previous_status );
+		delete_post_meta( $product_id, '_peep_stock_managed' );
+		delete_post_meta( $product_id, '_peep_previous_stock_status' );
+		self::sync_variation_parent( $product_id );
+
+		return true;
+	}
+
+	/**
+	 * Process products in bounded batches.
+	 *
+	 * @return int Number of products whose stock was changed.
+	 */
+	public function check_expired_products() {
+		if ( ! function_exists( 'wc_get_product' ) || ! $this->acquire_lock() ) {
+			return 0;
+		}
+
+		$processed = 0;
+		$page      = 1;
+		$cutoff    = self::get_cutoff_date( $this->settings );
+
+		try {
+			do {
+				$query = new \WP_Query(
+					array(
+						'post_type'              => array( 'product', 'product_variation' ),
+						'post_status'            => 'publish',
+						'fields'                 => 'ids',
+						'posts_per_page'         => self::BATCH_SIZE,
+						'paged'                  => $page,
+						'orderby'                => 'ID',
+						'order'                  => 'ASC',
+						'no_found_rows'          => true,
+						'cache_results'          => false,
+						'update_post_meta_cache' => false,
+						'update_post_term_cache' => false,
+						'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required indexed plugin metadata lookup.
+							array(
+								'key'     => '_expiration_date',
+								'value'   => $cutoff,
+								'compare' => '<=',
+								'type'    => 'DATE',
+							),
+						),
+					)
+				);
+
+				$product_ids  = array_map( 'absint', $query->posts );
+				$notification = array();
+
+				foreach ( $product_ids as $product_id ) {
+					$date    = Date::sanitize( get_post_meta( $product_id, '_expiration_date', true ) );
+					$product = wc_get_product( $product_id );
+
+					if (
+						'' === $date
+						|| ! $product
+						|| $product->is_type( 'variable' )
+						|| ! in_array( $product->get_stock_status(), array( 'instock', 'onbackorder' ), true )
+					) {
+						continue;
+					}
+
+					$previous_status = $product->get_stock_status();
+
+					update_post_meta( $product_id, '_peep_previous_stock_status', $previous_status );
+					update_post_meta( $product_id, '_peep_stock_managed', 'yes' );
+
+					try {
+						$product->set_stock_status( 'outofstock' );
+						$saved_product_id = $product->save();
+					} catch ( \Throwable $throwable ) {
+						$saved_product_id = 0;
+					}
+
+					if ( ! $saved_product_id ) {
+						delete_post_meta( $product_id, '_peep_stock_managed' );
+						delete_post_meta( $product_id, '_peep_previous_stock_status' );
+						continue;
+					}
+
+					self::sync_variation_parent( $product_id );
+
+					$notification[] = $product;
+					++$processed;
+				}
+
+				if ( ! empty( $notification ) ) {
+					$this->send_notification_email( $notification, $cutoff );
+				}
+
+				$batch_count = count( $product_ids );
+				++$page;
+			} while ( self::BATCH_SIZE === $batch_count );
+		} finally {
+			$this->release_lock();
+			wp_reset_postdata();
+		}
+
+		return $processed;
+	}
+
+	/**
+	 * Acquire an atomic, self-expiring cron lock.
+	 *
+	 * @return bool
+	 */
+	private function acquire_lock() {
+		$now        = time();
+		$lock_value = $now . ':' . wp_generate_uuid4();
+
+		if ( add_option( self::LOCK_OPTION, $lock_value, '', false ) ) {
+			$this->lock_value = $lock_value;
+			return true;
+		}
+
+		$existing      = get_option( self::LOCK_OPTION, '' );
+		$existing_text = is_scalar( $existing ) ? (string) $existing : '';
+		$lock_time     = absint( $existing_text );
+
+		if ( $lock_time && ( $now - $lock_time ) < 15 * MINUTE_IN_SECONDS ) {
+			return false;
+		}
+
+		global $wpdb;
+
+		$updated = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Compare-and-swap is required for an overlap-safe lock.
+			$wpdb->prepare(
+				'UPDATE %i SET option_value = %s WHERE option_name = %s AND option_value = %s',
+				$wpdb->options,
+				$lock_value,
+				self::LOCK_OPTION,
+				maybe_serialize( $existing )
+			)
+		);
+		wp_cache_delete( self::LOCK_OPTION, 'options' );
+
+		if ( 1 === $updated ) {
+			$this->lock_value = $lock_value;
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Release only the lock token owned by this worker.
+	 *
+	 * @return void
+	 */
+	private function release_lock() {
+		if ( '' === $this->lock_value ) {
+			return;
+		}
+
+		global $wpdb;
+
+		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Token comparison prevents one worker releasing another worker's lock.
+			$wpdb->prepare(
+				'DELETE FROM %i WHERE option_name = %s AND option_value = %s',
+				$wpdb->options,
+				self::LOCK_OPTION,
+				$this->lock_value
+			)
+		);
+		wp_cache_delete( self::LOCK_OPTION, 'options' );
+		$this->lock_value = '';
+	}
+
+	/**
+	 * Send a plain-text notification to selected store staff.
+	 *
+	 * @param array<int, \WC_Product> $products Products changed in this batch.
+	 * @param string                  $cutoff   Cutoff date.
+	 * @return void
+	 */
+	private function send_notification_email( array $products, $cutoff ) {
+		$emails = $this->get_recipient_emails();
+
+		if ( empty( $emails ) ) {
+			return;
+		}
+
+		$body = sprintf(
+			/* translators: %s: localized cutoff date. */
+			__( 'The following products expire by %s and were set to out of stock:', 'product-expiration-easy-peasy' ),
+			Date::format( $cutoff )
+		) . "\n\n";
+
+		foreach ( $products as $product ) {
+			$product_id = $product->get_id();
+			$date       = Date::sanitize( get_post_meta( $product_id, '_expiration_date', true ) );
+			$edit_link  = add_query_arg(
+				array(
+					'post'   => $product_id,
+					'action' => 'edit',
+				),
+				admin_url( 'post.php' )
+			);
+
+			/* translators: %s: product name. */
+			$body .= sprintf( __( 'Product: %s', 'product-expiration-easy-peasy' ), wp_strip_all_tags( $product->get_name() ) ) . "\n";
+			/* translators: %d: product or variation ID. */
+			$body .= sprintf( __( 'Product ID: %d', 'product-expiration-easy-peasy' ), $product_id ) . "\n";
+			/* translators: %s: localized expiration date. */
+			$body .= sprintf( __( 'Expiration date: %s', 'product-expiration-easy-peasy' ), Date::format( $date ) ) . "\n";
+
+			if ( $product->is_type( 'variation' ) ) {
+				$parent = wc_get_product( $product->get_parent_id() );
+
+				if ( $parent ) {
+					/* translators: %s: parent product name. */
+					$body .= sprintf( __( 'Parent product: %s', 'product-expiration-easy-peasy' ), wp_strip_all_tags( $parent->get_name() ) ) . "\n";
+				}
+			}
+
+			if ( $edit_link ) {
+				/* translators: %s: product edit URL. */
+				$body .= sprintf( __( 'Edit product: %s', 'product-expiration-easy-peasy' ), esc_url_raw( $edit_link ) ) . "\n";
+			}
+
+			$body .= "\n";
+		}
+
+		wp_mail(
+			$emails,
+			__( 'Products near expiration', 'product-expiration-easy-peasy' ),
+			$body,
+			array( 'Content-Type: text/plain; charset=UTF-8' )
+		);
+	}
+
+	/**
+	 * Resolve and validate configured notification recipients.
+	 *
+	 * @return array<int, string>
+	 */
+	private function get_recipient_emails() {
+		$selected = (array) $this->settings->get_setting( 'email_recipients' );
+		$emails   = array();
+
+		if ( in_array( 'admin', $selected, true ) ) {
+			$emails[] = get_option( 'admin_email' );
+		}
+
+		if ( in_array( 'shop_manager', $selected, true ) ) {
+			$emails = array_merge(
+				$emails,
+				get_users(
+					array(
+						'role'   => 'shop_manager',
+						'fields' => 'user_email',
+					)
+				)
+			);
+		}
+
+		if ( in_array( 'custom', $selected, true ) ) {
+			$emails[] = $this->settings->get_setting( 'custom_email' );
+		}
+
+		$emails = array_map( 'sanitize_email', $emails );
+		$emails = array_filter( $emails, 'is_email' );
+
+		return array_values( array_unique( $emails ) );
+	}
+
+	/**
+	 * Synchronize a variable parent after a variation stock change.
+	 *
+	 * @param int $product_id Product or variation ID.
+	 * @return void
+	 */
+	private static function sync_variation_parent( $product_id ) {
+		$product = wc_get_product( $product_id );
+
+		if ( $product && $product->is_type( 'variation' ) && $product->get_parent_id() ) {
+			\WC_Product_Variable::sync_stock_status( $product->get_parent_id() );
+		}
+	}
 }

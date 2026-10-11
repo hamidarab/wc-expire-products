@@ -1,0 +1,5 @@
+/dist/
+/graphify-out/
+/.phpcs-cache
+*.log
+.DS_Store
