@@ -68,13 +68,13 @@ final class Main {
 		}
 
 		$this->settings = new Settings();
+		$cron           = new Cron( $this->settings );
 
 		if ( is_admin() ) {
-			new Admin( $this->settings );
+			new Admin( $this->settings, $cron );
 		}
 
 		new Frontend( $this->settings );
-		new Cron( $this->settings );
 
 		Cron::schedule_check();
 	}

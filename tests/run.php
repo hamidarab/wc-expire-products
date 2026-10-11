@@ -1,6 +1,7 @@
 <?php
 /**
- * Standalone smoke tests for bootstrap, validation, and Jalali formatting.
+ * Standalone smoke tests for bootstrap, validation, Jalali formatting, and
+ * the expiration worker.
  *
  * Run with: php tests/run.php
  */
@@ -155,6 +156,169 @@ function is_multisite() {
 	return false;
 }
 
+// Minimal WooCommerce and WordPress doubles for the expiration worker.
+$peep_test_meta     = array();
+$peep_test_products = array();
+$peep_test_mail     = array();
+$peep_test_single   = array();
+
+function get_post_meta( $post_id, $key, $single = false ) {
+	global $peep_test_meta;
+	return isset( $peep_test_meta[ $post_id ][ $key ] ) ? $peep_test_meta[ $post_id ][ $key ] : '';
+}
+
+function update_post_meta( $post_id, $key, $value ) {
+	global $peep_test_meta;
+	$peep_test_meta[ $post_id ][ $key ] = $value;
+	return true;
+}
+
+function delete_post_meta( $post_id, $key ) {
+	global $peep_test_meta;
+	unset( $peep_test_meta[ $post_id ][ $key ] );
+	return true;
+}
+
+function wc_get_product( $product_id ) {
+	global $peep_test_products;
+	return isset( $peep_test_products[ $product_id ] ) ? $peep_test_products[ $product_id ] : false;
+}
+
+function wc_update_product_stock_status( $product_id, $status ) {
+	global $peep_test_products;
+	$peep_test_products[ $product_id ]->set_stock_status( $status );
+}
+
+function wp_mail( $to, $subject, $body ) {
+	global $peep_test_mail;
+	$peep_test_mail[] = compact( 'to', 'subject', 'body' );
+	return true;
+}
+
+function wp_schedule_single_event( $timestamp, $hook ) {
+	global $peep_test_single;
+	$peep_test_single[] = $hook;
+	return true;
+}
+
+function wp_reset_postdata() {}
+
+function get_users() {
+	return array();
+}
+
+function is_email( $email ) {
+	return false !== filter_var( $email, FILTER_VALIDATE_EMAIL );
+}
+
+function admin_url( $path = '' ) {
+	return 'https://example.test/wp-admin/' . $path;
+}
+
+function add_query_arg( $args, $url ) {
+	return $url . '?' . http_build_query( $args );
+}
+
+function esc_url_raw( $url ) {
+	return $url;
+}
+
+function wp_strip_all_tags( $text ) {
+	return strip_tags( (string) $text );
+}
+
+class Peep_Test_Product {
+	private $id;
+	private $status;
+
+	public function __construct( $id, $status = 'instock' ) {
+		$this->id     = $id;
+		$this->status = $status;
+	}
+
+	public function get_id() {
+		return $this->id;
+	}
+
+	public function get_name() {
+		return 'Product ' . $this->id;
+	}
+
+	public function get_parent_id() {
+		return 0;
+	}
+
+	public function is_type( $type ) {
+		return in_array( 'simple', (array) $type, true );
+	}
+
+	public function get_stock_status() {
+		return $this->status;
+	}
+
+	public function set_stock_status( $status ) {
+		$this->status = $status;
+	}
+
+	public function managing_stock() {
+		return false;
+	}
+
+	public function get_stock_quantity() {
+		return null;
+	}
+
+	public function save() {
+		return $this->id;
+	}
+}
+
+/**
+ * Evaluates the two meta-query shapes used by the Cron worker.
+ */
+class WP_Query {
+	public $posts = array();
+
+	public function __construct( $args ) {
+		global $peep_test_meta;
+
+		$matches = array();
+		$exclude = isset( $args['post__not_in'] ) ? $args['post__not_in'] : array();
+
+		foreach ( array_keys( $peep_test_meta ) as $post_id ) {
+			if ( in_array( $post_id, $exclude, true ) ) {
+				continue;
+			}
+
+			$ok = true;
+
+			foreach ( $args['meta_query'] as $key => $clause ) {
+				if ( 'relation' === $key ) {
+					continue;
+				}
+
+				$value   = get_post_meta( $post_id, $clause['key'] );
+				$compare = isset( $clause['compare'] ) ? $clause['compare'] : '=';
+
+				if ( '' === $value
+					|| ( '=' === $compare && $value !== $clause['value'] )
+					|| ( '<=' === $compare && $value > $clause['value'] )
+					|| ( '>' === $compare && $value <= $clause['value'] ) ) {
+					$ok = false;
+				}
+			}
+
+			if ( $ok ) {
+				$matches[] = $post_id;
+			}
+		}
+
+		sort( $matches );
+		$page        = isset( $args['paged'] ) ? (int) $args['paged'] : 1;
+		$this->posts = array_slice( $matches, ( $page - 1 ) * $args['posts_per_page'], $args['posts_per_page'] );
+	}
+}
+
 function peep_test_expect( $condition, $message ) {
 	if ( ! $condition ) {
 		throw new RuntimeException( $message );
@@ -269,5 +433,91 @@ peep_test_expect( false === $acquire_lock->invoke( $second_worker ), 'A second c
 $release_lock->invoke( $first_worker );
 peep_test_expect( true === $acquire_lock->invoke( $second_worker ), 'The lock owner did not release its lock.' );
 $release_lock->invoke( $second_worker );
+
+// Settings keep the exact 3.2.0 option shape and ignore request-only fields.
+$settings->save_settings(
+	array(
+		'action'                   => 'peep_save_settings',
+		'peep_settings_nonce'      => 'abc',
+		'peep_tab'                 => 'display',
+		'notification_period_type' => 'months',
+		'notification_period'      => '2',
+		'show_expiration'          => 'no',
+		'display_text'             => 'Best before %date%',
+		'date_format'              => 'Y-m-d',
+		'display_position'         => 'after_title',
+		'email_recipients'         => array( 'shop_manager', 'custom' ),
+		'custom_email'             => 'ops@example.test',
+		'show_in_order_email'      => 'no',
+	)
+);
+peep_test_expect(
+	array( 'notification_period_type', 'notification_period', 'show_expiration', 'display_text', 'date_format', 'display_position', 'email_recipients', 'custom_email', 'show_in_order_email' ) === array_keys( $peep_test_options['peep_settings'] ),
+	'Saved option keys changed or request-only fields leaked into peep_settings.'
+);
+peep_test_expect( 'no' === $settings->get_setting( 'show_expiration' ) && 'no' === $settings->get_setting( 'show_in_order_email' ), 'Switch values are no longer stored as yes/no.' );
+
+// Cutoff calculation follows the configured unit in the site timezone.
+$peep_today = new DateTimeImmutable( 'today', wp_timezone() );
+$settings->save_settings( array( 'notification_period' => 10, 'notification_period_type' => 'days' ) );
+peep_test_expect( $peep_today->modify( '+10 days' )->format( 'Y-m-d' ) === ProductExpirationEasyPeasy\Cron::get_cutoff_date( $settings ), 'Day cutoff is wrong.' );
+$settings->save_settings( array( 'notification_period' => 2, 'notification_period_type' => 'weeks' ) );
+peep_test_expect( $peep_today->modify( '+14 days' )->format( 'Y-m-d' ) === ProductExpirationEasyPeasy\Cron::get_cutoff_date( $settings ), 'Week cutoff is wrong.' );
+$settings->save_settings( array( 'notification_period' => 3, 'notification_period_type' => 'months' ) );
+peep_test_expect( $peep_today->add( new DateInterval( 'P3M' ) )->format( 'Y-m-d' ) === ProductExpirationEasyPeasy\Cron::get_cutoff_date( $settings ), 'Month cutoff is wrong.' );
+
+// One run across several 50-product batches sends exactly one report.
+$settings->save_settings(
+	array(
+		'notification_period'      => 30,
+		'notification_period_type' => 'days',
+		'email_recipients'         => array( 'custom' ),
+		'custom_email'             => 'ops@example.test',
+	)
+);
+$peep_soon = $peep_today->modify( '+5 days' )->format( 'Y-m-d' );
+$peep_late = $peep_today->modify( '+200 days' )->format( 'Y-m-d' );
+
+for ( $peep_id = 1; $peep_id <= 120; $peep_id++ ) {
+	$peep_test_products[ $peep_id ] = new Peep_Test_Product( $peep_id );
+	update_post_meta( $peep_id, '_expiration_date', $peep_soon );
+}
+
+$peep_test_products[500] = new Peep_Test_Product( 500 );
+update_post_meta( 500, '_expiration_date', $peep_late );
+
+$peep_worker = new ProductExpirationEasyPeasy\Cron( $settings );
+peep_test_expect( 120 === $peep_worker->run_check(), 'The worker did not process every batch.' );
+peep_test_expect( 1 === count( $peep_test_mail ), 'Expected one aggregated email per run, got ' . count( $peep_test_mail ) . '.' );
+peep_test_expect( array( 'ops@example.test' ) === $peep_test_mail[0]['to'], 'Report went to the wrong recipients.' );
+peep_test_expect( 120 === substr_count( $peep_test_mail[0]['body'], 'Product ID:' ), 'The aggregated report does not list every product.' );
+peep_test_expect( 'instock' === $peep_test_products[500]->get_stock_status(), 'A product beyond the cutoff was changed.' );
+
+$peep_test_mail = array();
+peep_test_expect( 0 === $peep_worker->run_check(), 'A second run changed products again.' );
+peep_test_expect( array() === $peep_test_mail, 'A run without changes sent an email.' );
+
+// A busy lock is reported distinctly from "nothing to do".
+$peep_other = new ProductExpirationEasyPeasy\Cron( $settings );
+$acquire_lock->invoke( $peep_other );
+peep_test_expect( false === $peep_worker->run_check(), 'A locked run must return false.' );
+peep_test_expect( 0 === $peep_worker->check_expired_products(), 'The cron callback must stay integer-typed.' );
+$release_lock->invoke( $peep_other );
+
+// Shortening the period restores products now beyond the new cutoff.
+update_post_meta( 7, '_expiration_date', $peep_today->modify( '+20 days' )->format( 'Y-m-d' ) );
+$settings->save_settings( array( 'notification_period' => 10, 'notification_period_type' => 'days', 'email_recipients' => array() ) );
+peep_test_expect( 1 === $peep_worker->restore_beyond_cutoff(), 'Only the product now beyond the cutoff should be restored.' );
+peep_test_expect( 'instock' === $peep_test_products[7]->get_stock_status(), 'The previous stock status was not restored.' );
+peep_test_expect( '' === get_post_meta( 7, '_peep_stock_managed' ), 'The managed flag was not cleared.' );
+peep_test_expect( 'outofstock' === $peep_test_products[8]->get_stock_status(), 'A product inside the new cutoff was restored.' );
+
+// The public recipient resolver and test email share the same rules.
+peep_test_expect( 'no_recipients' === ProductExpirationEasyPeasy\Cron::send_test_email( $settings ), 'Test email ignored the empty recipient list.' );
+$settings->save_settings( array( 'email_recipients' => array( 'admin', 'custom' ), 'custom_email' => 'not-an-email' ) );
+$peep_test_options['admin_email'] = 'admin@example.test';
+peep_test_expect( array( 'admin@example.test' ) === ProductExpirationEasyPeasy\Cron::get_recipient_emails( $settings ), 'Invalid custom email was not filtered.' );
+$peep_test_mail = array();
+peep_test_expect( 'sent' === ProductExpirationEasyPeasy\Cron::send_test_email( $settings ) && 1 === count( $peep_test_mail ), 'Test email was not sent.' );
 
 echo "bootstrap-smoke=passed\n";

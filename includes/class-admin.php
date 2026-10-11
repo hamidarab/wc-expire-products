@@ -23,6 +23,13 @@ final class Admin {
 	private $settings;
 
 	/**
+	 * Expiration processing service.
+	 *
+	 * @var Cron
+	 */
+	private $cron;
+
+	/**
 	 * Settings page hook suffix.
 	 *
 	 * @var string
@@ -33,9 +40,11 @@ final class Admin {
 	 * Register admin hooks.
 	 *
 	 * @param Settings $settings Settings service.
+	 * @param Cron     $cron     Expiration processing service.
 	 */
-	public function __construct( Settings $settings ) {
+	public function __construct( Settings $settings, Cron $cron ) {
 		$this->settings = $settings;
+		$this->cron     = $cron;
 
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ), 60 );
 		add_action( 'admin_post_peep_save_settings', array( $this, 'handle_settings_save' ) );
@@ -102,9 +111,16 @@ final class Admin {
 
 		check_admin_referer( 'peep_save_settings', 'peep_settings_nonce' );
 
+		$previous_cutoff = Cron::get_cutoff_date( $this->settings );
+
 		// The settings service sanitizes and whitelists every submitted value.
 		$data = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$this->settings->save_settings( is_array( $data ) ? $data : array() );
+
+		// A shorter period must release products that are no longer inside it.
+		if ( Cron::get_cutoff_date( $this->settings ) < $previous_cutoff ) {
+			$this->cron->restore_beyond_cutoff();
+		}
 
 		$redirect_url = add_query_arg(
 			array(
