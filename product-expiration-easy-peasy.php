@@ -59,15 +59,79 @@ function include_files() {
 }
 
 /**
- * Bootstrap the plugin after all regular plugins are available.
+ * Prefer the bundled translation over a stale WordPress.org language pack.
+ *
+ * WordPress loads WP_LANG_DIR/plugins/ first, so an old pack for this domain
+ * would hide every string added since. Only this text domain is redirected.
+ *
+ * @param string|false $file   Translation file WordPress is about to load.
+ * @param string       $domain Text domain.
+ * @return string|false
+ */
+function use_bundled_translation( $file, $domain ) {
+	if ( 'product-expiration-easy-peasy' !== $domain || ! is_string( $file ) ) {
+		return $file;
+	}
+
+	if ( wp_normalize_path( dirname( $file ) ) !== wp_normalize_path( WP_LANG_DIR . '/plugins' ) ) {
+		return $file;
+	}
+
+	$bundled = PRODUCT_EXPIRATION_EASY_PEASY_PATH . 'languages/' . basename( $file );
+
+	if ( file_exists( $bundled ) ) {
+		return $bundled;
+	}
+
+	// No bundled .l10n.php: fall back to the bundled .mo, not the stale pack.
+	if ( str_ends_with( $bundled, '.l10n.php' ) ) {
+		$bundled_mo = substr( $bundled, 0, -strlen( '.l10n.php' ) ) . '.mo';
+
+		if ( file_exists( $bundled_mo ) ) {
+			return $bundled_mo;
+		}
+	}
+
+	return $file;
+}
+add_filter( 'load_translation_file', __NAMESPACE__ . '\\use_bundled_translation', 10, 2 );
+add_filter( 'load_textdomain_mofile', __NAMESPACE__ . '\\use_bundled_translation', 10, 2 );
+
+/**
+ * Load translations on init, as WordPress 6.7+ expects.
+ *
+ * @return void
+ */
+function load_textdomain() {
+	load_plugin_textdomain(
+		'product-expiration-easy-peasy',
+		false,
+		dirname( plugin_basename( PRODUCT_EXPIRATION_EASY_PEASY_FILE ) ) . '/languages'
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\\load_textdomain', 0 );
+
+/**
+ * Include the plugin classes after all regular plugins are available.
  *
  * @return void
  */
 function bootstrap() {
 	include_files();
-	Main::instance();
 }
 add_action( 'plugins_loaded', __NAMESPACE__ . '\\bootstrap', 20 );
+
+/**
+ * Create the plugin services once translations are loaded.
+ *
+ * @return void
+ */
+function start() {
+	if ( class_exists( __NAMESPACE__ . '\\Main' ) ) {
+		Main::instance();
+	}
+}
+add_action( 'init', __NAMESPACE__ . '\\start', 1 );
 
 /**
  * Declare compatibility with WooCommerce's custom order tables.

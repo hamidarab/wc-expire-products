@@ -98,6 +98,14 @@ The expiration feature itself sends no telemetry. The generated RTL-Theme licens
 * Fixed: shortening the notification period now restores stock for products no longer inside the window.
 * Fixed: report edit links for variations open the parent product.
 
+= 3.2.1 =
+
+* Fixed: Persian translation not loading when an older WordPress.org language pack is present.
+* Translations now load on init, as WordPress 6.7 and later expect.
+* A default display text saved from an English admin screen now follows the site language on the storefront.
+* Fixed the %date% and %day% placeholders being stripped from the display text when it was saved (shown as "te%" on the storefront).
+* Added a compiled .l10n.php translation for faster loading on WordPress 6.5 and later.
+
 = 3.2.0 =
 
 * Fixed the undefined license helper fatal and corrected the SDK path.
@@ -131,6 +139,10 @@ The expiration feature itself sends no telemetry. The generated RTL-Theme licens
 = 3.3.0 =
 
 Redesigned, accessible settings page with status cards and test actions. Fixes duplicate notification emails and stock not being restored after shortening the notification period. Settings are kept as they are.
+
+= 3.2.1 =
+
+Restores the Persian admin screens on sites that still have an older WordPress.org language pack for this plugin.
 
 = 3.2.0 =
 

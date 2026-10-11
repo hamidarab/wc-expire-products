@@ -57,6 +57,12 @@ if ! rg -q "^= ${VERSION_RE} =$" "${PLUGIN_ROOT}/readme.txt"; then
 	exit 1
 fi
 
+# Every translatable string must be translated, and the .mo / .l10n.php
+# must be compiled from the current .po.
+if ! php "${PLUGIN_ROOT}/tools/check-translations.php" fa_IR; then
+	exit 1
+fi
+
 mkdir -p "${TEMP_DIR}/${PLUGIN_SLUG}" "${PLUGIN_OUTPUT}"
 
 rsync -a \

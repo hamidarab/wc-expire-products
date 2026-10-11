@@ -46,12 +46,6 @@ final class Main {
 	 * Initialize the plugin once.
 	 */
 	private function __construct() {
-		load_plugin_textdomain(
-			'product-expiration-easy-peasy',
-			false,
-			dirname( plugin_basename( PRODUCT_EXPIRATION_EASY_PEASY_FILE ) ) . '/languages'
-		);
-
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			add_action( 'admin_notices', array( $this, 'render_woocommerce_notice' ) );
 			return;
