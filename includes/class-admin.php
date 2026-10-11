@@ -37,6 +37,13 @@ final class Admin {
 	private $settings_page_hook = '';
 
 	/**
+	 * Settings page tabs, in display order.
+	 *
+	 * @var array<int, string>
+	 */
+	private const TABS = array( 'rules', 'display', 'notifications', 'help' );
+
+	/**
 	 * Register admin hooks.
 	 *
 	 * @param Settings $settings Settings service.
@@ -93,8 +100,37 @@ final class Admin {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'product-expiration-easy-peasy' ) );
 		}
 
-		$settings         = $this->settings;
-		$current_settings = $settings->get_settings();
+		$current_settings = $this->settings->get_settings();
+		$is_persian       = Date::is_persian_locale();
+		$today            = Date::today();
+		$cutoff           = Cron::get_cutoff_date( $this->settings );
+		$format_samples   = array();
+
+		foreach ( Settings::get_date_formats() as $format ) {
+			$format_samples[ $format ] = Date::format( $today, $format );
+		}
+
+		$view = array(
+			'is_persian'         => $is_persian,
+			'today'              => $today,
+			'cutoff'             => $cutoff,
+			'cutoff_label'       => Date::format( $cutoff, $is_persian ? 'j F Y' : 'default' ),
+			'format_samples'     => $format_samples,
+			'today_parts'        => array(
+				'year'  => Date::format( $today, 'Y' ),
+				'month' => Date::format( $today, 'm' ),
+				'day'   => Date::format( $today, 'd' ),
+			),
+			'admin_email'        => (string) get_option( 'admin_email' ),
+			'shop_manager_count' => count(
+				get_users(
+					array(
+						'role'   => 'shop_manager',
+						'fields' => 'ID',
+					)
+				)
+			),
+		);
 
 		require PRODUCT_EXPIRATION_EASY_PEASY_PATH . 'views/settings-page.php';
 	}
@@ -122,16 +158,112 @@ final class Admin {
 			$this->cron->restore_beyond_cutoff();
 		}
 
-		$redirect_url = add_query_arg(
-			array(
-				'page'             => 'product-expiration-easy-peasy-settings',
-				'settings-updated' => 'true',
-			),
+		$args = array( 'settings-updated' => 'true' );
+
+		if ( in_array( 'custom', (array) $this->settings->get_setting( 'email_recipients' ), true ) && '' === $this->settings->get_setting( 'custom_email' ) ) {
+			$args['peep_notice'] = 'custom_email_missing';
+		}
+
+		$this->redirect_to_settings( $args );
+	}
+
+	/**
+	 * Redirect back to the settings page, reopening the submitted tab.
+	 *
+	 * The caller must have verified a nonce before calling this method.
+	 *
+	 * @param array<string, string|int> $args Extra query arguments.
+	 * @return void
+	 */
+	private function redirect_to_settings( array $args = array() ) {
+		$tab = isset( $_POST['peep_tab'] ) && is_scalar( $_POST['peep_tab'] ) ? sanitize_key( wp_unslash( $_POST['peep_tab'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Every caller verifies its own nonce first.
+		$url = add_query_arg(
+			array_merge( array( 'page' => 'product-expiration-easy-peasy-settings' ), $args ),
 			admin_url( 'admin.php' )
 		);
 
-		wp_safe_redirect( $redirect_url );
+		if ( in_array( $tab, self::TABS, true ) ) {
+			$url .= '#' . $tab;
+		}
+
+		wp_safe_redirect( $url );
 		exit;
+	}
+
+	/**
+	 * Return an inline SVG icon used by the admin screens.
+	 *
+	 * Icons are static markup; print them through wp_kses() with
+	 * self::get_svg_allowed_html().
+	 *
+	 * @param string $name Icon name.
+	 * @return string
+	 */
+	public static function get_icon( $name ) {
+		if ( 'logo' === $name ) {
+			return '<svg class="peep-logo" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><rect width="120" height="120" rx="30" fill="#059669"/><path d="M46 28H86a9 9 0 0 1 9 9V83a9 9 0 0 1-9 9H46L22 60Z" fill="#fff"/><circle cx="42" cy="60" r="6.5" fill="#059669"/><circle cx="88" cy="88" r="21" fill="#EA580C" stroke="#fff" stroke-width="5"/><path d="M88 77v11l7 5" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+		}
+
+		$paths = array(
+			'calendar' => '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+			'clock'    => '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+			'alert'    => '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
+			'check'    => '<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
+			'info'     => '<circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>',
+			'box'      => '<path d="M21 8 12 3 3 8v8l9 5 9-5Z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
+			'tag'      => '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+			'zap'      => '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>',
+			'eye'      => '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+			'mail'     => '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
+			'help'     => '<circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>',
+			'refresh'  => '<path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/>',
+			'x'        => '<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/>',
+		);
+
+		if ( ! isset( $paths[ $name ] ) ) {
+			return '';
+		}
+
+		return '<svg class="peep-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $paths[ $name ] . '</svg>';
+	}
+
+	/**
+	 * Allowed markup for the static admin SVG icons.
+	 *
+	 * @return array<string, array<string, bool>>
+	 */
+	public static function get_svg_allowed_html() {
+		$shape = array(
+			'd'               => true,
+			'x'               => true,
+			'y'               => true,
+			'cx'              => true,
+			'cy'              => true,
+			'r'               => true,
+			'rx'              => true,
+			'width'           => true,
+			'height'          => true,
+			'fill'            => true,
+			'stroke'          => true,
+			'stroke-width'    => true,
+			'stroke-linecap'  => true,
+			'stroke-linejoin' => true,
+		);
+
+		return array(
+			'svg'    => array_merge(
+				$shape,
+				array(
+					'class'       => true,
+					'viewbox'     => true,
+					'aria-hidden' => true,
+					'focusable'   => true,
+				)
+			),
+			'path'   => $shape,
+			'rect'   => $shape,
+			'circle' => $shape,
+		);
 	}
 
 	/**
@@ -549,6 +681,36 @@ final class Admin {
 				array( 'jquery' ),
 				PRODUCT_EXPIRATION_EASY_PEASY_VERSION,
 				true
+			);
+		}
+
+		if ( $is_settings_ui ) {
+			// The live badge preview uses the real storefront styles.
+			wp_enqueue_style(
+				'product-expiration-easy-peasy',
+				PRODUCT_EXPIRATION_EASY_PEASY_URL . 'assets/css/style.css',
+				array(),
+				PRODUCT_EXPIRATION_EASY_PEASY_VERSION
+			);
+
+			wp_enqueue_script(
+				'product-expiration-easy-peasy-settings',
+				PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/js/settings.js',
+				array(),
+				PRODUCT_EXPIRATION_EASY_PEASY_VERSION,
+				true
+			);
+
+			wp_localize_script(
+				'product-expiration-easy-peasy-settings',
+				'peepSettings',
+				array(
+					'unsaved'       => __( 'You have unsaved changes', 'product-expiration-easy-peasy' ),
+					'saving'        => __( 'Saving…', 'product-expiration-easy-peasy' ),
+					'periodInvalid' => __( 'Enter a whole number from 1 to 365.', 'product-expiration-easy-peasy' ),
+					'emailMissing'  => __( 'Enter an email address, or untick Custom email.', 'product-expiration-easy-peasy' ),
+					'emailInvalid'  => __( 'Enter a valid email address, for example name@example.com.', 'product-expiration-easy-peasy' ),
+				)
 			);
 		}
 	}

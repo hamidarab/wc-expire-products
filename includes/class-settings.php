@@ -40,6 +40,22 @@ final class Settings {
 	);
 
 	/**
+	 * Supported storefront date formats.
+	 *
+	 * @var array<int, string>
+	 */
+	private const DATE_FORMATS = array( 'default', 'Y/m/d', 'Y/m', 'Ym', 'Y-m-d', 'd M Y' );
+
+	/**
+	 * Return the supported storefront date formats.
+	 *
+	 * @return array<int, string>
+	 */
+	public static function get_date_formats() {
+		return self::DATE_FORMATS;
+	}
+
+	/**
 	 * Localize user-facing defaults after the text domain is loaded.
 	 */
 	public function __construct() {
@@ -101,7 +117,7 @@ final class Settings {
 		}
 
 		$period_types      = array( 'days', 'weeks', 'months' );
-		$date_formats      = array( 'default', 'Y/m/d', 'Y/m', 'Ym', 'Y-m-d', 'd M Y' );
+		$date_formats      = self::DATE_FORMATS;
 		$display_positions = array( 'after_price', 'after_title' );
 		$recipient_types   = array( 'admin', 'shop_manager', 'custom' );
 

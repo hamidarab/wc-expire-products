@@ -208,8 +208,18 @@ final class Jalali {
 			$output .= isset( $replacements[ $character ] ) ? $replacements[ $character ] : $character;
 		}
 
+		return self::digits( $output );
+	}
+
+	/**
+	 * Replace Latin digits with Persian digits.
+	 *
+	 * @param string $text Text containing Latin digits.
+	 * @return string
+	 */
+	public static function digits( $text ) {
 		return strtr(
-			$output,
+			(string) $text,
 			array(
 				'0' => '۰',
 				'1' => '۱',
