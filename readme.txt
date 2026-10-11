@@ -7,7 +7,7 @@ Requires PHP: 8.1
 Requires Plugins: woocommerce
 WC requires at least: 9.0
 WC tested up to: 9.7
-Stable tag: 3.2.0
+Stable tag: 3.3.0
 License: GPL v3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -44,7 +44,7 @@ The distributed RTL-Theme license runtime is protected with ionCube. The readabl
 3. Upload the directly installable plugin ZIP from Plugins > Add New > Upload Plugin.
 4. Activate Product Expiration Easy Peasy.
 5. Complete RTL-Theme license activation when prompted.
-6. Open WooCommerce > Expiration and review the notification and display settings.
+6. Open WooCommerce > Expiration, review each tab, and use "Send test email" to confirm notifications arrive.
 7. Edit a product or variation and enter the date as Jalali `Y-m-d` on Persian administration screens or Gregorian `Y-m-d` on other locales.
 
 == Frequently Asked Questions ==
@@ -73,11 +73,30 @@ If this plugin previously changed the stock status, it restores the recorded sta
 
 New orders store a hidden purchase-time snapshot. Existing orders created before version 3.2.0 fall back to the product's current date when available.
 
+= Can I change the colours of the expiration badge? =
+
+Yes. The badge follows your theme's text colour by default. Override it from your theme or Appearance > Customize > Additional CSS:
+
+`:root { --peep-badge-color: #065f46; --peep-badge-bg: #e7f7ef; --peep-badge-border: #a7d7c0; }`
+
 = What data is sent externally? =
 
 The expiration feature itself sends no telemetry. The generated RTL-Theme license runtime may communicate with RTL-Theme to validate the license and registered domain. See `PRIVACY.md` and the RTL-Theme terms supplied with the purchase.
 
 == Changelog ==
+
+= 3.3.0 =
+
+* Redesigned settings page: tabs (Automation rules, Storefront display, Notifications, Help & status), live cutoff and badge previews, switches, date-format and position cards, and a sticky save bar with unsaved-changes warning.
+* Added status cards: dated products, expired products, products set out of stock by the plugin, and the next scheduled check.
+* Added "Run check now" and "Send test email" actions.
+* Added inline validation for the custom email address and a warning when no recipient is selected.
+* Product list: Expired, Near expiry, and Not expired badges, plus an "Auto out of stock" label.
+* Jalali date fields are validated as you type, show the readable date, and block saving invalid values (including Quick Edit).
+* The storefront badge uses CSS custom properties with neutral defaults so it fits more themes.
+* Fixed: one notification email per daily run instead of one per 50 products.
+* Fixed: shortening the notification period now restores stock for products no longer inside the window.
+* Fixed: report edit links for variations open the parent product.
 
 = 3.2.0 =
 
@@ -108,6 +127,10 @@ The expiration feature itself sends no telemetry. The generated RTL-Theme licens
 * Added configurable date formats and conditional asset loading.
 
 == Upgrade Notice ==
+
+= 3.3.0 =
+
+Redesigned, accessible settings page with status cards and test actions. Fixes duplicate notification emails and stock not being restored after shortening the notification period. Settings are kept as they are.
 
 = 3.2.0 =
 

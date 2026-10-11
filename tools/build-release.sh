@@ -33,13 +33,27 @@ if [[ "${ACTUAL_LICENSE_HASH}" != "${EXPECTED_LICENSE_HASH}" ]]; then
 	exit 1
 fi
 
-if ! rg -q '^ \* Version:     3\.2\.0$' "${PLUGIN_ROOT}/product-expiration-easy-peasy.php"; then
-	printf 'Plugin header version is not 3.2.0.\n' >&2
+# The plugin header is the single source of truth for the release version.
+VERSION="$(sed -n 's/^ \* Version:[[:space:]]*\([0-9.]*\)$/\1/p' "${PLUGIN_ROOT}/product-expiration-easy-peasy.php")"
+VERSION_RE="${VERSION//./\\.}"
+
+if [[ -z "${VERSION}" ]]; then
+	printf 'Could not read the plugin header version.\n' >&2
 	exit 1
 fi
 
-if ! rg -q '^Stable tag: 3\.2\.0$' "${PLUGIN_ROOT}/readme.txt"; then
-	printf 'readme.txt stable tag is not 3.2.0.\n' >&2
+if ! rg -q "^define\( 'PRODUCT_EXPIRATION_EASY_PEASY_VERSION', '${VERSION_RE}' \);$" "${PLUGIN_ROOT}/product-expiration-easy-peasy.php"; then
+	printf 'PRODUCT_EXPIRATION_EASY_PEASY_VERSION does not match header version %s.\n' "${VERSION}" >&2
+	exit 1
+fi
+
+if ! rg -q "^Stable tag: ${VERSION_RE}$" "${PLUGIN_ROOT}/readme.txt"; then
+	printf 'readme.txt stable tag does not match header version %s.\n' "${VERSION}" >&2
+	exit 1
+fi
+
+if ! rg -q "^= ${VERSION_RE} =$" "${PLUGIN_ROOT}/readme.txt"; then
+	printf 'readme.txt has no changelog entry for %s.\n' "${VERSION}" >&2
 	exit 1
 fi
 

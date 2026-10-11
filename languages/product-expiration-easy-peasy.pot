@@ -1,261 +1,546 @@
-# Product Expiration Easy Peasy translation template.
 # Copyright (C) 2026 Hamid Arab
-# This file is distributed under the same license as the Product Expiration Easy Peasy package.
-#
+# This file is distributed under the GPL v3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Product Expiration Easy Peasy 3.2.0\n"
+"Project-Id-Version: Product Expiration Easy Peasy 3.3.0\n"
 "Report-Msgid-Bugs-To: https://www.rtl-theme.com/\n"
-"POT-Creation-Date: 2026-07-27 17:12+0330\n"
-"PO-Revision-Date: 2026-07-27 17:12+0330\n"
 "Last-Translator: RTL-Theme Translation Team\n"
 "Language-Team: Persian\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-11T09:24:39+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: product-expiration-easy-peasy\n"
 
-#: views/settings-page.php:100
-msgid "After Price"
-msgstr ""
-
-#: views/settings-page.php:101
-msgid "After Title"
-msgstr ""
-
-#: views/settings-page.php:71
-msgid "Available placeholders:"
-msgstr ""
-
-#: views/settings-page.php:112 views/settings-page.php:119
-msgid "Custom Email"
-msgstr ""
-
-#: views/settings-page.php:79
-msgid "Date Format"
-msgstr ""
-
-#: views/settings-page.php:35
-msgid "Days"
-msgstr ""
-
-#: views/settings-page.php:83
-msgid "Default WordPress format"
-msgstr ""
-
-#: views/settings-page.php:96
-msgid "Display Position"
-msgstr ""
-
-#: views/settings-page.php:66
-msgid "Display Text"
-msgstr ""
-
-#. translators: %s: product edit URL.
-#: includes/class-cron.php:359
-#, php-format
-msgid "Edit product: %s"
-msgstr ""
-
-#: views/settings-page.php:107
-msgid "Email Recipients"
-msgstr ""
-
-#: includes/class-admin.php:595
-msgid ""
-"Enter a valid expiration date. Persian sites accept Jalali Y-m-d; other "
-"locales use Gregorian Y-m-d."
-msgstr ""
-
-#: includes/class-admin.php:70
-msgid "Expiration"
-msgstr ""
-
-#: includes/class-admin.php:134 includes/class-admin.php:193
-#: includes/class-admin.php:291 includes/class-admin.php:465
-msgid "Expiration Date"
-msgstr ""
-
-#: includes/class-admin.php:249
-msgid "Expiration Date: All"
-msgstr ""
-
-#. translators: %s: localized expiration date.
-#: includes/class-cron.php:346
-#, php-format
-msgid "Expiration date: %s"
-msgstr ""
-
-#: includes/class-admin.php:250 includes/class-admin.php:352
-msgid "Expired"
-msgstr ""
-
-#. translators: %date% is replaced with the localized product expiration date.
-#: includes/class-settings.php:47
-msgid "Expires: %date%"
-msgstr ""
-
-#. WordPress plugin header description.
-msgid "Manage WooCommerce product expiration dates, stock status, and notifications."
-msgstr ""
-
-#: views/settings-page.php:37
-msgid "Months"
-msgstr ""
-
-#: views/settings-page.php:59 views/settings-page.php:133
-msgid "No"
-msgstr ""
-
-#: includes/class-admin.php:252
-msgid "No Expiration Date"
-msgstr ""
-
-#: includes/class-admin.php:251
-msgid "Not Expired"
-msgstr ""
-
-#: views/settings-page.php:44
-msgid "Notification Period"
-msgstr ""
-
-#: views/settings-page.php:31
-msgid "Notification Period Type"
-msgstr ""
-
-#. translators: %s: parent product name.
-#: includes/class-cron.php:353
-#, php-format
-msgid "Parent product: %s"
-msgstr ""
-
-#: views/settings-page.php:90
-msgid ""
-"Persian locales are displayed with the bundled Jalali converter; stored "
-"values remain standard Gregorian dates."
-msgstr ""
-
-#: includes/class-admin.php:139
-msgid ""
-"Persian sites accept a Jalali date such as 1405-01-01; other locales use "
-"Gregorian dates. Values are stored as Gregorian Y-m-d."
-msgstr ""
-
-#: includes/class-main.php:127
-msgid ""
-"Please activate the RTL-Theme license to use Product Expiration Easy Peasy."
-msgstr ""
-
-#. WordPress plugin header name.
+#. Plugin Name of the plugin
+#: product-expiration-easy-peasy.php
 msgid "Product Expiration Easy Peasy"
 msgstr ""
 
-#: includes/class-main.php:110
-msgid "Product Expiration Easy Peasy requires WooCommerce 9.0 or newer."
+#. Plugin URI of the plugin
+#: product-expiration-easy-peasy.php
+msgid "https://www.rtl-theme.com/?p=293806"
 msgstr ""
 
-#: includes/class-main.php:94
-msgid ""
-"Product Expiration Easy Peasy requires WooCommerce to be installed and "
-"active."
+#. Description of the plugin
+#: product-expiration-easy-peasy.php
+msgid "Manage WooCommerce product expiration dates, stock status, and notifications."
 msgstr ""
 
-#: includes/class-admin.php:69 views/settings-page.php:18
+#. Author of the plugin
+#: product-expiration-easy-peasy.php
+msgid "Hamid Arab"
+msgstr ""
+
+#: includes/class-admin.php:108
+#: views/settings-page.php:73
 msgid "Product Expiration Settings"
 msgstr ""
 
-#. translators: %d: product or variation ID.
-#: includes/class-cron.php:344
+#: includes/class-admin.php:109
+msgid "Expiration"
+msgstr ""
+
+#: includes/class-admin.php:123
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+#: includes/class-admin.php:172
+#: includes/class-admin.php:206
+#: includes/class-admin.php:232
+msgid "You do not have sufficient permissions to perform this action."
+msgstr ""
+
+#: includes/class-admin.php:377
+#: includes/class-admin.php:437
+#: includes/class-admin.php:536
+#: includes/class-admin.php:737
+msgid "Expiration Date"
+msgstr ""
+
+#: includes/class-admin.php:383
+msgid "Persian sites accept a Jalali date such as 1405-01-01; other locales use Gregorian dates. Values are stored as Gregorian Y-m-d."
+msgstr ""
+
+#: includes/class-admin.php:443
+msgid "Set an expiration date for this variation."
+msgstr ""
+
+#: includes/class-admin.php:494
+msgid "Expiration Date: All"
+msgstr ""
+
+#: includes/class-admin.php:495
+#: includes/class-admin.php:602
+#: views/settings-page.php:113
+msgid "Expired"
+msgstr ""
+
+#: includes/class-admin.php:496
+msgid "Not Expired"
+msgstr ""
+
+#: includes/class-admin.php:497
+msgid "No Expiration Date"
+msgstr ""
+
+#: includes/class-admin.php:604
+msgid "Near expiry"
+msgstr ""
+
+#: includes/class-admin.php:606
+msgid "Not expired"
+msgstr ""
+
+#. translators: %s: number of variations.
+#: includes/class-admin.php:619
 #, php-format
-msgid "Product ID: %d"
+msgid "%s variation auto out of stock"
+msgid_plural "%s variations auto out of stock"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-admin.php:620
+msgid "Auto out of stock"
+msgstr ""
+
+#. translators: %s: example date in the expected input format.
+#: includes/class-admin.php:815
+#, php-format
+msgid "Enter a valid date such as %s, or leave the field empty."
+msgstr ""
+
+#: includes/class-admin.php:841
+msgid "You have unsaved changes"
+msgstr ""
+
+#: includes/class-admin.php:842
+msgid "Saving…"
+msgstr ""
+
+#: includes/class-admin.php:843
+msgid "Enter a whole number from 1 to 365."
+msgstr ""
+
+#: includes/class-admin.php:844
+msgid "Enter an email address, or untick Custom email."
+msgstr ""
+
+#: includes/class-admin.php:845
+msgid "Enter a valid email address, for example name@example.com."
+msgstr ""
+
+#: includes/class-admin.php:907
+msgid "Enter a valid expiration date. Persian sites accept Jalali Y-m-d; other locales use Gregorian Y-m-d."
+msgstr ""
+
+#. translators: %s: localized cutoff date.
+#: includes/class-cron.php:439
+#, php-format
+msgid "The following products expire by %s and were set to out of stock:"
+msgstr ""
+
+#: includes/class-cron.php:453
+msgid "Products near expiration"
+msgstr ""
+
+#: includes/class-cron.php:472
+msgid "This is a test message from Product Expiration Easy Peasy."
+msgstr ""
+
+#. translators: %s: localized cutoff date.
+#: includes/class-cron.php:475
+#, php-format
+msgid "With the current settings, products expiring on or before %s are set to out of stock and listed in the daily report sent to this address."
+msgstr ""
+
+#: includes/class-cron.php:481
+msgid "[Test] Products near expiration"
 msgstr ""
 
 #. translators: %s: product name.
-#: includes/class-cron.php:342
+#: includes/class-cron.php:508
 #, php-format
 msgid "Product: %s"
 msgstr ""
 
-#: views/settings-page.php:48
-msgid ""
-"Products expiring within this period are set to out of stock and included in "
-"the notification email."
+#. translators: %d: product or variation ID.
+#: includes/class-cron.php:510
+#, php-format
+msgid "Product ID: %d"
 msgstr ""
 
-#: includes/class-cron.php:367
-msgid "Products near expiration"
+#. translators: %s: localized expiration date.
+#: includes/class-cron.php:512
+#, php-format
+msgid "Expiration date: %s"
 msgstr ""
 
-#: views/settings-page.php:139
-msgid "Save Settings"
+#. translators: %s: parent product name.
+#: includes/class-cron.php:519
+#, php-format
+msgid "Parent product: %s"
 msgstr ""
 
-#: includes/class-admin.php:198
-msgid "Set an expiration date for this variation."
-msgstr ""
-
-#: views/settings-page.php:21
-msgid "Settings saved successfully."
-msgstr ""
-
-#: views/settings-page.php:111
-msgid "Shop Managers"
-msgstr ""
-
-#: views/settings-page.php:54
-msgid "Show Expiration Date"
-msgstr ""
-
-#: views/settings-page.php:128
-msgid "Show in Order Email"
-msgstr ""
-
-#: views/settings-page.php:110
-msgid "Site Admin"
-msgstr ""
-
-#: includes/class-license-check.php:128
-msgid "The RTL-Theme license class could not be loaded."
-msgstr ""
-
-#: includes/class-license-check.php:111
-msgid "The RTL-Theme license file failed its integrity check."
-msgstr ""
-
-#: includes/class-license-check.php:104
-msgid "The RTL-Theme license file is missing or unreadable."
-msgstr ""
-
-#: includes/class-license-check.php:74 includes/class-license-check.php:123
-msgid "The RTL-Theme license runtime could not be initialized."
+#. translators: %s: product edit URL.
+#: includes/class-cron.php:524
+#, php-format
+msgid "Edit product: %s"
 msgstr ""
 
 #: includes/class-license-check.php:68
 msgid "The RTL-Theme license runtime is missing its activation method."
 msgstr ""
 
-#. translators: %s: localized cutoff date.
-#: includes/class-cron.php:326
-#, php-format
-msgid "The following products expire by %s and were set to out of stock:"
+#: includes/class-license-check.php:74
+#: includes/class-license-check.php:123
+msgid "The RTL-Theme license runtime could not be initialized."
 msgstr ""
 
-#: views/settings-page.php:36
-msgid "Weeks"
+#: includes/class-license-check.php:104
+msgid "The RTL-Theme license file is missing or unreadable."
 msgstr ""
 
-#: views/settings-page.php:58 views/settings-page.php:132
-msgid "Yes"
-msgstr ""
-
-#: includes/class-admin.php:84
-msgid "You do not have sufficient permissions to access this page."
-msgstr ""
-
-#: includes/class-admin.php:100
-msgid "You do not have sufficient permissions to perform this action."
+#: includes/class-license-check.php:111
+msgid "The RTL-Theme license file failed its integrity check."
 msgstr ""
 
 #: includes/class-license-check.php:116
 msgid "ionCube Loader is required to validate the RTL-Theme license."
+msgstr ""
+
+#: includes/class-license-check.php:128
+msgid "The RTL-Theme license class could not be loaded."
+msgstr ""
+
+#: includes/class-main.php:94
+msgid "Product Expiration Easy Peasy requires WooCommerce to be installed and active."
+msgstr ""
+
+#: includes/class-main.php:110
+msgid "Product Expiration Easy Peasy requires WooCommerce 9.0 or newer."
+msgstr ""
+
+#: includes/class-main.php:127
+msgid "Please activate the RTL-Theme license to use Product Expiration Easy Peasy."
+msgstr ""
+
+#. translators: %date% is replaced with the localized product expiration date.
+#: includes/class-settings.php:63
+#, php-format
+msgid "Expires: %date%"
+msgstr ""
+
+#. translators: %s: number of products and variations.
+#: views/settings-page.php:41
+#, php-format
+msgid "Check complete. %s product was set out of stock."
+msgid_plural "Check complete. %s products were set out of stock."
+msgstr[0] ""
+msgstr[1] ""
+
+#: views/settings-page.php:45
+msgid "Another expiration check is already running. Try again in a few minutes."
+msgstr ""
+
+#: views/settings-page.php:46
+msgid "Test email sent to the saved recipients."
+msgstr ""
+
+#: views/settings-page.php:47
+msgid "The test email could not be sent. Check the site email configuration."
+msgstr ""
+
+#: views/settings-page.php:48
+msgid "No valid recipient is saved, so the test email was not sent."
+msgstr ""
+
+#: views/settings-page.php:49
+msgid "Custom email is selected, but the address was empty or invalid, so no custom email will receive reports."
+msgstr ""
+
+#: views/settings-page.php:53
+#: views/settings-page.php:160
+msgid "Automation rules"
+msgstr ""
+
+#: views/settings-page.php:54
+#: views/settings-page.php:204
+msgid "Storefront display"
+msgstr ""
+
+#: views/settings-page.php:55
+#: views/settings-page.php:302
+msgid "Notifications"
+msgstr ""
+
+#: views/settings-page.php:56
+#: views/settings-page.php:356
+msgid "Help & status"
+msgstr ""
+
+#. translators: %s: plugin version number.
+#: views/settings-page.php:77
+#, php-format
+msgid "Version %s"
+msgstr ""
+
+#: views/settings-page.php:86
+msgid "Dates are shown in the Jalali calendar (built-in converter)"
+msgstr ""
+
+#: views/settings-page.php:88
+msgid "Dates are shown in the Gregorian calendar"
+msgstr ""
+
+#: views/settings-page.php:97
+msgid "Settings saved successfully."
+msgstr ""
+
+#: views/settings-page.php:104
+msgid "Status overview"
+msgstr ""
+
+#: views/settings-page.php:108
+msgid "Products and variations with a date"
+msgstr ""
+
+#: views/settings-page.php:114
+msgid "View expired products"
+msgstr ""
+
+#: views/settings-page.php:119
+msgid "Set out of stock by the plugin"
+msgstr ""
+
+#: views/settings-page.php:128
+msgid "Not scheduled"
+msgstr ""
+
+#: views/settings-page.php:132
+msgid "Next check"
+msgstr ""
+
+#: views/settings-page.php:137
+msgid "Run check now"
+msgstr ""
+
+#: views/settings-page.php:147
+msgid "Settings sections"
+msgstr ""
+
+#: views/settings-page.php:161
+msgid "Choose when products near their expiration date are taken off sale."
+msgstr ""
+
+#: views/settings-page.php:164
+msgid "How long before expiry should a product go out of stock?"
+msgstr ""
+
+#: views/settings-page.php:166
+msgid "Amount"
+msgstr ""
+
+#: views/settings-page.php:168
+msgid "Unit"
+msgstr ""
+
+#: views/settings-page.php:170
+msgid "Days"
+msgstr ""
+
+#: views/settings-page.php:171
+msgid "Weeks"
+msgstr ""
+
+#: views/settings-page.php:172
+msgid "Months"
+msgstr ""
+
+#: views/settings-page.php:175
+msgid "A whole number from 1 to 365."
+msgstr ""
+
+#. translators: %s: cutoff date, wrapped in bold markup.
+#: views/settings-page.php:187
+#, php-format
+msgid "With the current setting, products expiring on or before %s are set out of stock and included in the email report."
+msgstr ""
+
+#: views/settings-page.php:199
+msgid "If you clear or extend a date, the previous stock status is restored automatically. This applies only to products this plugin set out of stock."
+msgstr ""
+
+#: views/settings-page.php:205
+msgid "Control how the expiration date appears to customers."
+msgstr ""
+
+#: views/settings-page.php:212
+msgid "Show the expiration date to customers"
+msgstr ""
+
+#: views/settings-page.php:214
+msgid "On product pages, in the cart and in the customer account."
+msgstr ""
+
+#: views/settings-page.php:222
+msgid "Show the date in order emails"
+msgstr ""
+
+#: views/settings-page.php:224
+msgid "Adds the purchase-time expiration date to each item in WooCommerce order emails."
+msgstr ""
+
+#: views/settings-page.php:229
+msgid "Display text"
+msgstr ""
+
+#: views/settings-page.php:231
+msgid "Insert a placeholder"
+msgstr ""
+
+#: views/settings-page.php:237
+msgid "Select a placeholder to insert it at the cursor."
+msgstr ""
+
+#: views/settings-page.php:239
+msgid "Available placeholders:"
+msgstr ""
+
+#: views/settings-page.php:246
+msgid "Date format"
+msgstr ""
+
+#: views/settings-page.php:254
+msgid "Site default"
+msgstr ""
+
+#: views/settings-page.php:265
+msgid "Preview (using today’s date)"
+msgstr ""
+
+#: views/settings-page.php:273
+msgid "Position on the product page"
+msgstr ""
+
+#: views/settings-page.php:277
+msgid "After title"
+msgstr ""
+
+#: views/settings-page.php:278
+msgid "After price"
+msgstr ""
+
+#: views/settings-page.php:303
+msgid "Choose who receives the report of products set out of stock by each daily check."
+msgstr ""
+
+#: views/settings-page.php:306
+msgid "Who should receive the expiry report?"
+msgstr ""
+
+#: views/settings-page.php:310
+msgid "Site admin"
+msgstr ""
+
+#: views/settings-page.php:315
+msgid "Shop managers"
+msgstr ""
+
+#. translators: %s: number of users with the Shop Manager role.
+#: views/settings-page.php:321
+#, php-format
+msgid "%s user"
+msgid_plural "%s users"
+msgstr[0] ""
+msgstr[1] ""
+
+#: views/settings-page.php:330
+msgid "Custom email"
+msgstr ""
+
+#: views/settings-page.php:336
+msgid "No recipient is selected, so no expiry report will be sent."
+msgstr ""
+
+#: views/settings-page.php:340
+msgid "Custom email address"
+msgstr ""
+
+#: views/settings-page.php:350
+msgid "Send test email"
+msgstr ""
+
+#: views/settings-page.php:351
+msgid "Sends a sample message to the saved recipients. Save your changes first."
+msgstr ""
+
+#: views/settings-page.php:357
+msgid "How to set expiration dates, and the status of the plugin and its requirements."
+msgstr ""
+
+#: views/settings-page.php:359
+msgid "Setting expiration dates"
+msgstr ""
+
+#: views/settings-page.php:361
+msgid "Simple product: open the product, go to Product data > General and fill in Expiration Date."
+msgstr ""
+
+#: views/settings-page.php:362
+msgid "Variable product: open Product data > Variations, expand a variation and fill in its Expiration Date."
+msgstr ""
+
+#: views/settings-page.php:363
+msgid "Quick Edit: in the product list, hover over a simple product, choose Quick Edit and fill in Expiration Date."
+msgstr ""
+
+#. translators: %s: example Jalali date, wrapped in code markup.
+#: views/settings-page.php:369
+#, php-format
+msgid "On Persian admin screens, enter a Jalali date such as %s. Persian, Arabic and Latin digits are accepted, with a hyphen or slash as the separator."
+msgstr ""
+
+#: views/settings-page.php:378
+msgid "System status"
+msgstr ""
+
+#: views/settings-page.php:381
+msgid "Plugin version"
+msgstr ""
+
+#: views/settings-page.php:383
+msgid "RTL-Theme license"
+msgstr ""
+
+#: views/settings-page.php:384
+msgid "Active"
+msgstr ""
+
+#: views/settings-page.php:384
+msgid "Not active"
+msgstr ""
+
+#: views/settings-page.php:388
+msgid "ionCube Loader"
+msgstr ""
+
+#. translators: %s: ionCube Loader version.
+#: views/settings-page.php:391
+#, php-format
+msgid "Loaded (%s)"
+msgstr ""
+
+#: views/settings-page.php:392
+msgid "Not loaded"
+msgstr ""
+
+#: views/settings-page.php:395
+msgid "Not detected"
+msgstr ""
+
+#: views/settings-page.php:423
+msgid "Save changes"
 msgstr ""
