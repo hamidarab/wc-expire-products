@@ -33,13 +33,24 @@ if [[ "${ACTUAL_LICENSE_HASH}" != "${EXPECTED_LICENSE_HASH}" ]]; then
 	exit 1
 fi
 
-if ! rg -q '^ \* Version:     3\.2\.0$' "${PLUGIN_ROOT}/product-expiration-easy-peasy.php"; then
-	printf 'Plugin header version is not 3.2.0.\n' >&2
+if ! rg -q '^ \* Version:     3\.2\.1$' "${PLUGIN_ROOT}/product-expiration-easy-peasy.php"; then
+	printf 'Plugin header version is not 3.2.1.\n' >&2
 	exit 1
 fi
 
-if ! rg -q '^Stable tag: 3\.2\.0$' "${PLUGIN_ROOT}/readme.txt"; then
-	printf 'readme.txt stable tag is not 3.2.0.\n' >&2
+if ! rg -q "^define\( 'PRODUCT_EXPIRATION_EASY_PEASY_VERSION', '3\.2\.1' \);$" "${PLUGIN_ROOT}/product-expiration-easy-peasy.php"; then
+	printf 'PRODUCT_EXPIRATION_EASY_PEASY_VERSION is not 3.2.1.\n' >&2
+	exit 1
+fi
+
+if ! rg -q '^Stable tag: 3\.2\.1$' "${PLUGIN_ROOT}/readme.txt"; then
+	printf 'readme.txt stable tag is not 3.2.1.\n' >&2
+	exit 1
+fi
+
+# Every translatable string must be translated, and the .mo / .l10n.php
+# must be compiled from the current .po.
+if ! php "${PLUGIN_ROOT}/tools/check-translations.php" fa_IR; then
 	exit 1
 fi
 

@@ -7,7 +7,7 @@ Requires PHP: 8.1
 Requires Plugins: woocommerce
 WC requires at least: 9.0
 WC tested up to: 9.7
-Stable tag: 3.2.0
+Stable tag: 3.2.1
 License: GPL v3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -79,6 +79,14 @@ The expiration feature itself sends no telemetry. The generated RTL-Theme licens
 
 == Changelog ==
 
+= 3.2.1 =
+
+* Fixed: Persian translation not loading when an older WordPress.org language pack is present.
+* Translations now load on init, as WordPress 6.7 and later expect.
+* A default display text saved from an English admin screen now follows the site language on the storefront.
+* Fixed the %date% and %day% placeholders being stripped from the display text when it was saved (shown as "te%" on the storefront).
+* Added a compiled .l10n.php translation for faster loading on WordPress 6.5 and later.
+
 = 3.2.0 =
 
 * Fixed the undefined license helper fatal and corrected the SDK path.
@@ -108,6 +116,10 @@ The expiration feature itself sends no telemetry. The generated RTL-Theme licens
 * Added configurable date formats and conditional asset loading.
 
 == Upgrade Notice ==
+
+= 3.2.1 =
+
+Restores the Persian admin screens on sites that still have an older WordPress.org language pack for this plugin.
 
 = 3.2.0 =
 

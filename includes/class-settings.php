@@ -23,6 +23,20 @@ final class Settings {
 	private const OPTION_NAME = 'peep_settings';
 
 	/**
+	 * Untranslated default storefront text.
+	 *
+	 * @var string
+	 */
+	private const DEFAULT_DISPLAY_TEXT = 'Expires: %date%';
+
+	/**
+	 * Placeholders supported in the storefront text.
+	 *
+	 * @var string[]
+	 */
+	private const DISPLAY_PLACEHOLDERS = array( '%date%', '%year%', '%month%', '%day%' );
+
+	/**
 	 * Default option values.
 	 *
 	 * @var array<string, mixed>
@@ -31,7 +45,7 @@ final class Settings {
 		'notification_period_type' => 'days',
 		'notification_period'      => 30,
 		'show_expiration'          => 'yes',
-		'display_text'             => 'Expires: %date%',
+		'display_text'             => self::DEFAULT_DISPLAY_TEXT,
 		'date_format'              => 'default',
 		'display_position'         => 'after_price',
 		'email_recipients'         => array( 'admin' ),
@@ -40,11 +54,58 @@ final class Settings {
 	);
 
 	/**
-	 * Localize user-facing defaults after the text domain is loaded.
+	 * Translate the default storefront text when it is needed.
+	 *
+	 * Translating lazily keeps __() out of the bootstrap, before the text
+	 * domain is loaded on init.
+	 *
+	 * @return string
 	 */
-	public function __construct() {
+	private function get_default_display_text() {
 		/* translators: %date% is replaced with the localized product expiration date. */
-		$this->defaults['display_text'] = __( 'Expires: %date%', 'product-expiration-easy-peasy' );
+		return __( 'Expires: %date%', 'product-expiration-easy-peasy' );
+	}
+
+	/**
+	 * Sanitize the storefront text without losing its placeholders.
+	 *
+	 * WordPress' sanitize_text_field() removes percent-encoded octets, so "%da" in
+	 * %date% and %day% would otherwise be stripped.
+	 *
+	 * @param string $text Raw text.
+	 * @return string
+	 */
+	private function sanitize_display_text( $text ) {
+		$tokens = array();
+
+		foreach ( array_keys( self::DISPLAY_PLACEHOLDERS ) as $index ) {
+			$tokens[] = '{{peep-placeholder-' . $index . '}}';
+		}
+
+		$text = str_replace( self::DISPLAY_PLACEHOLDERS, $tokens, $text );
+
+		return str_replace( $tokens, self::DISPLAY_PLACEHOLDERS, sanitize_text_field( $text ) );
+	}
+
+	/**
+	 * Whether a stored text is the untranslated default.
+	 *
+	 * Also matches the default as earlier releases stored it, after
+	 * sanitize_text_field() had turned "%date%" into "te%".
+	 *
+	 * @param mixed $text Stored text.
+	 * @return bool
+	 */
+	private function is_default_display_text( $text ) {
+		return in_array(
+			$text,
+			array(
+				self::DEFAULT_DISPLAY_TEXT,
+				str_replace( '%date%', 'te%', self::DEFAULT_DISPLAY_TEXT ),
+				str_replace( '%date%', 'te%', $this->get_default_display_text() ),
+			),
+			true
+		);
 	}
 
 	/**
@@ -61,6 +122,11 @@ final class Settings {
 
 		if ( isset( $settings['notification_priod_type'] ) && ! array_key_exists( 'notification_period_type', $settings ) ) {
 			$settings['notification_period_type'] = $settings['notification_priod_type'];
+		}
+
+		// A default saved from an English admin screen follows the site language.
+		if ( isset( $settings['display_text'] ) && $this->is_default_display_text( $settings['display_text'] ) ) {
+			unset( $settings['display_text'] );
 		}
 
 		return $this->sanitize_settings( wp_parse_args( $settings, $this->defaults ) );
@@ -120,11 +186,11 @@ final class Settings {
 		$show_in_email   = isset( $data['show_in_order_email'] ) && 'no' === $data['show_in_order_email'] ? 'no' : 'yes';
 
 		$display_text = isset( $data['display_text'] ) && is_scalar( $data['display_text'] )
-			? sanitize_text_field( (string) $data['display_text'] )
-			: $this->defaults['display_text'];
+			? $this->sanitize_display_text( (string) $data['display_text'] )
+			: '';
 
-		if ( '' === $display_text ) {
-			$display_text = $this->defaults['display_text'];
+		if ( '' === $display_text || $this->is_default_display_text( $display_text ) ) {
+			$display_text = $this->get_default_display_text();
 		}
 
 		$date_format = isset( $data['date_format'] ) && is_scalar( $data['date_format'] )

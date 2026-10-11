@@ -9,12 +9,16 @@ declare(strict_types=1);
 
 define( 'ABSPATH', dirname( __DIR__ ) . '/' );
 define( 'MINUTE_IN_SECONDS', 60 );
+define( 'WP_LANG_DIR', '/srv/wp-content/languages' );
 
 $peep_test_actions    = array();
 $peep_test_activation = null;
 $peep_test_scheduled  = false;
 $peep_test_options    = array();
 $peep_test_uuid       = 0;
+$peep_test_events     = array();
+$peep_test_i18n_calls = 0;
+$peep_test_i18n_map   = array();
 
 function plugin_dir_path( $file ) {
 	return dirname( $file ) . '/';
@@ -29,8 +33,9 @@ function plugin_basename( $file ) {
 }
 
 function add_action( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
-	global $peep_test_actions;
+	global $peep_test_actions, $peep_test_events;
 	$peep_test_actions[ $hook ][ $priority ][] = array( $callback, $accepted_args );
+	$peep_test_events[]                        = 'hook:' . $hook;
 }
 
 function add_filter( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
@@ -47,11 +52,46 @@ function register_deactivation_hook( $file, $callback ) {
 }
 
 function load_plugin_textdomain() {
+	global $peep_test_events;
+	$peep_test_events[] = 'textdomain';
 	return true;
 }
 
 function __( $text ) {
-	return $text;
+	global $peep_test_i18n_calls, $peep_test_i18n_map;
+	++$peep_test_i18n_calls;
+	return $peep_test_i18n_map[ $text ] ?? $text;
+}
+
+function wp_normalize_path( $path ) {
+	return str_replace( '\\', '/', (string) $path );
+}
+
+function peep_test_run_hook( $hook ) {
+	global $peep_test_actions;
+
+	$callbacks = $peep_test_actions[ $hook ] ?? array();
+	ksort( $callbacks );
+
+	foreach ( $callbacks as $priority_callbacks ) {
+		foreach ( $priority_callbacks as $callback ) {
+			call_user_func( $callback[0] );
+		}
+	}
+}
+
+function peep_test_hook_priority( $hook, $callback ) {
+	global $peep_test_actions;
+
+	foreach ( $peep_test_actions[ $hook ] ?? array() as $priority => $callbacks ) {
+		foreach ( $callbacks as $registered ) {
+			if ( $callback === $registered[0] ) {
+				return $priority;
+			}
+		}
+	}
+
+	return null;
 }
 
 function wp_next_scheduled() {
@@ -119,7 +159,14 @@ function wp_unslash( $value ) {
 }
 
 function sanitize_text_field( $value ) {
-	return trim( strip_tags( (string) $value ) );
+	$value = trim( preg_replace( '/[\r\n\t ]+/', ' ', strip_tags( (string) $value ) ) );
+
+	// Like _sanitize_text_fields(), drop percent-encoded octets such as "%da".
+	while ( preg_match( '/%[a-f0-9]{2}/i', $value, $match ) ) {
+		$value = str_replace( $match[0], '', $value );
+	}
+
+	return trim( $value );
 }
 
 function sanitize_key( $value ) {
@@ -201,12 +248,22 @@ $wpdb = new Peep_Test_Wpdb();
 
 require dirname( __DIR__ ) . '/product-expiration-easy-peasy.php';
 
-ksort( $peep_test_actions['plugins_loaded'] );
-foreach ( $peep_test_actions['plugins_loaded'] as $callbacks ) {
-	foreach ( $callbacks as $callback ) {
-		call_user_func( $callback[0] );
-	}
-}
+// Load order: nothing is translated before the text domain loads on init.
+peep_test_run_hook( 'plugins_loaded' );
+peep_test_expect( 0 === $peep_test_i18n_calls, 'A translation function ran during plugins_loaded, before the text domain is loaded.' );
+peep_test_expect( ! in_array( 'textdomain', $peep_test_events, true ), 'The text domain was loaded before init.' );
+
+$peep_test_textdomain_priority = peep_test_hook_priority( 'init', 'ProductExpirationEasyPeasy\\load_textdomain' );
+$peep_test_start_priority      = peep_test_hook_priority( 'init', 'ProductExpirationEasyPeasy\\start' );
+peep_test_expect( null !== $peep_test_textdomain_priority, 'The text domain loader is not hooked on init.' );
+peep_test_expect( null !== $peep_test_start_priority && $peep_test_start_priority > $peep_test_textdomain_priority, 'The plugin starts before its text domain is loaded.' );
+
+$peep_test_events = array();
+peep_test_run_hook( 'init' );
+$peep_test_textdomain_at = array_search( 'textdomain', $peep_test_events, true );
+$peep_test_notice_at     = array_search( 'hook:admin_notices', $peep_test_events, true );
+peep_test_expect( false !== $peep_test_textdomain_at && false !== $peep_test_notice_at && $peep_test_textdomain_at < $peep_test_notice_at, 'Main started before the text domain was loaded.' );
+peep_test_expect( 1 === count( array_keys( $peep_test_events, 'textdomain', true ) ), 'The text domain was loaded more than once.' );
 
 peep_test_expect(
 	function_exists( 'ProductExpirationEasyPeasy\\product_expiration_easy_peasy_is_license_active' ),
@@ -269,5 +326,43 @@ peep_test_expect( false === $acquire_lock->invoke( $second_worker ), 'A second c
 $release_lock->invoke( $first_worker );
 peep_test_expect( true === $acquire_lock->invoke( $second_worker ), 'The lock owner did not release its lock.' );
 $release_lock->invoke( $second_worker );
+
+// The bundled translation wins over a stale WordPress.org language pack.
+$peep_test_bundled = dirname( __DIR__ ) . '/languages/product-expiration-easy-peasy-fa_IR';
+$peep_test_global  = WP_LANG_DIR . '/plugins/product-expiration-easy-peasy-fa_IR';
+
+peep_test_expect( $peep_test_bundled . '.mo' === ProductExpirationEasyPeasy\use_bundled_translation( $peep_test_global . '.mo', 'product-expiration-easy-peasy' ), 'A stale global .mo was not redirected to the bundled file.' );
+peep_test_expect(
+	( is_file( $peep_test_bundled . '.l10n.php' ) ? $peep_test_bundled . '.l10n.php' : $peep_test_bundled . '.mo' ) === ProductExpirationEasyPeasy\use_bundled_translation( $peep_test_global . '.l10n.php', 'product-expiration-easy-peasy' ),
+	'A stale global .l10n.php was not redirected to the bundled file.'
+);
+peep_test_expect( $peep_test_global . '.mo' === ProductExpirationEasyPeasy\use_bundled_translation( $peep_test_global . '.mo', 'woocommerce' ), 'Another text domain was redirected.' );
+peep_test_expect( WP_LANG_DIR . '/plugins/product-expiration-easy-peasy-de_DE.mo' === ProductExpirationEasyPeasy\use_bundled_translation( WP_LANG_DIR . '/plugins/product-expiration-easy-peasy-de_DE.mo', 'product-expiration-easy-peasy' ), 'A locale without a bundled file was redirected.' );
+peep_test_expect( '/elsewhere/product-expiration-easy-peasy-fa_IR.mo' === ProductExpirationEasyPeasy\use_bundled_translation( '/elsewhere/product-expiration-easy-peasy-fa_IR.mo', 'product-expiration-easy-peasy' ), 'A file outside WP_LANG_DIR/plugins was redirected.' );
+peep_test_expect( 10 === peep_test_hook_priority( 'load_translation_file', 'ProductExpirationEasyPeasy\\use_bundled_translation' ), 'The load_translation_file filter is not registered.' );
+peep_test_expect( 10 === peep_test_hook_priority( 'load_textdomain_mofile', 'ProductExpirationEasyPeasy\\use_bundled_translation' ), 'The load_textdomain_mofile filter is not registered.' );
+
+// A default saved from an English admin screen follows the site language.
+$peep_test_i18n_map = array( 'Expires: %date%' => 'تاریخ انقضا: %date%' );
+
+$peep_test_options['peep_settings'] = array( 'display_text' => 'Expires: %date%' );
+peep_test_expect( 'تاریخ انقضا: %date%' === $settings->get_setting( 'display_text' ), 'A stored English default was not translated.' );
+$peep_test_options['peep_settings'] = array( 'display_text' => 'Expires on %date%' );
+peep_test_expect( 'Expires on %date%' === $settings->get_setting( 'display_text' ), 'Custom display text was changed.' );
+$peep_test_options['peep_settings'] = array();
+peep_test_expect( 'تاریخ انقضا: %date%' === $settings->get_setting( 'display_text' ), 'The default display text was not translated.' );
+$peep_test_options['peep_settings'] = array( 'display_text' => 'Expires: te%' );
+peep_test_expect( 'تاریخ انقضا: %date%' === $settings->get_setting( 'display_text' ), 'The default stored by earlier releases (with %date% stripped) was not repaired.' );
+$peep_test_options['peep_settings'] = array( 'display_text' => 'تاریخ انقضا: te%' );
+peep_test_expect( 'تاریخ انقضا: %date%' === $settings->get_setting( 'display_text' ), 'The stripped translated default was not repaired.' );
+
+$settings->save_settings( array( 'display_text' => 'Best before %day%/%month%/%year% (%date%)' ) );
+peep_test_expect( 'Best before %day%/%month%/%year% (%date%)' === $settings->get_setting( 'display_text' ), 'Placeholders were stripped from the display text.' );
+$peep_test_i18n_map = array();
+
+// Bundled translations cover every source string and the compiled files are fresh.
+require_once dirname( __DIR__ ) . '/tools/check-translations.php';
+$peep_test_i18n_problems = peep_i18n_problems( dirname( __DIR__ ), 'fa_IR' );
+peep_test_expect( array() === $peep_test_i18n_problems, "Translation check failed:\n  " . implode( "\n  ", $peep_test_i18n_problems ) );
 
 echo "bootstrap-smoke=passed\n";
