@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Product Expiration Easy Peasy 3.3.0\n"
+"Project-Id-Version: Product Expiration Easy Peasy 3.4.0\n"
 "Report-Msgid-Bugs-To: https://www.rtl-theme.com/\n"
-"POT-Creation-Date: 2026-10-11T09:24:39+00:00\n"
+"POT-Creation-Date: 2026-10-11T13:35:17+00:00\n"
 "PO-Revision-Date: 2026-10-11 13:00+0330\n"
 "Last-Translator: RTL-Theme Translation Team\n"
 "Language-Team: Persian\n"
@@ -29,129 +29,146 @@ msgstr ""
 
 #. Description of the plugin
 #: product-expiration-easy-peasy.php
-msgid ""
-"Manage WooCommerce product expiration dates, stock status, and notifications."
-msgstr ""
-"تاریخ انقضای محصولات ووکامرس، وضعیت موجودی و اطلاع‌رسانی‌ها را مدیریت کنید."
+msgid "Manage WooCommerce product expiration dates, stock status, and notifications."
+msgstr "تاریخ انقضای محصولات ووکامرس، وضعیت موجودی و اطلاع‌رسانی‌ها را مدیریت کنید."
 
 #. Author of the plugin
 #: product-expiration-easy-peasy.php
 msgid "Hamid Arab"
 msgstr ""
 
-#: includes/class-admin.php:108 views/settings-page.php:73
+#: includes/class-admin.php:115 views/settings-page.php:73
 msgid "Product Expiration Settings"
 msgstr "تنظیمات انقضای محصول"
 
-#: includes/class-admin.php:109
+#: includes/class-admin.php:116
 msgid "Expiration"
 msgstr "انقضا"
 
-#: includes/class-admin.php:123
+#: includes/class-admin.php:130
 msgid "You do not have sufficient permissions to access this page."
 msgstr "شما مجوز کافی برای دسترسی به این صفحه را ندارید."
 
-#: includes/class-admin.php:172 includes/class-admin.php:206
-#: includes/class-admin.php:232
+#: includes/class-admin.php:186 includes/class-admin.php:220
+#: includes/class-admin.php:246
 msgid "You do not have sufficient permissions to perform this action."
 msgstr "شما مجوز کافی برای انجام این عملیات را ندارید."
 
-#: includes/class-admin.php:377 includes/class-admin.php:437
-#: includes/class-admin.php:536 includes/class-admin.php:737
+#: includes/class-admin.php:401 includes/class-admin.php:462
+#: includes/class-admin.php:561 includes/class-admin.php:765
 msgid "Expiration Date"
 msgstr "تاریخ انقضا"
 
-#: includes/class-admin.php:383
-msgid ""
-"Persian sites accept a Jalali date such as 1405-01-01; other locales use "
-"Gregorian dates. Values are stored as Gregorian Y-m-d."
-msgstr ""
-"سایت‌های فارسی تاریخ جلالی مانند 1405-01-01 را می‌پذیرند؛ در سایت‌هایی با "
-"زبان‌های دیگر از تاریخ میلادی استفاده می‌شود. مقادیر به‌صورت تاریخ میلادی با "
-"قالب Y-m-d ذخیره می‌شوند."
+#. translators: %s: example date in the expected input format.
+#: includes/class-admin.php:408
+#, php-format
+msgid "Pick a date or type it, for example %s. Leave empty for no expiration date."
+msgstr "تاریخ را از تقویم انتخاب کنید یا تایپ کنید؛ برای مثال %s. برای نداشتن تاریخ انقضا، فیلد را خالی بگذارید."
 
-#: includes/class-admin.php:443
+#: includes/class-admin.php:468
 msgid "Set an expiration date for this variation."
 msgstr "برای این متغیر، تاریخ انقضا تعیین کنید."
 
-#: includes/class-admin.php:494
+#: includes/class-admin.php:519
 msgid "Expiration Date: All"
 msgstr "تاریخ انقضا: همه"
 
-#: includes/class-admin.php:495 includes/class-admin.php:602
+#: includes/class-admin.php:520 includes/class-admin.php:627
 #: views/settings-page.php:113
 msgid "Expired"
 msgstr "منقضی‌شده"
 
-#: includes/class-admin.php:496
+#: includes/class-admin.php:521
 msgid "Not Expired"
 msgstr "منقضی‌نشده"
 
-#: includes/class-admin.php:497
+#: includes/class-admin.php:522
 msgid "No Expiration Date"
 msgstr "بدون تاریخ انقضا"
 
-#: includes/class-admin.php:604
+#: includes/class-admin.php:629
 msgid "Near expiry"
 msgstr "نزدیک به انقضا"
 
-#: includes/class-admin.php:606
+#: includes/class-admin.php:631
 msgid "Not expired"
 msgstr "منقضی‌نشده"
 
 #. translators: %s: number of variations.
-#: includes/class-admin.php:619
+#: includes/class-admin.php:644
 #, php-format
 msgid "%s variation auto out of stock"
 msgid_plural "%s variations auto out of stock"
 msgstr[0] "%s متغیر ناموجود خودکار"
 msgstr[1] "%s متغیر ناموجود خودکار"
 
-#: includes/class-admin.php:620
+#: includes/class-admin.php:645
 msgid "Auto out of stock"
 msgstr "ناموجود خودکار"
 
 #. translators: %s: example date in the expected input format.
-#: includes/class-admin.php:815
+#: includes/class-admin.php:853
 #, php-format
 msgid "Enter a valid date such as %s, or leave the field empty."
 msgstr "تاریخ معتبری مانند %s وارد کنید یا فیلد را خالی بگذارید."
 
-#: includes/class-admin.php:841
+#: includes/class-admin.php:879
 msgid "You have unsaved changes"
 msgstr "تغییرات ذخیره‌نشده دارید"
 
-#: includes/class-admin.php:842
+#: includes/class-admin.php:880
 msgid "Saving…"
 msgstr "در حال ذخیره…"
 
-#: includes/class-admin.php:843
+#: includes/class-admin.php:881
 msgid "Enter a whole number from 1 to 365."
 msgstr "عددی صحیح بین ۱ تا ۳۶۵ وارد کنید."
 
-#: includes/class-admin.php:844
+#: includes/class-admin.php:882
 msgid "Enter an email address, or untick Custom email."
 msgstr "یک نشانی ایمیل وارد کنید یا تیک «ایمیل دلخواه» را بردارید."
 
-#: includes/class-admin.php:845
+#: includes/class-admin.php:883
 msgid "Enter a valid email address, for example name@example.com."
 msgstr "یک نشانی ایمیل معتبر وارد کنید؛ برای مثال name@example.com."
 
-#: includes/class-admin.php:907
-msgid ""
-"Enter a valid expiration date. Persian sites accept Jalali Y-m-d; other "
-"locales use Gregorian Y-m-d."
-msgstr ""
-"تاریخ انقضای معتبری وارد کنید. در سایت‌های فارسی تاریخ جلالی و در سایر زبان‌ها "
-"تاریخ میلادی را با قالب Y-m-d وارد کنید."
+#: includes/class-admin.php:935
+msgid "Choose date"
+msgstr "انتخاب تاریخ"
+
+#: includes/class-admin.php:936
+msgid "Previous month"
+msgstr "ماه قبل"
+
+#: includes/class-admin.php:937
+msgid "Next month"
+msgstr "ماه بعد"
+
+#: includes/class-admin.php:938
+msgid "Month"
+msgstr "ماه"
+
+#: includes/class-admin.php:939
+msgid "Year"
+msgstr "سال"
+
+#: includes/class-admin.php:940
+msgid "Today"
+msgstr "امروز"
+
+#: includes/class-admin.php:941
+msgid "Clear"
+msgstr "پاک کردن"
+
+#: includes/class-admin.php:1003
+msgid "Enter a valid expiration date. Persian sites accept Jalali Y-m-d; other locales use Gregorian Y-m-d."
+msgstr "تاریخ انقضای معتبری وارد کنید. در سایت‌های فارسی تاریخ جلالی و در سایر زبان‌ها تاریخ میلادی را با قالب Y-m-d وارد کنید."
 
 #. translators: %s: localized cutoff date.
 #: includes/class-cron.php:439
 #, php-format
 msgid "The following products expire by %s and were set to out of stock:"
-msgstr ""
-"محصولات زیر تا تاریخ %s منقضی می‌شوند و موجودی آن‌ها به «ناموجود» تغییر داده "
-"شد:"
+msgstr "محصولات زیر تا تاریخ %s منقضی می‌شوند و موجودی آن‌ها به «ناموجود» تغییر داده شد:"
 
 #: includes/class-cron.php:453
 msgid "Products near expiration"
@@ -164,12 +181,8 @@ msgstr "این یک پیام آزمایشی از افزونه انقضای مح�
 #. translators: %s: localized cutoff date.
 #: includes/class-cron.php:475
 #, php-format
-msgid ""
-"With the current settings, products expiring on or before %s are set to out "
-"of stock and listed in the daily report sent to this address."
-msgstr ""
-"با تنظیمات فعلی، محصولاتی که تا تاریخ %s منقضی می‌شوند ناموجود می‌شوند و در "
-"گزارش روزانه‌ای که به این نشانی ارسال می‌شود فهرست خواهند شد."
+msgid "With the current settings, products expiring on or before %s are set to out of stock and listed in the daily report sent to this address."
+msgstr "با تنظیمات فعلی، محصولاتی که تا تاریخ %s منقضی می‌شوند ناموجود می‌شوند و در گزارش روزانه‌ای که به این نشانی ارسال می‌شود فهرست خواهند شد."
 
 #: includes/class-cron.php:481
 msgid "[Test] Products near expiration"
@@ -229,28 +242,20 @@ msgstr "برای اعتبارسنجی لایسنس راست‌چین، نصب io
 msgid "The RTL-Theme license class could not be loaded."
 msgstr "کلاس لایسنس راست‌چین بارگذاری نشد."
 
-#: includes/class-main.php:94
-msgid ""
-"Product Expiration Easy Peasy requires WooCommerce to be installed and "
-"active."
-msgstr ""
-"برای استفاده از افزونه Product Expiration Easy Peasy باید ووکامرس نصب و فعال "
-"باشد."
+#: includes/class-main.php:88
+msgid "Product Expiration Easy Peasy requires WooCommerce to be installed and active."
+msgstr "برای استفاده از افزونه Product Expiration Easy Peasy باید ووکامرس نصب و فعال باشد."
 
-#: includes/class-main.php:110
+#: includes/class-main.php:104
 msgid "Product Expiration Easy Peasy requires WooCommerce 9.0 or newer."
-msgstr ""
-"افزونه Product Expiration Easy Peasy به ووکامرس ۹.۰ یا جدیدتر نیاز دارد."
+msgstr "افزونه Product Expiration Easy Peasy به ووکامرس ۹.۰ یا جدیدتر نیاز دارد."
 
-#: includes/class-main.php:127
-msgid ""
-"Please activate the RTL-Theme license to use Product Expiration Easy Peasy."
-msgstr ""
-"برای استفاده از Product Expiration Easy Peasy، لطفاً لایسنس راست‌چین را فعال "
-"کنید."
+#: includes/class-main.php:121
+msgid "Please activate the RTL-Theme license to use Product Expiration Easy Peasy."
+msgstr "برای استفاده از Product Expiration Easy Peasy، لطفاً لایسنس راست‌چین را فعال کنید."
 
 #. translators: %date% is replaced with the localized product expiration date.
-#: includes/class-settings.php:63
+#: includes/class-settings.php:99
 #, php-format
 msgid "Expires: %date%"
 msgstr "تاریخ انقضا: %date%"
@@ -264,8 +269,7 @@ msgstr[0] "بررسی انجام شد. %s محصول ناموجود شد."
 msgstr[1] "بررسی انجام شد. %s محصول ناموجود شدند."
 
 #: views/settings-page.php:45
-msgid ""
-"Another expiration check is already running. Try again in a few minutes."
+msgid "Another expiration check is already running. Try again in a few minutes."
 msgstr "بررسی دیگری در حال اجراست. چند دقیقه دیگر دوباره امتحان کنید."
 
 #: views/settings-page.php:46
@@ -281,26 +285,22 @@ msgid "No valid recipient is saved, so the test email was not sent."
 msgstr "هیچ گیرنده معتبری ذخیره نشده است، بنابراین ایمیل آزمایشی ارسال نشد."
 
 #: views/settings-page.php:49
-msgid ""
-"Custom email is selected, but the address was empty or invalid, so no custom "
-"email will receive reports."
-msgstr ""
-"گزینه «ایمیل دلخواه» انتخاب شده، اما نشانی خالی یا نامعتبر بود؛ بنابراین "
-"گزارشی به ایمیل دلخواه ارسال نمی‌شود."
+msgid "Custom email is selected, but the address was empty or invalid, so no custom email will receive reports."
+msgstr "گزینه «ایمیل دلخواه» انتخاب شده، اما نشانی خالی یا نامعتبر بود؛ بنابراین گزارشی به ایمیل دلخواه ارسال نمی‌شود."
 
 #: views/settings-page.php:53 views/settings-page.php:160
 msgid "Automation rules"
 msgstr "قوانین خودکار"
 
-#: views/settings-page.php:54 views/settings-page.php:204
+#: views/settings-page.php:54 views/settings-page.php:228
 msgid "Storefront display"
 msgstr "نمایش در فروشگاه"
 
-#: views/settings-page.php:55 views/settings-page.php:302
+#: views/settings-page.php:55 views/settings-page.php:326
 msgid "Notifications"
 msgstr "اطلاع‌رسانی"
 
-#: views/settings-page.php:56 views/settings-page.php:356
+#: views/settings-page.php:56 views/settings-page.php:380
 msgid "Help & status"
 msgstr "راهنما و وضعیت"
 
@@ -389,217 +389,201 @@ msgstr "عددی صحیح بین ۱ تا ۳۶۵."
 #. translators: %s: cutoff date, wrapped in bold markup.
 #: views/settings-page.php:187
 #, php-format
-msgid ""
-"With the current setting, products expiring on or before %s are set out of "
-"stock and included in the email report."
-msgstr ""
-"با تنظیم فعلی، محصولاتی که تا تاریخ %s منقضی می‌شوند ناموجود شده و در گزارش "
-"ایمیلی آورده می‌شوند."
+msgid "With the current setting, products expiring on or before %s are set out of stock and included in the email report."
+msgstr "با تنظیم فعلی، محصولاتی که تا تاریخ %s منقضی می‌شوند ناموجود شده و در گزارش ایمیلی آورده می‌شوند."
 
 #: views/settings-page.php:199
-msgid ""
-"If you clear or extend a date, the previous stock status is restored "
-"automatically. This applies only to products this plugin set out of stock."
-msgstr ""
-"اگر تاریخی را پاک یا تمدید کنید، وضعیت موجودی قبلی به‌طور خودکار بازگردانده "
-"می‌شود. این کار فقط برای محصولاتی انجام می‌شود که این افزونه ناموجود کرده است."
+msgid "If you clear or extend a date, the previous stock status is restored automatically. This applies only to products this plugin set out of stock."
+msgstr "اگر تاریخی را پاک یا تمدید کنید، وضعیت موجودی قبلی به‌طور خودکار بازگردانده می‌شود. این کار فقط برای محصولاتی انجام می‌شود که این افزونه ناموجود کرده است."
 
-#: views/settings-page.php:205
+#: views/settings-page.php:203
+msgid "Date picker calendar"
+msgstr "تقویم انتخابگر تاریخ"
+
+#: views/settings-page.php:204
+msgid "Calendar used by the date picker on product and Quick Edit fields. Dates are always stored in a standard format, so you can switch at any time."
+msgstr "تقویمی که انتخابگر تاریخ در فیلدهای محصول و ویرایش سریع از آن استفاده می‌کند. تاریخ‌ها همیشه با یک قالب استاندارد ذخیره می‌شوند، بنابراین هر زمان می‌توانید آن را تغییر دهید."
+
+#: views/settings-page.php:208
+msgid "Auto (follows the admin language)"
+msgstr "خودکار (بر اساس زبان پیشخوان)"
+
+#: views/settings-page.php:209
+msgid "Jalali (Shamsi)"
+msgstr "شمسی (جلالی)"
+
+#: views/settings-page.php:210
+msgid "Gregorian (Miladi)"
+msgstr "میلادی"
+
+#: views/settings-page.php:229
 msgid "Control how the expiration date appears to customers."
 msgstr "نحوه نمایش تاریخ انقضا به مشتریان را تنظیم کنید."
 
-#: views/settings-page.php:212
+#: views/settings-page.php:236
 msgid "Show the expiration date to customers"
 msgstr "نمایش تاریخ انقضا به مشتریان"
 
-#: views/settings-page.php:214
+#: views/settings-page.php:238
 msgid "On product pages, in the cart and in the customer account."
 msgstr "در صفحه محصول، سبد خرید و حساب کاربری مشتری."
 
-#: views/settings-page.php:222
+#: views/settings-page.php:246
 msgid "Show the date in order emails"
 msgstr "نمایش تاریخ در ایمیل‌های سفارش"
 
-#: views/settings-page.php:224
-msgid ""
-"Adds the purchase-time expiration date to each item in WooCommerce order "
-"emails."
-msgstr ""
-"تاریخ انقضای زمان خرید را به هر قلم در ایمیل‌های سفارش ووکامرس اضافه می‌کند."
+#: views/settings-page.php:248
+msgid "Adds the purchase-time expiration date to each item in WooCommerce order emails."
+msgstr "تاریخ انقضای زمان خرید را به هر قلم در ایمیل‌های سفارش ووکامرس اضافه می‌کند."
 
-#: views/settings-page.php:229
+#: views/settings-page.php:253
 msgid "Display text"
 msgstr "متن نمایشی"
 
-#: views/settings-page.php:231
+#: views/settings-page.php:255
 msgid "Insert a placeholder"
 msgstr "درج متغیر"
 
-#: views/settings-page.php:237
+#: views/settings-page.php:261
 msgid "Select a placeholder to insert it at the cursor."
 msgstr "روی یک متغیر بزنید تا در محل نشانگر درج شود."
 
-#: views/settings-page.php:239
+#: views/settings-page.php:263
 msgid "Available placeholders:"
 msgstr "متغیرهای قابل استفاده:"
 
-#: views/settings-page.php:246
+#: views/settings-page.php:270
 msgid "Date format"
 msgstr "قالب تاریخ"
 
-#: views/settings-page.php:254
+#: views/settings-page.php:278
 msgid "Site default"
 msgstr "پیش‌فرض سایت"
 
-#: views/settings-page.php:265
+#: views/settings-page.php:289
 msgid "Preview (using today’s date)"
 msgstr "پیش‌نمایش (با تاریخ امروز)"
 
-#: views/settings-page.php:273
+#: views/settings-page.php:297
 msgid "Position on the product page"
 msgstr "محل نمایش در صفحه محصول"
 
-#: views/settings-page.php:277
+#: views/settings-page.php:301
 msgid "After title"
 msgstr "پس از عنوان"
 
-#: views/settings-page.php:278
+#: views/settings-page.php:302
 msgid "After price"
 msgstr "پس از قیمت"
 
-#: views/settings-page.php:303
-msgid ""
-"Choose who receives the report of products set out of stock by each daily "
-"check."
-msgstr ""
-"تعیین کنید گزارش محصولاتی که در بررسی روزانه ناموجود می‌شوند برای چه کسانی "
-"ارسال شود."
+#: views/settings-page.php:327
+msgid "Choose who receives the report of products set out of stock by each daily check."
+msgstr "تعیین کنید گزارش محصولاتی که در بررسی روزانه ناموجود می‌شوند برای چه کسانی ارسال شود."
 
-#: views/settings-page.php:306
+#: views/settings-page.php:330
 msgid "Who should receive the expiry report?"
 msgstr "گزارش انقضا برای چه کسانی ارسال شود؟"
 
-#: views/settings-page.php:310
+#: views/settings-page.php:334
 msgid "Site admin"
 msgstr "مدیر سایت"
 
-#: views/settings-page.php:315
+#: views/settings-page.php:339
 msgid "Shop managers"
 msgstr "مدیران فروشگاه"
 
 #. translators: %s: number of users with the Shop Manager role.
-#: views/settings-page.php:321
+#: views/settings-page.php:345
 #, php-format
 msgid "%s user"
 msgid_plural "%s users"
 msgstr[0] "%s کاربر"
 msgstr[1] "%s کاربر"
 
-#: views/settings-page.php:330
+#: views/settings-page.php:354
 msgid "Custom email"
 msgstr "ایمیل دلخواه"
 
-#: views/settings-page.php:336
+#: views/settings-page.php:360
 msgid "No recipient is selected, so no expiry report will be sent."
 msgstr "هیچ گیرنده‌ای انتخاب نشده است، بنابراین گزارش انقضا ارسال نخواهد شد."
 
-#: views/settings-page.php:340
+#: views/settings-page.php:364
 msgid "Custom email address"
 msgstr "نشانی ایمیل دلخواه"
 
-#: views/settings-page.php:350
+#: views/settings-page.php:374
 msgid "Send test email"
 msgstr "ارسال ایمیل آزمایشی"
 
-#: views/settings-page.php:351
-msgid ""
-"Sends a sample message to the saved recipients. Save your changes first."
-msgstr ""
-"یک پیام نمونه برای گیرندگان ذخیره‌شده ارسال می‌کند. ابتدا تغییرات را ذخیره "
-"کنید."
+#: views/settings-page.php:375
+msgid "Sends a sample message to the saved recipients. Save your changes first."
+msgstr "یک پیام نمونه برای گیرندگان ذخیره‌شده ارسال می‌کند. ابتدا تغییرات را ذخیره کنید."
 
-#: views/settings-page.php:357
-msgid ""
-"How to set expiration dates, and the status of the plugin and its "
-"requirements."
+#: views/settings-page.php:381
+msgid "How to set expiration dates, and the status of the plugin and its requirements."
 msgstr "روش ثبت تاریخ انقضا و وضعیت افزونه و پیش‌نیازهای آن."
 
-#: views/settings-page.php:359
+#: views/settings-page.php:383
 msgid "Setting expiration dates"
 msgstr "ثبت تاریخ انقضا"
 
-#: views/settings-page.php:361
-msgid ""
-"Simple product: open the product, go to Product data > General and fill in "
-"Expiration Date."
-msgstr ""
-"محصول ساده: محصول را باز کنید، به اطلاعات محصول > همگانی بروید و «تاریخ "
-"انقضا» را پر کنید."
+#: views/settings-page.php:385
+msgid "Simple product: open the product, go to Product data > General and fill in Expiration Date."
+msgstr "محصول ساده: محصول را باز کنید، به اطلاعات محصول > همگانی بروید و «تاریخ انقضا» را پر کنید."
 
-#: views/settings-page.php:362
-msgid ""
-"Variable product: open Product data > Variations, expand a variation and "
-"fill in its Expiration Date."
-msgstr ""
-"محصول متغیر: به اطلاعات محصول > متغیرها بروید، یک متغیر را باز کنید و «تاریخ "
-"انقضا»ی آن را پر کنید."
+#: views/settings-page.php:386
+msgid "Variable product: open Product data > Variations, expand a variation and fill in its Expiration Date."
+msgstr "محصول متغیر: به اطلاعات محصول > متغیرها بروید، یک متغیر را باز کنید و «تاریخ انقضا»ی آن را پر کنید."
 
-#: views/settings-page.php:363
-msgid ""
-"Quick Edit: in the product list, hover over a simple product, choose Quick "
-"Edit and fill in Expiration Date."
-msgstr ""
-"ویرایش سریع: در فهرست محصولات، نشانگر را روی یک محصول ساده ببرید، «ویرایش "
-"سریع» را بزنید و «تاریخ انقضا» را پر کنید."
+#: views/settings-page.php:387
+msgid "Quick Edit: in the product list, hover over a simple product, choose Quick Edit and fill in Expiration Date."
+msgstr "ویرایش سریع: در فهرست محصولات، نشانگر را روی یک محصول ساده ببرید، «ویرایش سریع» را بزنید و «تاریخ انقضا» را پر کنید."
 
 #. translators: %s: example Jalali date, wrapped in code markup.
-#: views/settings-page.php:369
+#: views/settings-page.php:393
 #, php-format
-msgid ""
-"On Persian admin screens, enter a Jalali date such as %s. Persian, Arabic "
-"and Latin digits are accepted, with a hyphen or slash as the separator."
-msgstr ""
-"در پیشخوان فارسی، تاریخ شمسی را مانند %s وارد کنید. ارقام فارسی، عربی و "
-"لاتین پذیرفته می‌شوند و جداکننده می‌تواند خط تیره یا اسلش باشد."
+msgid "On Persian admin screens, enter a Jalali date such as %s. Persian, Arabic and Latin digits are accepted, with a hyphen or slash as the separator."
+msgstr "در پیشخوان فارسی، تاریخ شمسی را مانند %s وارد کنید. ارقام فارسی، عربی و لاتین پذیرفته می‌شوند و جداکننده می‌تواند خط تیره یا اسلش باشد."
 
-#: views/settings-page.php:378
+#: views/settings-page.php:402
 msgid "System status"
 msgstr "وضعیت سیستم"
 
-#: views/settings-page.php:381
+#: views/settings-page.php:405
 msgid "Plugin version"
 msgstr "نسخه افزونه"
 
-#: views/settings-page.php:383
+#: views/settings-page.php:407
 msgid "RTL-Theme license"
 msgstr "لایسنس راست‌چین"
 
-#: views/settings-page.php:384
+#: views/settings-page.php:408
 msgid "Active"
 msgstr "فعال"
 
-#: views/settings-page.php:384
+#: views/settings-page.php:408
 msgid "Not active"
 msgstr "غیرفعال"
 
-#: views/settings-page.php:388
+#: views/settings-page.php:412
 msgid "ionCube Loader"
 msgstr "ionCube Loader"
 
 #. translators: %s: ionCube Loader version.
-#: views/settings-page.php:391
+#: views/settings-page.php:415
 #, php-format
 msgid "Loaded (%s)"
 msgstr "بارگذاری‌شده (%s)"
 
-#: views/settings-page.php:392
+#: views/settings-page.php:416
 msgid "Not loaded"
 msgstr "بارگذاری نشده"
 
-#: views/settings-page.php:395
+#: views/settings-page.php:419
 msgid "Not detected"
 msgstr "شناسایی نشد"
 
-#: views/settings-page.php:423
+#: views/settings-page.php:447
 msgid "Save changes"
 msgstr "ذخیره تغییرات"

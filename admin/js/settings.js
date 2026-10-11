@@ -237,12 +237,19 @@
 	var todayHolder = wrap.querySelector( '[data-peep-today]' );
 	var dateFormatter = null;
 
-	try {
-		dateFormatter = isJalali ?
-			new Intl.DateTimeFormat( 'fa-IR-u-ca-persian', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' } ) :
-			new Intl.DateTimeFormat( lang, { dateStyle: 'long', timeZone: 'UTC' } );
-	} catch ( error ) {
-		dateFormatter = null;
+	// Jalali dates go through the PHP-matching port, never Intl's Persian calendar.
+	if ( isJalali && window.PeepJalali ) {
+		dateFormatter = {
+			format: function ( date ) {
+				return window.PeepJalali.format( date.toISOString().slice( 0, 10 ), 'j F Y' );
+			}
+		};
+	} else if ( ! isJalali ) {
+		try {
+			dateFormatter = new Intl.DateTimeFormat( lang, { dateStyle: 'long', timeZone: 'UTC' } );
+		} catch ( error ) {
+			dateFormatter = null;
+		}
 	}
 
 	function periodValue() {

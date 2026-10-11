@@ -1,0 +1,298 @@
+/**
+ * Product Expiration Easy Peasy — date picker.
+ *
+ * Uses the WordPress admin color scheme (--wp-admin-theme-color) and logical
+ * properties so the same rules work in RTL and LTR.
+ */
+
+.peep-dp-field,
+.peep-dp {
+	--peep-dp-accent: var(--wp-admin-theme-color, #2271b1);
+	--peep-dp-accent-dark: var(--wp-admin-theme-color-darker-10, #135e96);
+	--peep-dp-accent-soft: rgba(34, 113, 177, 0.1);
+	--peep-dp-text: #1d2327;
+	--peep-dp-muted: #646970;
+	--peep-dp-border: #c3c4c7;
+	--peep-dp-surface: #fff;
+	--peep-dp-hover: #f0f0f1;
+}
+
+/*
+ * Field wrapper: the input plus the calendar button inside its end. Date
+ * inputs are left-to-right (admin-style.css), so the wrapper is too and the
+ * button sits at the end of the digits in RTL admins as well.
+ */
+.peep-dp-field {
+	position: relative;
+	display: block;
+	inline-size: 100%;
+	direction: ltr;
+}
+
+.peep-dp-field > input[data-peep-datepicker] {
+	inline-size: 100%;
+	max-inline-size: none;
+	margin: 0;
+	padding-inline-end: 40px;
+}
+
+/* WooCommerce general tab: the field takes the input's half-width float. */
+.woocommerce_options_panel .peep-dp-field {
+	float: inline-start;
+	inline-size: 50%;
+}
+
+.woocommerce_options_panel .peep-dp-field > input[data-peep-datepicker][type],
+.woocommerce_variable_attributes .peep-dp-field > input[data-peep-datepicker][type] {
+	float: none;
+	inline-size: 100%;
+}
+
+.inline-edit-row .peep-dp-field {
+	display: block;
+}
+
+.peep-dp-toggle {
+	position: absolute;
+	inset-block: 0;
+	inset-inline-end: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	inline-size: 40px;
+	min-block-size: 30px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0 4px 4px 0;
+	background: transparent;
+	color: var(--peep-dp-muted);
+	cursor: pointer;
+}
+
+.peep-dp-toggle:hover,
+.peep-dp-toggle[aria-expanded="true"] {
+	color: var(--peep-dp-accent);
+}
+
+.peep-dp-toggle:focus-visible {
+	outline: 2px solid var(--peep-dp-accent);
+	outline-offset: -2px;
+}
+
+/* Popover. */
+.peep-dp {
+	position: fixed;
+	z-index: 100100;
+	box-sizing: border-box;
+	inline-size: max-content;
+	max-inline-size: calc(100vw - 16px);
+	padding: 12px;
+	overflow: auto;
+	border: 1px solid var(--peep-dp-border);
+	border-radius: 8px;
+	background: var(--peep-dp-surface);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+	color: var(--peep-dp-text);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 13px;
+	line-height: 1.4;
+	text-align: start;
+	animation: peep-dp-in 0.12s ease-out;
+}
+
+.peep-dp[hidden] {
+	display: none;
+}
+
+@keyframes peep-dp-in {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.peep-dp--jalali {
+	font-family: Tahoma, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.peep-dp-header {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-block-end: 8px;
+}
+
+.peep-dp-selects {
+	display: flex;
+	flex: 1;
+	gap: 4px;
+	justify-content: center;
+}
+
+.peep-dp .peep-dp-select {
+	float: none;
+	inline-size: auto;
+	max-inline-size: none;
+	min-block-size: 40px;
+	margin: 0;
+	padding-block: 0;
+	padding-inline: 8px 24px;
+	border-color: var(--peep-dp-border);
+	border-radius: 4px;
+	background-position: right 4px top 55%;
+	font-size: 13px;
+	line-height: 38px;
+}
+
+[dir="rtl"] .peep-dp-select {
+	background-position: left 4px top 55%;
+}
+
+.peep-dp-nav,
+.peep-dp-day,
+.peep-dp-action {
+	box-sizing: border-box;
+	margin: 0;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.peep-dp-nav {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	inline-size: 40px;
+	block-size: 40px;
+	padding: 0;
+	color: var(--peep-dp-muted);
+}
+
+/* The chevron points to the start; the "next" button mirrors it. */
+.peep-dp-next svg,
+[dir="rtl"] .peep-dp-prev svg {
+	transform: scaleX(-1);
+}
+
+[dir="rtl"] .peep-dp-next svg {
+	transform: none;
+}
+
+.peep-dp-grid {
+	border-collapse: collapse;
+	border-spacing: 0;
+	margin-inline: auto;
+}
+
+.peep-dp-grid th,
+.peep-dp-grid td {
+	inline-size: auto;
+	border: 0;
+	background: none;
+	box-shadow: none;
+	vertical-align: middle;
+}
+
+.peep-dp-grid th {
+	block-size: 28px;
+	padding: 0;
+	color: var(--peep-dp-muted);
+	font-size: 12px;
+	font-weight: 600;
+	text-align: center;
+}
+
+.peep-dp-grid td {
+	padding: 1px;
+	text-align: center;
+}
+
+.peep-dp-day {
+	display: block;
+	inline-size: 40px;
+	block-size: 40px;
+	padding: 0;
+	font-variant-numeric: tabular-nums;
+}
+
+.peep-dp-nav:hover,
+.peep-dp-day:hover,
+.peep-dp-action:hover {
+	background: var(--peep-dp-hover);
+}
+
+/* Past dates stay selectable, just quieter. */
+.peep-dp-day--past {
+	color: var(--peep-dp-muted);
+}
+
+.peep-dp-day--today {
+	border-color: var(--peep-dp-accent);
+	font-weight: 600;
+}
+
+.peep-dp-day--selected,
+.peep-dp-day--selected:hover {
+	border-color: var(--peep-dp-accent);
+	background: var(--peep-dp-accent);
+	color: #fff;
+	font-weight: 600;
+}
+
+.peep-dp-nav:focus-visible,
+.peep-dp-day:focus-visible,
+.peep-dp-action:focus-visible,
+.peep-dp .peep-dp-select:focus {
+	outline: 2px solid var(--peep-dp-accent);
+	outline-offset: 1px;
+	box-shadow: none;
+}
+
+.peep-dp-day--selected:focus-visible {
+	outline-color: var(--peep-dp-accent-dark);
+	box-shadow: inset 0 0 0 2px #fff;
+}
+
+.peep-dp-footer {
+	display: flex;
+	justify-content: space-between;
+	gap: 8px;
+	margin-block-start: 8px;
+	padding-block-start: 8px;
+	border-block-start: 1px solid var(--peep-dp-hover);
+}
+
+.peep-dp-action {
+	min-block-size: 40px;
+	padding-inline: 12px;
+	color: var(--peep-dp-accent);
+	font-weight: 600;
+}
+
+.peep-dp-clear {
+	color: #b32d2e;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.peep-dp {
+		animation: none;
+	}
+}
+
+@media (forced-colors: active) {
+	.peep-dp-day--selected {
+		border-color: Highlight;
+		background: Highlight;
+		color: HighlightText;
+	}
+}

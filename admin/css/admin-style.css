@@ -7,7 +7,7 @@
 .peep-settings-wrap,
 .peep-status,
 .peep-date-feedback,
-input[data-peep-date] {
+input[data-peep-datepicker] {
 	--peep-primary: #047857;
 	--peep-primary-hover: #065f46;
 	--peep-primary-soft: #e7f7ef;
@@ -93,7 +93,7 @@ input[name^="_variation_expiration_date"],
 	color: var(--peep-text);
 }
 
-/* Inline feedback under Jalali date inputs. */
+/* Inline feedback under the expiration date inputs. */
 .peep-date-feedback {
 	display: block;
 	clear: both;
@@ -116,7 +116,7 @@ input[name^="_variation_expiration_date"],
 	font-weight: 600;
 }
 
-input[data-peep-date][aria-invalid="true"] {
+input[data-peep-datepicker][aria-invalid="true"] {
 	border-color: var(--peep-danger) !important;
 	box-shadow: 0 0 0 1px var(--peep-danger) !important;
 }
@@ -379,6 +379,10 @@ input[data-peep-date][aria-invalid="true"] {
 	padding: 0;
 	border: 0;
 	min-inline-size: 0;
+}
+
+.peep-callout + .peep-field {
+	margin-block-start: 24px;
 }
 
 .peep-field__label {

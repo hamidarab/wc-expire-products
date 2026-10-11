@@ -37,6 +37,13 @@ final class Admin {
 	private $settings_page_hook = '';
 
 	/**
+	 * Resolved date picker calendar, cached for the request.
+	 *
+	 * @var string
+	 */
+	private $input_calendar = '';
+
+	/**
 	 * Settings page tabs, in display order.
 	 *
 	 * @var array<int, string>
@@ -133,12 +140,19 @@ final class Admin {
 			$format_samples[ $format ] = Date::format( $today, $format );
 		}
 
+		$picker_samples = array();
+
+		foreach ( Settings::get_datepicker_calendars() as $calendar ) {
+			$picker_samples[ $calendar ] = Date::input_value( $today, Date::input_calendar( $calendar ) );
+		}
+
 		$view = array(
 			'is_persian'         => $is_persian,
 			'today'              => $today,
 			'cutoff'             => $cutoff,
 			'cutoff_label'       => Date::format( $cutoff, $is_persian ? 'j F Y' : 'default' ),
 			'format_samples'     => $format_samples,
+			'picker_samples'     => $picker_samples,
 			'today_parts'        => array(
 				'year'  => Date::format( $today, 'Y' ),
 				'month' => Date::format( $today, 'm' ),
@@ -261,27 +275,38 @@ final class Admin {
 	}
 
 	/**
-	 * Example date in the input format of the current locale.
+	 * Calendar used by the expiration inputs and the date picker.
 	 *
-	 * @return string
+	 * @return string "jalali" or "gregorian".
 	 */
-	private static function get_date_example() {
-		return Date::is_persian_locale() ? Jalali::digits( '1405-01-01' ) : '2026-12-31';
+	private function get_input_calendar() {
+		if ( '' === $this->input_calendar ) {
+			$this->input_calendar = Date::input_calendar( $this->settings->get_setting( 'datepicker_calendar' ) );
+		}
+
+		return $this->input_calendar;
 	}
 
 	/**
-	 * Extra attributes for Jalali text inputs, used by the inline validator.
+	 * Example date in the input format of the picker calendar.
+	 *
+	 * @return string
+	 */
+	private function get_date_example() {
+		return Date::input_example( $this->get_input_calendar() );
+	}
+
+	/**
+	 * Attributes that attach the date picker and the inline validator.
 	 *
 	 * @return array<string, string>
 	 */
 	private function get_date_input_attributes() {
-		if ( ! Date::is_persian_locale() ) {
-			return array();
-		}
-
 		return array(
-			'data-peep-date' => 'jalali',
-			'autocomplete'   => 'off',
+			'data-peep-datepicker' => '',
+			'data-calendar'        => $this->get_input_calendar(),
+			'autocomplete'         => 'off',
+			'spellcheck'           => 'false',
 		);
 	}
 
@@ -368,19 +393,19 @@ final class Admin {
 	 */
 	public function add_expiration_field() {
 		wp_nonce_field( 'peep_save_product_expiration', 'peep_product_expiration_nonce' );
-		$is_persian = Date::is_persian_locale();
 
 		woocommerce_wp_text_input(
 			array(
 				'id'                => '_expiration_date',
-				'value'             => Date::input_value( get_post_meta( get_the_ID(), '_expiration_date', true ) ),
+				'value'             => Date::input_value( get_post_meta( get_the_ID(), '_expiration_date', true ), $this->get_input_calendar() ),
 				'label'             => __( 'Expiration Date', 'product-expiration-easy-peasy' ),
-				'placeholder'       => self::get_date_example(),
-				'type'              => $is_persian ? 'text' : 'date',
+				'placeholder'       => $this->get_date_example(),
+				'type'              => 'text',
 				'custom_attributes' => $this->get_date_input_attributes(),
 				'wrapper_class'     => 'form-row-wide show_if_simple show_if_external',
 				'desc_tip'          => true,
-				'description'       => __( 'Persian sites accept a Jalali date such as 1405-01-01; other locales use Gregorian dates. Values are stored as Gregorian Y-m-d.', 'product-expiration-easy-peasy' ),
+				/* translators: %s: example date in the expected input format. */
+				'description'       => sprintf( __( 'Pick a date or type it, for example %s. Leave empty for no expiration date.', 'product-expiration-easy-peasy' ), $this->get_date_example() ),
 			)
 		);
 	}
@@ -425,18 +450,21 @@ final class Admin {
 	public function add_expiration_field_to_variations( $loop, $variation_data, $variation ) {
 		unset( $variation_data );
 
-		if ( 0 === (int) $loop ) {
-			wp_nonce_field( 'peep_save_variation_expiration', 'peep_variation_expiration_nonce' );
-		}
+		// WooCommerce saves only the changed variations' fields over AJAX, so
+		// every variation carries the nonce (without an id, to avoid duplicates).
+		printf(
+			'<input type="hidden" name="peep_variation_expiration_nonce" value="%s">',
+			esc_attr( wp_create_nonce( 'peep_save_variation_expiration' ) )
+		);
 
 		woocommerce_wp_text_input(
 			array(
 				'id'                => "_variation_expiration_date{$loop}",
 				'name'              => "_variation_expiration_date[{$loop}]",
-				'value'             => Date::input_value( get_post_meta( $variation->ID, '_expiration_date', true ) ),
+				'value'             => Date::input_value( get_post_meta( $variation->ID, '_expiration_date', true ), $this->get_input_calendar() ),
 				'label'             => __( 'Expiration Date', 'product-expiration-easy-peasy' ),
-				'placeholder'       => self::get_date_example(),
-				'type'              => Date::is_persian_locale() ? 'text' : 'date',
+				'placeholder'       => $this->get_date_example(),
+				'type'              => 'text',
 				'custom_attributes' => $this->get_date_input_attributes(),
 				'wrapper_class'     => 'form-row form-row-full',
 				'desc_tip'          => true,
@@ -609,7 +637,7 @@ final class Admin {
 		$svg_html = self::get_svg_allowed_html();
 
 		echo '<span class="expiration-formatted">' . esc_html( Date::format( $expiration_date, 'default' ) ) . '</span>';
-		echo '<span class="expiration-hidden" data-date="' . esc_attr( Date::input_value( $expiration_date ) ) . '"></span>';
+		echo '<span class="expiration-hidden" data-date="' . esc_attr( Date::input_value( $expiration_date, $this->get_input_calendar() ) ) . '"></span>';
 		echo '<span class="peep-status-list">';
 		echo '<span class="peep-status peep-status--' . esc_attr( $state[0] ) . '">' . wp_kses( self::get_icon( $state[1] ), $svg_html ) . '<span>' . esc_html( $state[2] ) . '</span></span>';
 
@@ -728,15 +756,18 @@ final class Admin {
 		if ( 'expiration_date' !== $column_name || 'product' !== $post_type ) {
 			return;
 		}
-		$input_type  = Date::is_persian_locale() ? 'text' : 'date';
-		$placeholder = self::get_date_example();
+		$attributes = '';
+
+		foreach ( $this->get_date_input_attributes() as $name => $value ) {
+			$attributes .= ' ' . $name . '="' . esc_attr( $value ) . '"';
+		}
 		?>
 		<fieldset class="inline-edit-col-right peep-quick-edit-fieldset">
 			<div class="inline-edit-col">
 				<label>
 					<span class="title"><?php esc_html_e( 'Expiration Date', 'product-expiration-easy-peasy' ); ?></span>
 					<span class="input-text-wrap">
-						<input type="<?php echo esc_attr( $input_type ); ?>" name="expiration_date" class="expiration-date-input" value="" placeholder="<?php echo esc_attr( $placeholder ); ?>"<?php echo Date::is_persian_locale() ? ' data-peep-date="jalali" autocomplete="off"' : ''; ?>>
+						<input type="text" name="expiration_date" class="expiration-date-input" value="" placeholder="<?php echo esc_attr( $this->get_date_example() ); ?>"<?php echo $attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fixed attribute names, values escaped above. ?>>
 						<?php wp_nonce_field( 'peep_quick_edit_expiration', 'peep_quick_edit_nonce' ); ?>
 					</span>
 				</label>
@@ -798,11 +829,21 @@ final class Admin {
 			PRODUCT_EXPIRATION_EASY_PEASY_VERSION
 		);
 
+		wp_register_script(
+			'product-expiration-easy-peasy-jalali',
+			PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/js/peep-jalali.js',
+			array(),
+			PRODUCT_EXPIRATION_EASY_PEASY_VERSION,
+			true
+		);
+
 		if ( $is_product_ui ) {
+			$this->enqueue_datepicker();
+
 			wp_enqueue_script(
 				'product-expiration-easy-peasy-admin',
 				PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/js/admin-script.js',
-				array( 'jquery' ),
+				array( 'jquery', 'product-expiration-easy-peasy-jalali', 'product-expiration-easy-peasy-datepicker' ),
 				PRODUCT_EXPIRATION_EASY_PEASY_VERSION,
 				true
 			);
@@ -812,7 +853,7 @@ final class Admin {
 				'peepAdmin',
 				array(
 					/* translators: %s: example date in the expected input format. */
-					'invalid' => sprintf( __( 'Enter a valid date such as %s, or leave the field empty.', 'product-expiration-easy-peasy' ), self::get_date_example() ),
+					'invalid' => sprintf( __( 'Enter a valid date such as %s, or leave the field empty.', 'product-expiration-easy-peasy' ), $this->get_date_example() ),
 				)
 			);
 		}
@@ -829,7 +870,7 @@ final class Admin {
 			wp_enqueue_script(
 				'product-expiration-easy-peasy-settings',
 				PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/js/settings.js',
-				array(),
+				array( 'product-expiration-easy-peasy-jalali' ),
 				PRODUCT_EXPIRATION_EASY_PEASY_VERSION,
 				true
 			);
@@ -846,6 +887,64 @@ final class Admin {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Enqueue the date picker with its calendar data and strings.
+	 *
+	 * @return void
+	 */
+	private function enqueue_datepicker() {
+		global $wp_locale;
+
+		wp_enqueue_style(
+			'product-expiration-easy-peasy-datepicker',
+			PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/css/peep-datepicker.css',
+			array(),
+			PRODUCT_EXPIRATION_EASY_PEASY_VERSION
+		);
+
+		wp_enqueue_script(
+			'product-expiration-easy-peasy-datepicker',
+			PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/js/peep-datepicker.js',
+			array( 'product-expiration-easy-peasy-jalali' ),
+			PRODUCT_EXPIRATION_EASY_PEASY_VERSION,
+			true
+		);
+
+		$weekdays       = array();
+		$weekday_abbrev = array();
+
+		for ( $index = 0; $index < 7; $index++ ) {
+			$weekday          = $wp_locale->get_weekday( $index );
+			$weekdays[]       = $weekday;
+			$weekday_abbrev[] = $wp_locale->get_weekday_abbrev( $weekday );
+		}
+
+		wp_localize_script(
+			'product-expiration-easy-peasy-datepicker',
+			'peepDatepicker',
+			array(
+				'today'         => Date::today(),
+				'persianDigits' => Date::is_persian_locale(),
+				'isRtl'         => is_rtl(),
+				'gregorian'     => array(
+					'months'      => array_values( $wp_locale->month ),
+					'weekdays'    => $weekdays,
+					'weekdaysMin' => $weekday_abbrev,
+					'startOfWeek' => (int) get_option( 'start_of_week', 0 ),
+				),
+				'strings'       => array(
+					'chooseDate'    => __( 'Choose date', 'product-expiration-easy-peasy' ),
+					'previousMonth' => __( 'Previous month', 'product-expiration-easy-peasy' ),
+					'nextMonth'     => __( 'Next month', 'product-expiration-easy-peasy' ),
+					'month'         => __( 'Month', 'product-expiration-easy-peasy' ),
+					'year'          => __( 'Year', 'product-expiration-easy-peasy' ),
+					'today'         => __( 'Today', 'product-expiration-easy-peasy' ),
+					'clear'         => __( 'Clear', 'product-expiration-easy-peasy' ),
+				),
+			)
+		);
 	}
 
 	/**

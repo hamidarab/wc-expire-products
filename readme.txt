@@ -7,7 +7,7 @@ Requires PHP: 8.1
 Requires Plugins: woocommerce
 WC requires at least: 9.0
 WC tested up to: 9.7
-Stable tag: 3.3.0
+Stable tag: 3.4.0
 License: GPL v3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -85,6 +85,13 @@ The expiration feature itself sends no telemetry. The generated RTL-Theme licens
 
 == Changelog ==
 
+= 3.4.0 =
+
+* Added: built-in Jalali/Gregorian date picker, selectable in settings.
+* The product, variation and Quick Edit date fields share one picker with full keyboard support in RTL and LTR.
+* New "Date picker calendar" setting: Auto (follows the admin language), Jalali or Gregorian. Stored dates are unchanged.
+* Gregorian date fields now show the same inline validation hint as Jalali fields.
+
 = 3.3.0 =
 
 * Redesigned settings page: tabs (Automation rules, Storefront display, Notifications, Help & status), live cutoff and badge previews, switches, date-format and position cards, and a sticky save bar with unsaved-changes warning.
@@ -135,6 +142,10 @@ The expiration feature itself sends no telemetry. The generated RTL-Theme licens
 * Added configurable date formats and conditional asset loading.
 
 == Upgrade Notice ==
+
+= 3.4.0 =
+
+Adds a built-in Jalali/Gregorian date picker to the expiration date fields. Stored dates are not changed.
 
 = 3.3.0 =
 

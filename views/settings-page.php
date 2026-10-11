@@ -198,6 +198,30 @@ $preview_text = strtr(
 					<?php echo wp_kses( Admin::get_icon( 'info' ), $svg_html ); ?>
 					<p><?php esc_html_e( 'If you clear or extend a date, the previous stock status is restored automatically. This applies only to products this plugin set out of stock.', 'product-expiration-easy-peasy' ); ?></p>
 				</div>
+
+				<fieldset class="peep-field" aria-describedby="peep-datepicker-calendar-hint">
+					<legend class="peep-field__label"><?php esc_html_e( 'Date picker calendar', 'product-expiration-easy-peasy' ); ?></legend>
+					<p class="peep-field__hint" id="peep-datepicker-calendar-hint"><?php esc_html_e( 'Calendar used by the date picker on product and Quick Edit fields. Dates are always stored in a standard format, so you can switch at any time.', 'product-expiration-easy-peasy' ); ?></p>
+					<div class="peep-choice-grid">
+						<?php
+						$picker_labels = array(
+							'auto'      => __( 'Auto (follows the admin language)', 'product-expiration-easy-peasy' ),
+							'jalali'    => __( 'Jalali (Shamsi)', 'product-expiration-easy-peasy' ),
+							'gregorian' => __( 'Gregorian (Miladi)', 'product-expiration-easy-peasy' ),
+						);
+
+						foreach ( $picker_labels as $picker_calendar => $picker_label ) :
+							?>
+							<label class="peep-choice">
+								<input type="radio" class="peep-choice__input" name="datepicker_calendar" value="<?php echo esc_attr( $picker_calendar ); ?>" <?php checked( $current_settings['datepicker_calendar'], $picker_calendar ); ?>>
+								<span class="peep-choice__body">
+									<span class="peep-choice__title"><?php echo esc_html( $picker_label ); ?></span>
+									<span class="peep-choice__meta" dir="ltr"><?php echo esc_html( $view['picker_samples'][ $picker_calendar ] ); ?></span>
+								</span>
+							</label>
+						<?php endforeach; ?>
+					</div>
+				</fieldset>
 			</section>
 
 			<section class="peep-panel" id="peep-panel-display" aria-labelledby="peep-panel-display-title">

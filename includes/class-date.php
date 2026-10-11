@@ -88,19 +88,62 @@ final class Date {
 	}
 
 	/**
-	 * Format a stored date for the administration input locale.
+	 * Resolve the calendar used by the admin date inputs and picker.
 	 *
-	 * @param mixed $date Stored Gregorian date.
+	 * @param string|null $preference "auto", "jalali" or "gregorian"; null reads the saved setting.
+	 * @return string "jalali" or "gregorian".
+	 */
+	public static function input_calendar( $preference = null ) {
+		if ( null === $preference ) {
+			$preference = ( new Settings() )->get_setting( 'datepicker_calendar' );
+		}
+
+		if ( 'jalali' === $preference || 'gregorian' === $preference ) {
+			return $preference;
+		}
+
+		return self::is_persian_locale() ? 'jalali' : 'gregorian';
+	}
+
+	/**
+	 * Format a stored date as the admin input value.
+	 *
+	 * Jalali values use Persian digits in a Persian locale and Latin digits
+	 * otherwise. Gregorian values are the stored Y-m-d.
+	 *
+	 * @param mixed       $date     Stored Gregorian date.
+	 * @param string|null $calendar "jalali" or "gregorian"; null resolves the saved setting.
 	 * @return string
 	 */
-	public static function input_value( $date ) {
+	public static function input_value( $date, $calendar = null ) {
 		$date = self::sanitize( $date );
 
 		if ( '' === $date ) {
 			return '';
 		}
 
-		return self::is_persian_locale() ? Jalali::format( $date, 'Y-m-d' ) : $date;
+		if ( 'jalali' !== self::input_calendar( $calendar ) ) {
+			return $date;
+		}
+
+		$parts  = array_map( 'intval', explode( '-', $date ) );
+		$jalali = vsprintf( '%04d-%02d-%02d', Jalali::convert( $parts[0], $parts[1], $parts[2] ) );
+
+		return self::is_persian_locale() ? Jalali::digits( $jalali ) : $jalali;
+	}
+
+	/**
+	 * Example value in the admin input format.
+	 *
+	 * @param string|null $calendar "jalali" or "gregorian"; null resolves the saved setting.
+	 * @return string
+	 */
+	public static function input_example( $calendar = null ) {
+		if ( 'jalali' !== self::input_calendar( $calendar ) ) {
+			return '2026-12-31';
+		}
+
+		return self::is_persian_locale() ? Jalali::digits( '1405-01-01' ) : '1405-01-01';
 	}
 
 	/**

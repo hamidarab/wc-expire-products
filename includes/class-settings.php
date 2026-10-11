@@ -51,6 +51,7 @@ final class Settings {
 		'email_recipients'         => array( 'admin' ),
 		'custom_email'             => '',
 		'show_in_order_email'      => 'yes',
+		'datepicker_calendar'      => 'auto',
 	);
 
 	/**
@@ -67,6 +68,22 @@ final class Settings {
 	 */
 	public static function get_date_formats() {
 		return self::DATE_FORMATS;
+	}
+
+	/**
+	 * Supported date picker calendars.
+	 *
+	 * @var array<int, string>
+	 */
+	private const DATEPICKER_CALENDARS = array( 'auto', 'jalali', 'gregorian' );
+
+	/**
+	 * Return the supported date picker calendars.
+	 *
+	 * @return array<int, string>
+	 */
+	public static function get_datepicker_calendars() {
+		return self::DATEPICKER_CALENDARS;
 	}
 
 	/**
@@ -234,6 +251,14 @@ final class Settings {
 			? sanitize_email( (string) $data['custom_email'] )
 			: '';
 
+		$datepicker_calendar = isset( $data['datepicker_calendar'] ) && is_scalar( $data['datepicker_calendar'] )
+			? sanitize_key( (string) $data['datepicker_calendar'] )
+			: $this->defaults['datepicker_calendar'];
+
+		if ( ! in_array( $datepicker_calendar, self::DATEPICKER_CALENDARS, true ) ) {
+			$datepicker_calendar = $this->defaults['datepicker_calendar'];
+		}
+
 		return array(
 			'notification_period_type' => $period_type,
 			'notification_period'      => $period,
@@ -244,6 +269,7 @@ final class Settings {
 			'email_recipients'         => $recipients,
 			'custom_email'             => $custom_email,
 			'show_in_order_email'      => $show_in_email,
+			'datepicker_calendar'      => $datepicker_calendar,
 		);
 	}
 }

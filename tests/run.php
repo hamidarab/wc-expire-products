@@ -184,7 +184,7 @@ function absint( $value ) {
 }
 
 function determine_locale() {
-	return 'fa_IR';
+	return $GLOBALS['peep_test_locale'] ?? 'fa_IR';
 }
 
 function wp_timezone() {
@@ -516,7 +516,7 @@ $release_lock->invoke( $first_worker );
 peep_test_expect( true === $acquire_lock->invoke( $second_worker ), 'The lock owner did not release its lock.' );
 $release_lock->invoke( $second_worker );
 
-// Settings keep the exact 3.2.0 option shape and ignore request-only fields.
+// Settings keep every 3.2.0 key (plus datepicker_calendar) and ignore request-only fields.
 $settings->save_settings(
 	array(
 		'action'                   => 'peep_save_settings',
@@ -534,7 +534,7 @@ $settings->save_settings(
 	)
 );
 peep_test_expect(
-	array( 'notification_period_type', 'notification_period', 'show_expiration', 'display_text', 'date_format', 'display_position', 'email_recipients', 'custom_email', 'show_in_order_email' ) === array_keys( $peep_test_options['peep_settings'] ),
+	array( 'notification_period_type', 'notification_period', 'show_expiration', 'display_text', 'date_format', 'display_position', 'email_recipients', 'custom_email', 'show_in_order_email', 'datepicker_calendar' ) === array_keys( $peep_test_options['peep_settings'] ),
 	'Saved option keys changed or request-only fields leaked into peep_settings.'
 );
 peep_test_expect( 'no' === $settings->get_setting( 'show_expiration' ) && 'no' === $settings->get_setting( 'show_in_order_email' ), 'Switch values are no longer stored as yes/no.' );
@@ -647,5 +647,95 @@ $peep_test_i18n_map = array();
 require_once dirname( __DIR__ ) . '/tools/check-translations.php';
 $peep_test_i18n_problems = peep_i18n_problems( dirname( __DIR__ ), 'fa_IR' );
 peep_test_expect( array() === $peep_test_i18n_problems, "Translation check failed:\n  " . implode( "\n  ", $peep_test_i18n_problems ) );
+
+// Date picker calendar setting.
+$peep_test_options['peep_settings'] = array();
+peep_test_expect( 'auto' === $settings->get_setting( 'datepicker_calendar' ), 'The date picker calendar does not default to auto.' );
+
+foreach ( array( 'auto', 'jalali', 'gregorian' ) as $peep_calendar ) {
+	$settings->save_settings( array( 'datepicker_calendar' => $peep_calendar ) );
+	peep_test_expect( $peep_calendar === $settings->get_setting( 'datepicker_calendar' ), "Valid date picker calendar {$peep_calendar} was rejected." );
+}
+
+foreach ( array( 'persian', 'shamsi', array( 'jalali' ), '' ) as $peep_calendar ) {
+	$settings->save_settings( array( 'datepicker_calendar' => $peep_calendar ) );
+	peep_test_expect( 'auto' === $settings->get_setting( 'datepicker_calendar' ), 'An invalid date picker calendar did not fall back to auto.' );
+}
+
+// The resolver: auto follows the admin locale, explicit choices win.
+$peep_resolver_cases = array(
+	array( 'fa_IR', 'auto', 'jalali' ),
+	array( 'fa_IR', 'jalali', 'jalali' ),
+	array( 'fa_IR', 'gregorian', 'gregorian' ),
+	array( 'en_US', 'auto', 'gregorian' ),
+	array( 'en_US', 'jalali', 'jalali' ),
+	array( 'en_US', 'gregorian', 'gregorian' ),
+);
+
+foreach ( $peep_resolver_cases as list( $peep_locale, $peep_preference, $peep_expected ) ) {
+	$peep_test_locale = $peep_locale;
+	peep_test_expect( $peep_expected === ProductExpirationEasyPeasy\Date::input_calendar( $peep_preference ), "input_calendar({$peep_preference}) under {$peep_locale} is not {$peep_expected}." );
+
+	// Null reads the saved setting.
+	$settings->save_settings( array( 'datepicker_calendar' => $peep_preference ) );
+	peep_test_expect( $peep_expected === ProductExpirationEasyPeasy\Date::input_calendar(), "The saved {$peep_preference} setting did not resolve to {$peep_expected} under {$peep_locale}." );
+}
+
+// Input values follow the resolved calendar; digits follow the admin locale.
+$peep_input_cases = array(
+	array( 'fa_IR', 'jalali', '۱۴۰۵-۱۱-۱۳', '۱۴۰۵-۰۱-۰۱' ),
+	array( 'en_US', 'jalali', '1405-11-13', '1405-01-01' ),
+	array( 'fa_IR', 'gregorian', '2027-02-02', '2026-12-31' ),
+	array( 'en_US', 'gregorian', '2027-02-02', '2026-12-31' ),
+);
+
+foreach ( $peep_input_cases as list( $peep_locale, $peep_calendar, $peep_value, $peep_example ) ) {
+	$peep_test_locale = $peep_locale;
+	peep_test_expect( $peep_value === ProductExpirationEasyPeasy\Date::input_value( '2027-02-02', $peep_calendar ), "input_value() for {$peep_calendar} under {$peep_locale} is wrong." );
+	peep_test_expect( $peep_example === ProductExpirationEasyPeasy\Date::input_example( $peep_calendar ), "input_example() for {$peep_calendar} under {$peep_locale} is wrong." );
+
+	// What the picker writes is saved as the same Gregorian date.
+	peep_test_expect( '2027-02-02' === ProductExpirationEasyPeasy\Date::sanitize_input( $peep_value ), "sanitize_input() did not round-trip {$peep_value}." );
+}
+
+peep_test_expect( '' === ProductExpirationEasyPeasy\Date::input_value( '', 'jalali' ), 'An empty date produced an input value.' );
+$peep_test_locale = 'fa_IR';
+
+// The JS converter matches PHP (skipped when Node.js is not installed).
+$peep_fixture = array(
+	'days'   => array(),
+	'esfand' => array(),
+	'inputs' => array(),
+);
+$peep_day     = new DateTimeImmutable( '2015-01-01', new DateTimeZone( 'UTC' ) );
+
+while ( $peep_day->format( 'Y' ) < 2036 ) {
+	$peep_iso                 = $peep_day->format( 'Y-m-d' );
+	$peep_fixture['days'][] = array( $peep_iso, ProductExpirationEasyPeasy\Jalali::convert( (int) $peep_day->format( 'Y' ), (int) $peep_day->format( 'n' ), (int) $peep_day->format( 'j' ) ), ProductExpirationEasyPeasy\Jalali::format( $peep_iso, 'j F Y' ) );
+	$peep_day                 = $peep_day->modify( '+1 day' );
+}
+
+for ( $peep_year = 1380; $peep_year <= 1430; $peep_year++ ) {
+	$peep_fixture['esfand'][] = array( $peep_year, 3 === count( ProductExpirationEasyPeasy\Jalali::to_gregorian( $peep_year, 12, 30 ) ) ? 30 : 29 );
+}
+
+foreach ( array( '۱۴۰۵-۱۱-۱۳', '1405-11-13', '2027-02-02', '۱۴۰۴/۰۱/۰۱', '١٤٠٣-١٢-٣٠', '1402-12-30', '1403-12-30', '1407-12-30', '1408-12-30', '2025-02-29', '2024-02-29', '1403/12-30', '', 'abc', '1405-13-01', '1405-07-31' ) as $peep_input ) {
+	$peep_fixture['inputs'][] = array( $peep_input, ProductExpirationEasyPeasy\Date::sanitize_input( $peep_input ) );
+}
+
+peep_test_expect( 30 === array_column( $peep_fixture['esfand'], 1, 0 )[1403] && 29 === array_column( $peep_fixture['esfand'], 1, 0 )[1404], 'Esfand month lengths are wrong.' );
+
+$peep_node = trim( (string) shell_exec( 'command -v node 2>/dev/null' ) );
+
+if ( '' === $peep_node ) {
+	echo "jalali-parity=skipped (node not found)\n";
+} else {
+	$peep_fixture_file = tempnam( sys_get_temp_dir(), 'peep-jalali-' );
+	file_put_contents( $peep_fixture_file, json_encode( $peep_fixture, JSON_UNESCAPED_UNICODE ) );
+	exec( escapeshellarg( $peep_node ) . ' ' . escapeshellarg( __DIR__ . '/jalali-parity.js' ) . ' ' . escapeshellarg( $peep_fixture_file ) . ' 2>&1', $peep_output, $peep_status );
+	unlink( $peep_fixture_file );
+	peep_test_expect( 0 === $peep_status, "The JS Jalali port does not match PHP:\n" . implode( "\n", $peep_output ) );
+	echo implode( "\n", $peep_output ), "\n";
+}
 
 echo "bootstrap-smoke=passed\n";
