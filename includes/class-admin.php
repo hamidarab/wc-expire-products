@@ -44,6 +44,13 @@ final class Admin {
 	private const TABS = array( 'rules', 'display', 'notifications', 'help' );
 
 	/**
+	 * Cutoff date cached for one product-list request.
+	 *
+	 * @var string
+	 */
+	private $list_cutoff = '';
+
+	/**
 	 * Register admin hooks.
 	 *
 	 * @param Settings $settings Settings service.
@@ -74,6 +81,20 @@ final class Admin {
 		add_action( 'quick_edit_custom_box', array( $this, 'add_to_quick_edit' ), 10, 2 );
 		add_action( 'save_post_product', array( $this, 'save_quick_edit_data' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
+		add_filter( 'removable_query_args', array( $this, 'add_removable_query_args' ) );
+	}
+
+	/**
+	 * Strip one-time notice arguments from the address bar after display.
+	 *
+	 * @param array<int, string> $args Removable query arguments.
+	 * @return array<int, string>
+	 */
+	public function add_removable_query_args( $args ) {
+		$args[] = 'peep_notice';
+		$args[] = 'peep_count';
+
+		return $args;
 	}
 
 	/**
@@ -240,6 +261,31 @@ final class Admin {
 	}
 
 	/**
+	 * Example date in the input format of the current locale.
+	 *
+	 * @return string
+	 */
+	private static function get_date_example() {
+		return Date::is_persian_locale() ? Jalali::digits( '1405-01-01' ) : '2026-12-31';
+	}
+
+	/**
+	 * Extra attributes for Jalali text inputs, used by the inline validator.
+	 *
+	 * @return array<string, string>
+	 */
+	private function get_date_input_attributes() {
+		if ( ! Date::is_persian_locale() ) {
+			return array();
+		}
+
+		return array(
+			'data-peep-date' => 'jalali',
+			'autocomplete'   => 'off',
+		);
+	}
+
+	/**
 	 * Return an inline SVG icon used by the admin screens.
 	 *
 	 * Icons are static markup; print them through wp_kses() with
@@ -326,14 +372,15 @@ final class Admin {
 
 		woocommerce_wp_text_input(
 			array(
-				'id'            => '_expiration_date',
-				'value'         => Date::input_value( get_post_meta( get_the_ID(), '_expiration_date', true ) ),
-				'label'         => __( 'Expiration Date', 'product-expiration-easy-peasy' ),
-				'placeholder'   => $is_persian ? '۱۴۰۵-۰۱-۰۱' : '2026-12-31',
-				'type'          => $is_persian ? 'text' : 'date',
-				'wrapper_class' => 'form-row-wide show_if_simple show_if_external',
-				'desc_tip'      => true,
-				'description'   => __( 'Persian sites accept a Jalali date such as 1405-01-01; other locales use Gregorian dates. Values are stored as Gregorian Y-m-d.', 'product-expiration-easy-peasy' ),
+				'id'                => '_expiration_date',
+				'value'             => Date::input_value( get_post_meta( get_the_ID(), '_expiration_date', true ) ),
+				'label'             => __( 'Expiration Date', 'product-expiration-easy-peasy' ),
+				'placeholder'       => self::get_date_example(),
+				'type'              => $is_persian ? 'text' : 'date',
+				'custom_attributes' => $this->get_date_input_attributes(),
+				'wrapper_class'     => 'form-row-wide show_if_simple show_if_external',
+				'desc_tip'          => true,
+				'description'       => __( 'Persian sites accept a Jalali date such as 1405-01-01; other locales use Gregorian dates. Values are stored as Gregorian Y-m-d.', 'product-expiration-easy-peasy' ),
 			)
 		);
 	}
@@ -384,15 +431,16 @@ final class Admin {
 
 		woocommerce_wp_text_input(
 			array(
-				'id'            => "_variation_expiration_date{$loop}",
-				'name'          => "_variation_expiration_date[{$loop}]",
-				'value'         => Date::input_value( get_post_meta( $variation->ID, '_expiration_date', true ) ),
-				'label'         => __( 'Expiration Date', 'product-expiration-easy-peasy' ),
-				'placeholder'   => Date::is_persian_locale() ? '۱۴۰۵-۰۱-۰۱' : '2026-12-31',
-				'type'          => Date::is_persian_locale() ? 'text' : 'date',
-				'wrapper_class' => 'form-row form-row-full',
-				'desc_tip'      => true,
-				'description'   => __( 'Set an expiration date for this variation.', 'product-expiration-easy-peasy' ),
+				'id'                => "_variation_expiration_date{$loop}",
+				'name'              => "_variation_expiration_date[{$loop}]",
+				'value'             => Date::input_value( get_post_meta( $variation->ID, '_expiration_date', true ) ),
+				'label'             => __( 'Expiration Date', 'product-expiration-easy-peasy' ),
+				'placeholder'       => self::get_date_example(),
+				'type'              => Date::is_persian_locale() ? 'text' : 'date',
+				'custom_attributes' => $this->get_date_input_attributes(),
+				'wrapper_class'     => 'form-row form-row-full',
+				'desc_tip'          => true,
+				'description'       => __( 'Set an expiration date for this variation.', 'product-expiration-easy-peasy' ),
 			)
 		);
 	}
@@ -512,6 +560,7 @@ final class Admin {
 		}
 
 		$expiration_date = '';
+		$managed_count   = 0;
 
 		if ( $product->is_type( 'variable' ) ) {
 			$dates     = array();
@@ -523,6 +572,10 @@ final class Admin {
 				if ( '' !== $date ) {
 					$dates[] = $date;
 				}
+
+				if ( 'yes' === get_post_meta( $child_id, '_peep_stock_managed', true ) ) {
+					++$managed_count;
+				}
 			}
 
 			if ( ! empty( $dates ) ) {
@@ -533,6 +586,7 @@ final class Admin {
 			}
 		} else {
 			$expiration_date = Date::sanitize( get_post_meta( $post_id, '_expiration_date', true ) );
+			$managed_count   = 'yes' === get_post_meta( $post_id, '_peep_stock_managed', true ) ? 1 : 0;
 		}
 
 		if ( '' === $expiration_date ) {
@@ -540,14 +594,35 @@ final class Admin {
 			return;
 		}
 
-		$formatted = Date::format( $expiration_date, 'default' );
-
-		echo '<span class="expiration-formatted">' . esc_html( $formatted ) . '</span>';
-		echo '<span class="expiration-hidden" data-date="' . esc_attr( Date::input_value( $expiration_date ) ) . '"></span>';
+		if ( '' === $this->list_cutoff ) {
+			$this->list_cutoff = Cron::get_cutoff_date( $this->settings );
+		}
 
 		if ( $expiration_date < Date::today() ) {
-			echo ' <span class="expiration-status-expired">(' . esc_html__( 'Expired', 'product-expiration-easy-peasy' ) . ')</span>';
+			$state = array( 'expired', 'alert', __( 'Expired', 'product-expiration-easy-peasy' ) );
+		} elseif ( $expiration_date <= $this->list_cutoff ) {
+			$state = array( 'near', 'clock', __( 'Near expiry', 'product-expiration-easy-peasy' ) );
+		} else {
+			$state = array( 'ok', 'check', __( 'Not expired', 'product-expiration-easy-peasy' ) );
 		}
+
+		$svg_html = self::get_svg_allowed_html();
+
+		echo '<span class="expiration-formatted">' . esc_html( Date::format( $expiration_date, 'default' ) ) . '</span>';
+		echo '<span class="expiration-hidden" data-date="' . esc_attr( Date::input_value( $expiration_date ) ) . '"></span>';
+		echo '<span class="peep-status-list">';
+		echo '<span class="peep-status peep-status--' . esc_attr( $state[0] ) . '">' . wp_kses( self::get_icon( $state[1] ), $svg_html ) . '<span>' . esc_html( $state[2] ) . '</span></span>';
+
+		if ( $managed_count > 0 ) {
+			$managed_label = $product->is_type( 'variable' )
+				/* translators: %s: number of variations. */
+				? sprintf( _n( '%s variation auto out of stock', '%s variations auto out of stock', $managed_count, 'product-expiration-easy-peasy' ), number_format_i18n( $managed_count ) )
+				: __( 'Auto out of stock', 'product-expiration-easy-peasy' );
+
+			echo '<span class="peep-status peep-status--managed">' . wp_kses( self::get_icon( 'box' ), $svg_html ) . '<span>' . esc_html( $managed_label ) . '</span></span>';
+		}
+
+		echo '</span>';
 	}
 
 	/**
@@ -654,14 +729,14 @@ final class Admin {
 			return;
 		}
 		$input_type  = Date::is_persian_locale() ? 'text' : 'date';
-		$placeholder = Date::is_persian_locale() ? '۱۴۰۵-۰۱-۰۱' : '2026-12-31';
+		$placeholder = self::get_date_example();
 		?>
 		<fieldset class="inline-edit-col-right peep-quick-edit-fieldset">
 			<div class="inline-edit-col">
 				<label>
 					<span class="title"><?php esc_html_e( 'Expiration Date', 'product-expiration-easy-peasy' ); ?></span>
 					<span class="input-text-wrap">
-						<input type="<?php echo esc_attr( $input_type ); ?>" name="expiration_date" class="expiration-date-input" value="" placeholder="<?php echo esc_attr( $placeholder ); ?>">
+						<input type="<?php echo esc_attr( $input_type ); ?>" name="expiration_date" class="expiration-date-input" value="" placeholder="<?php echo esc_attr( $placeholder ); ?>"<?php echo Date::is_persian_locale() ? ' data-peep-date="jalali" autocomplete="off"' : ''; ?>>
 						<?php wp_nonce_field( 'peep_quick_edit_expiration', 'peep_quick_edit_nonce' ); ?>
 					</span>
 				</label>
@@ -730,6 +805,15 @@ final class Admin {
 				array( 'jquery' ),
 				PRODUCT_EXPIRATION_EASY_PEASY_VERSION,
 				true
+			);
+
+			wp_localize_script(
+				'product-expiration-easy-peasy-admin',
+				'peepAdmin',
+				array(
+					/* translators: %s: example date in the expected input format. */
+					'invalid' => sprintf( __( 'Enter a valid date such as %s, or leave the field empty.', 'product-expiration-easy-peasy' ), self::get_date_example() ),
+				)
 			);
 		}
 

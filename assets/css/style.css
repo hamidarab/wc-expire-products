@@ -1,3 +1,15 @@
+/*
+ * Expiration badge.
+ *
+ * Neutral defaults that follow the theme's text colour. Override from a
+ * theme or Customizer > Additional CSS, for example:
+ *
+ *   :root {
+ *     --peep-badge-color: #065f46;
+ *     --peep-badge-bg: #e7f7ef;
+ *     --peep-badge-border: #a7d7c0;
+ *   }
+ */
 .expiration-date {
 	display: inline-flex;
 	align-items: center;
@@ -5,10 +17,10 @@
 	max-width: 100%;
 	margin-block: 0.75rem;
 	padding: 0.4rem 0.65rem;
-	border: 1px solid #4b59c9;
+	border: 1px solid var(--peep-badge-border, rgba(0, 0, 0, 0.18));
 	border-radius: 5px;
-	background: #ecf0ff;
-	color: #3947b7;
+	background: var(--peep-badge-bg, rgba(0, 0, 0, 0.04));
+	color: var(--peep-badge-color, inherit);
 	font-size: 0.875rem;
 	font-weight: 700;
 	line-height: 1.6;
