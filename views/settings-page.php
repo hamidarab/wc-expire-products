@@ -12,6 +12,8 @@
  */
 
 use ProductExpirationEasyPeasy\Admin;
+use ProductExpirationEasyPeasy\Date;
+use ProductExpirationEasyPeasy\Jalali;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,8 +26,26 @@ $svg_html         = Admin::get_svg_allowed_html();
 $is_custom_email  = in_array( 'custom', $recipients, true );
 $is_display_off   = 'yes' !== $current_settings['show_expiration'];
 $is_email_off     = 'yes' !== $current_settings['show_in_order_email'];
+$notice_count     = isset( $_GET['peep_count'] ) && is_scalar( $_GET['peep_count'] ) ? absint( $_GET['peep_count'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice detail.
+$format_number    = static function ( $number ) use ( $view ) {
+	$formatted = number_format_i18n( (int) $number );
+
+	return $view['is_persian'] ? Jalali::digits( $formatted ) : $formatted;
+};
 
 $notices = array(
+	'check_done'           => array(
+		'success',
+		sprintf(
+			/* translators: %s: number of products and variations. */
+			_n( 'Check complete. %s product was set out of stock.', 'Check complete. %s products were set out of stock.', $notice_count, 'product-expiration-easy-peasy' ),
+			$format_number( $notice_count )
+		),
+	),
+	'check_locked'         => array( 'warning', __( 'Another expiration check is already running. Try again in a few minutes.', 'product-expiration-easy-peasy' ) ),
+	'test_sent'            => array( 'success', __( 'Test email sent to the saved recipients.', 'product-expiration-easy-peasy' ) ),
+	'test_failed'          => array( 'error', __( 'The test email could not be sent. Check the site email configuration.', 'product-expiration-easy-peasy' ) ),
+	'test_no_recipients'   => array( 'warning', __( 'No valid recipient is saved, so the test email was not sent.', 'product-expiration-easy-peasy' ) ),
 	'custom_email_missing' => array( 'warning', __( 'Custom email is selected, but the address was empty or invalid, so no custom email will receive reports.', 'product-expiration-easy-peasy' ) ),
 );
 
@@ -80,6 +100,44 @@ $preview_text = strtr(
 	<?php if ( isset( $notices[ $notice_key ] ) ) : ?>
 		<div class="notice notice-<?php echo esc_attr( $notices[ $notice_key ][0] ); ?> is-dismissible"><p><?php echo esc_html( $notices[ $notice_key ][1] ); ?></p></div>
 	<?php endif; ?>
+
+	<section class="peep-stats" aria-label="<?php esc_attr_e( 'Status overview', 'product-expiration-easy-peasy' ); ?>">
+		<div class="peep-stat">
+			<span class="peep-stat__icon"><?php echo wp_kses( Admin::get_icon( 'tag' ), $svg_html ); ?></span>
+			<p class="peep-stat__value"><?php echo esc_html( $format_number( $view['counts']['dated'] ) ); ?></p>
+			<p class="peep-stat__label"><?php esc_html_e( 'Products and variations with a date', 'product-expiration-easy-peasy' ); ?></p>
+		</div>
+		<div class="peep-stat peep-stat--danger">
+			<span class="peep-stat__icon"><?php echo wp_kses( Admin::get_icon( 'alert' ), $svg_html ); ?></span>
+			<p class="peep-stat__value"><?php echo esc_html( $format_number( $view['counts']['expired'] ) ); ?></p>
+			<p class="peep-stat__label"><?php esc_html_e( 'Expired', 'product-expiration-easy-peasy' ); ?></p>
+			<a class="peep-stat__link" href="<?php echo esc_url( admin_url( 'edit.php?post_type=product&expiration_filter=expired' ) ); ?>"><?php esc_html_e( 'View expired products', 'product-expiration-easy-peasy' ); ?></a>
+		</div>
+		<div class="peep-stat">
+			<span class="peep-stat__icon"><?php echo wp_kses( Admin::get_icon( 'box' ), $svg_html ); ?></span>
+			<p class="peep-stat__value"><?php echo esc_html( $format_number( $view['counts']['managed'] ) ); ?></p>
+			<p class="peep-stat__label"><?php esc_html_e( 'Set out of stock by the plugin', 'product-expiration-easy-peasy' ); ?></p>
+		</div>
+		<div class="peep-stat">
+			<span class="peep-stat__icon"><?php echo wp_kses( Admin::get_icon( 'clock' ), $svg_html ); ?></span>
+			<p class="peep-stat__value peep-stat__value--text">
+				<?php
+				if ( $view['next_run'] ) {
+					echo esc_html( Date::format_timestamp( $view['next_run'] ) );
+				} else {
+					esc_html_e( 'Not scheduled', 'product-expiration-easy-peasy' );
+				}
+				?>
+			</p>
+			<p class="peep-stat__label"><?php esc_html_e( 'Next check', 'product-expiration-easy-peasy' ); ?></p>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="peep-stat__action">
+				<input type="hidden" name="action" value="peep_run_check">
+				<input type="hidden" name="peep_tab" value="rules" class="peep-tab-input">
+				<?php wp_nonce_field( 'peep_run_check', 'peep_run_check_nonce' ); ?>
+				<button type="submit" class="button peep-button"><?php echo wp_kses( Admin::get_icon( 'refresh' ), $svg_html ); ?><?php esc_html_e( 'Run check now', 'product-expiration-easy-peasy' ); ?></button>
+			</form>
+		</div>
+	</section>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="peep-layout" id="peep-settings-form">
 		<input type="hidden" name="action" value="peep_save_settings">
@@ -261,7 +319,7 @@ $preview_text = strtr(
 									sprintf(
 										/* translators: %s: number of users with the Shop Manager role. */
 										_n( '%s user', '%s users', $view['shop_manager_count'], 'product-expiration-easy-peasy' ),
-										number_format_i18n( $view['shop_manager_count'] )
+										$format_number( $view['shop_manager_count'] )
 									)
 								);
 								?>
@@ -287,6 +345,11 @@ $preview_text = strtr(
 						</p>
 					</div>
 				</fieldset>
+
+				<div class="peep-field">
+					<button type="submit" class="button peep-button" form="peep-test-email-form" aria-describedby="peep-test-email-hint"><?php echo wp_kses( Admin::get_icon( 'mail' ), $svg_html ); ?><?php esc_html_e( 'Send test email', 'product-expiration-easy-peasy' ); ?></button>
+					<p class="peep-field__hint" id="peep-test-email-hint"><?php esc_html_e( 'Sends a sample message to the saved recipients. Save your changes first.', 'product-expiration-easy-peasy' ); ?></p>
+				</div>
 			</section>
 
 			<section class="peep-panel" id="peep-panel-help" aria-labelledby="peep-panel-help-title">
@@ -304,13 +367,55 @@ $preview_text = strtr(
 							sprintf(
 								/* translators: %s: example Jalali date, wrapped in code markup. */
 								__( 'On Persian admin screens, enter a Jalali date such as %s. Persian, Arabic and Latin digits are accepted, with a hyphen or slash as the separator.', 'product-expiration-easy-peasy' ),
-								'<code dir="ltr">' . esc_html( \ProductExpirationEasyPeasy\Jalali::digits( '1405-01-01' ) ) . '</code>'
+								'<code dir="ltr">' . esc_html( Jalali::digits( '1405-01-01' ) ) . '</code>'
 							),
 							array( 'code' => array( 'dir' => true ) )
 						);
 						?>
 					</li>
 				</ol>
+
+				<h3 class="peep-subtitle"><?php esc_html_e( 'System status', 'product-expiration-easy-peasy' ); ?></h3>
+				<?php
+				$status_rows = array(
+					array( __( 'Plugin version', 'product-expiration-easy-peasy' ), PRODUCT_EXPIRATION_EASY_PEASY_VERSION, null ),
+					array(
+						__( 'RTL-Theme license', 'product-expiration-easy-peasy' ),
+						$view['license_active'] ? __( 'Active', 'product-expiration-easy-peasy' ) : __( 'Not active', 'product-expiration-easy-peasy' ),
+						$view['license_active'],
+					),
+					array(
+						__( 'ionCube Loader', 'product-expiration-easy-peasy' ),
+						'' !== $view['ioncube_version']
+							/* translators: %s: ionCube Loader version. */
+							? sprintf( __( 'Loaded (%s)', 'product-expiration-easy-peasy' ), $view['ioncube_version'] )
+							: __( 'Not loaded', 'product-expiration-easy-peasy' ),
+						'' !== $view['ioncube_version'],
+					),
+					array( 'WooCommerce', defined( 'WC_VERSION' ) ? WC_VERSION : __( 'Not detected', 'product-expiration-easy-peasy' ), defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '9.0', '>=' ) ),
+					array( 'PHP', PHP_VERSION, version_compare( PHP_VERSION, '8.1', '>=' ) ),
+					array( 'WordPress', get_bloginfo( 'version' ), null ),
+				);
+				?>
+				<table class="peep-status-table">
+					<tbody>
+						<?php foreach ( $status_rows as $status_row ) : ?>
+							<tr>
+								<th scope="row"><?php echo esc_html( $status_row[0] ); ?></th>
+								<td>
+									<?php if ( null === $status_row[2] ) : ?>
+										<span dir="ltr"><?php echo esc_html( $status_row[1] ); ?></span>
+									<?php else : ?>
+										<span class="peep-status-text <?php echo esc_attr( $status_row[2] ? 'is-ok' : 'is-problem' ); ?>">
+											<?php echo wp_kses( Admin::get_icon( $status_row[2] ? 'check' : 'x' ), $svg_html ); ?>
+											<span><?php echo esc_html( $status_row[1] ); ?></span>
+										</span>
+									<?php endif; ?>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
 			</section>
 
 			<div class="peep-savebar">
@@ -318,5 +423,11 @@ $preview_text = strtr(
 				<button type="submit" class="button button-primary peep-button-primary" id="peep-save"><?php esc_html_e( 'Save changes', 'product-expiration-easy-peasy' ); ?></button>
 			</div>
 		</div>
+	</form>
+
+	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="peep-test-email-form" hidden>
+		<input type="hidden" name="action" value="peep_send_test_email">
+		<input type="hidden" name="peep_tab" value="notifications">
+		<?php wp_nonce_field( 'peep_send_test_email', 'peep_test_email_nonce' ); ?>
 	</form>
 </div>

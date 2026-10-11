@@ -102,6 +102,7 @@ function peep_uninstall_site_data() {
 	wp_clear_scheduled_hook( 'peep_check_expired_products' );
 	delete_option( 'peep_settings' );
 	delete_option( 'peep_expiration_cron_lock' );
+	delete_transient( 'peep_dashboard_counts' );
 	peep_uninstall_delete_product_meta( '_expiration_date' );
 	peep_uninstall_delete_product_meta( '_peep_stock_managed' );
 	peep_uninstall_delete_product_meta( '_peep_previous_stock_status' );

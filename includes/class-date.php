@@ -159,6 +159,22 @@ final class Date {
 	}
 
 	/**
+	 * Format a Unix timestamp as a localized date and time.
+	 *
+	 * @param int $timestamp Unix timestamp.
+	 * @return string
+	 */
+	public static function format_timestamp( $timestamp ) {
+		$timestamp = (int) $timestamp;
+
+		if ( self::is_persian_locale() ) {
+			return Jalali::format( wp_date( 'Y-m-d', $timestamp ), 'j F Y' ) . '، ' . Jalali::digits( wp_date( 'H:i', $timestamp ) );
+		}
+
+		return wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp );
+	}
+
+	/**
 	 * Format a stored date for the current locale.
 	 *
 	 * Persian locales use the bundled Jalali converter. Other locales use the

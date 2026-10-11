@@ -224,6 +224,7 @@ final class Cron {
 		} finally {
 			$this->release_lock();
 			wp_reset_postdata();
+			Stats::flush();
 		}
 
 		// One aggregated report per run instead of one email per batch.
@@ -306,6 +307,7 @@ final class Cron {
 		} finally {
 			$this->release_lock();
 			wp_reset_postdata();
+			Stats::flush();
 		}
 
 		return $restored;

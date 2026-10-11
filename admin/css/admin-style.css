@@ -111,6 +111,79 @@ input[name^="_variation_expiration_date"],
 	color: var(--peep-primary);
 }
 
+/* --- Status cards ------------------------------------------------------- */
+
+.peep-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+	gap: 12px;
+	margin-block-start: 16px;
+}
+
+.peep-stat {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	padding: 16px;
+	border: 1px solid var(--peep-border);
+	border-radius: var(--peep-radius);
+	background: var(--peep-surface);
+}
+
+.peep-stat__icon {
+	display: inline-flex;
+	padding: 8px;
+	border-radius: var(--peep-radius-small);
+	background: var(--peep-primary-soft);
+	color: var(--peep-primary);
+}
+
+.peep-stat--danger .peep-stat__icon {
+	background: var(--peep-danger-soft);
+	color: var(--peep-danger);
+}
+
+.peep-stat__value {
+	margin: 8px 0 0;
+	font-size: 26px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.peep-stat__value--text {
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+.peep-stat__label {
+	margin: 0;
+	color: var(--peep-text-muted);
+}
+
+.peep-stat__link {
+	display: inline-flex;
+	align-items: center;
+	min-block-size: var(--peep-target);
+	color: var(--peep-danger);
+	font-weight: 600;
+}
+
+.peep-stat__link:hover,
+.peep-stat__link:focus {
+	color: #8a2424;
+}
+
+.peep-stat__link:focus {
+	box-shadow: none;
+	outline: 2px solid var(--peep-danger);
+	outline-offset: 2px;
+}
+
+.peep-stat__action {
+	margin-block-start: 8px;
+}
+
 /* --- Layout: vertical tabs beside the content ----------------------------- */
 
 .peep-layout {
@@ -640,6 +713,45 @@ code.peep-choice__meta {
 }
 
 /* --- Help ---------------------------------------------------------------- */
+
+.peep-status-table {
+	inline-size: 100%;
+	max-inline-size: 560px;
+	border-collapse: collapse;
+}
+
+.peep-status-table th,
+.peep-status-table td {
+	padding: 10px 12px;
+	border-block-end: 1px solid var(--peep-border);
+	text-align: start;
+	vertical-align: middle;
+}
+
+.peep-status-table th {
+	inline-size: 40%;
+	font-weight: 600;
+}
+
+.peep-status-text {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 500;
+}
+
+.peep-status-text .peep-icon {
+	inline-size: 18px;
+	block-size: 18px;
+}
+
+.peep-status-text.is-ok {
+	color: var(--peep-primary);
+}
+
+.peep-status-text.is-problem {
+	color: var(--peep-danger);
+}
 
 .peep-steps {
 	margin: 0;

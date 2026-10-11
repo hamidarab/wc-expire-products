@@ -55,6 +55,8 @@ final class Admin {
 
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ), 60 );
 		add_action( 'admin_post_peep_save_settings', array( $this, 'handle_settings_save' ) );
+		add_action( 'admin_post_peep_run_check', array( $this, 'handle_run_check' ) );
+		add_action( 'admin_post_peep_send_test_email', array( $this, 'handle_send_test_email' ) );
 
 		add_action( 'woocommerce_product_options_general_product_data', array( $this, 'add_expiration_field' ) );
 		add_action( 'woocommerce_process_product_meta', array( $this, 'save_expiration_field' ) );
@@ -122,6 +124,10 @@ final class Admin {
 				'day'   => Date::format( $today, 'd' ),
 			),
 			'admin_email'        => (string) get_option( 'admin_email' ),
+			'counts'             => Stats::get_counts(),
+			'next_run'           => wp_next_scheduled( 'peep_check_expired_products' ),
+			'license_active'     => License_Check::is_active(),
+			'ioncube_version'    => function_exists( 'ioncube_loader_version' ) ? (string) ioncube_loader_version() : '',
 			'shop_manager_count' => count(
 				get_users(
 					array(
@@ -158,6 +164,8 @@ final class Admin {
 			$this->cron->restore_beyond_cutoff();
 		}
 
+		Stats::flush();
+
 		$args = array( 'settings-updated' => 'true' );
 
 		if ( in_array( 'custom', (array) $this->settings->get_setting( 'email_recipients' ), true ) && '' === $this->settings->get_setting( 'custom_email' ) ) {
@@ -165,6 +173,47 @@ final class Admin {
 		}
 
 		$this->redirect_to_settings( $args );
+	}
+
+	/**
+	 * Run the expiration check immediately from the settings page.
+	 *
+	 * @return void
+	 */
+	public function handle_run_check() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'You do not have sufficient permissions to perform this action.', 'product-expiration-easy-peasy' ) );
+		}
+
+		check_admin_referer( 'peep_run_check', 'peep_run_check_nonce' );
+
+		$processed = $this->cron->run_check();
+
+		if ( false === $processed ) {
+			$this->redirect_to_settings( array( 'peep_notice' => 'check_locked' ) );
+		}
+
+		$this->redirect_to_settings(
+			array(
+				'peep_notice' => 'check_done',
+				'peep_count'  => (int) $processed,
+			)
+		);
+	}
+
+	/**
+	 * Send a sample report to the saved recipients.
+	 *
+	 * @return void
+	 */
+	public function handle_send_test_email() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'You do not have sufficient permissions to perform this action.', 'product-expiration-easy-peasy' ) );
+		}
+
+		check_admin_referer( 'peep_send_test_email', 'peep_test_email_nonce' );
+
+		$this->redirect_to_settings( array( 'peep_notice' => 'test_' . Cron::send_test_email( $this->settings ) ) );
 	}
 
 	/**
@@ -763,6 +812,7 @@ final class Admin {
 		if ( '' === $raw ) {
 			Cron::restore_managed_stock( $post_id );
 			delete_post_meta( $post_id, '_expiration_date' );
+			Stats::flush();
 			return;
 		}
 
@@ -777,6 +827,7 @@ final class Admin {
 		}
 
 		update_post_meta( $post_id, '_expiration_date', $date );
+		Stats::flush();
 
 		if ( $date > Cron::get_cutoff_date( $this->settings ) ) {
 			Cron::restore_managed_stock( $post_id );

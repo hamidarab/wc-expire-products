@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 define( 'ABSPATH', dirname( __DIR__ ) . '/' );
 define( 'MINUTE_IN_SECONDS', 60 );
+define( 'ARRAY_A', 'ARRAY_A' );
 
 $peep_test_actions    = array();
 $peep_test_activation = null;
@@ -203,6 +204,18 @@ function wp_schedule_single_event( $timestamp, $hook ) {
 
 function wp_reset_postdata() {}
 
+function get_transient( $key ) {
+	return get_option( '_transient_' . $key );
+}
+
+function set_transient( $key, $value ) {
+	return update_option( '_transient_' . $key, $value );
+}
+
+function delete_transient( $key ) {
+	return delete_option( '_transient_' . $key );
+}
+
 function get_users() {
 	return array();
 }
@@ -326,7 +339,19 @@ function peep_test_expect( $condition, $message ) {
 }
 
 class Peep_Test_Wpdb {
-	public $options = 'wp_options';
+	public $options  = 'wp_options';
+	public $posts    = 'wp_posts';
+	public $postmeta = 'wp_postmeta';
+	public $reads    = 0;
+
+	public function get_row() {
+		++$this->reads;
+		return array(
+			'dated'   => '12',
+			'expired' => '3',
+			'managed' => '2',
+		);
+	}
 
 	public function prepare( $query, ...$arguments ) {
 		return array( $query, $arguments );
@@ -511,6 +536,14 @@ peep_test_expect( 1 === $peep_worker->restore_beyond_cutoff(), 'Only the product
 peep_test_expect( 'instock' === $peep_test_products[7]->get_stock_status(), 'The previous stock status was not restored.' );
 peep_test_expect( '' === get_post_meta( 7, '_peep_stock_managed' ), 'The managed flag was not cleared.' );
 peep_test_expect( 'outofstock' === $peep_test_products[8]->get_stock_status(), 'A product inside the new cutoff was restored.' );
+
+// Dashboard counts are cached and every worker run drops the cache.
+peep_test_expect( array( 'dated' => 12, 'expired' => 3, 'managed' => 2 ) === ProductExpirationEasyPeasy\Stats::get_counts(), 'Dashboard counts were not read.' );
+ProductExpirationEasyPeasy\Stats::get_counts();
+peep_test_expect( 1 === $wpdb->reads, 'Dashboard counts were not cached.' );
+$peep_worker->run_check();
+ProductExpirationEasyPeasy\Stats::get_counts();
+peep_test_expect( 2 === $wpdb->reads, 'A worker run did not flush the dashboard counts.' );
 
 // The public recipient resolver and test email share the same rules.
 peep_test_expect( 'no_recipients' === ProductExpirationEasyPeasy\Cron::send_test_email( $settings ), 'Test email ignored the empty recipient list.' );
