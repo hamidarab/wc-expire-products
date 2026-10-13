@@ -170,23 +170,6 @@ input[data-peep-datepicker][aria-invalid="true"] {
 	color: var(--peep-text-muted);
 }
 
-.peep-pill {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	margin: 0;
-	padding: 6px 12px;
-	border: 1px solid var(--peep-border);
-	border-radius: 999px;
-	background: var(--peep-surface);
-	color: var(--peep-text);
-	font-weight: 500;
-}
-
-.peep-pill--calendar .peep-icon {
-	color: var(--peep-primary);
-}
-
 /* --- Status cards ------------------------------------------------------- */
 
 .peep-stats {

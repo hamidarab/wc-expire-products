@@ -7,7 +7,7 @@ Requires PHP: 8.1
 Requires Plugins: woocommerce
 WC requires at least: 9.0
 WC tested up to: 9.7
-Stable tag: 3.4.0
+Stable tag: 3.4.1
 License: GPL v3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -85,6 +85,11 @@ The expiration feature itself sends no telemetry. The generated RTL-Theme licens
 
 == Changelog ==
 
+= 3.4.1 =
+
+* Added a direct Settings link to the plugin row on the Plugins screen.
+* Added the author's website URL to the plugin metadata.
+
 = 3.4.0 =
 
 * Added: built-in Jalali/Gregorian date picker, selectable in settings.
@@ -142,6 +147,10 @@ The expiration feature itself sends no telemetry. The generated RTL-Theme licens
 * Added configurable date formats and conditional asset loading.
 
 == Upgrade Notice ==
+
+= 3.4.1 =
+
+Adds a direct settings shortcut on the Plugins screen and completes the author metadata.
 
 = 3.4.0 =
 

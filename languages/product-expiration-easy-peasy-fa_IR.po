@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Product Expiration Easy Peasy 3.4.0\n"
+"Project-Id-Version: Product Expiration Easy Peasy 3.4.1\n"
 "Report-Msgid-Bugs-To: https://www.rtl-theme.com/\n"
 "POT-Creation-Date: 2026-10-11T13:35:17+00:00\n"
 "PO-Revision-Date: 2026-10-11 13:00+0330\n"
@@ -36,6 +36,10 @@ msgstr "تاریخ انقضای محصولات ووکامرس، وضعیت مو�
 #: product-expiration-easy-peasy.php
 msgid "Hamid Arab"
 msgstr ""
+
+#: product-expiration-easy-peasy.php
+msgid "Settings"
+msgstr "تنظیمات"
 
 #: includes/class-admin.php:115 views/settings-page.php:73
 msgid "Product Expiration Settings"
@@ -309,14 +313,6 @@ msgstr "راهنما و وضعیت"
 #, php-format
 msgid "Version %s"
 msgstr "نسخه %s"
-
-#: views/settings-page.php:86
-msgid "Dates are shown in the Jalali calendar (built-in converter)"
-msgstr "تاریخ‌ها با تقویم شمسی نمایش داده می‌شوند (مبدل داخلی)"
-
-#: views/settings-page.php:88
-msgid "Dates are shown in the Gregorian calendar"
-msgstr "تاریخ‌ها با تقویم میلادی نمایش داده می‌شوند"
 
 #: views/settings-page.php:97
 msgid "Settings saved successfully."

@@ -283,6 +283,14 @@ function esc_url_raw( $url ) {
 	return $url;
 }
 
+function esc_url( $url ) {
+	return $url;
+}
+
+function esc_html__( $text ) {
+	return __( $text );
+}
+
 function wp_strip_all_tags( $text ) {
 	return strip_tags( (string) $text );
 }
@@ -461,6 +469,13 @@ peep_test_expect(
 peep_test_expect(
 	false === ProductExpirationEasyPeasy\product_expiration_easy_peasy_is_license_active(),
 	'License helper must fail closed without ionCube, not terminate the request.'
+);
+
+$peep_plugin_links = ProductExpirationEasyPeasy\add_plugin_action_links( array( '<a href="#">Deactivate</a>' ) );
+peep_test_expect( 2 === count( $peep_plugin_links ), 'The plugin-row Settings link was not added.' );
+peep_test_expect(
+	false !== strpos( reset( $peep_plugin_links ), 'admin.php?page=product-expiration-easy-peasy-settings' ),
+	'The plugin-row Settings link does not target the expiration settings page.'
 );
 
 call_user_func( $peep_test_activation );

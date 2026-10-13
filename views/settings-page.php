@@ -78,18 +78,6 @@ $preview_text = strtr(
 				?>
 			</p>
 		</div>
-		<p class="peep-pill peep-pill--calendar">
-			<?php echo wp_kses( Admin::get_icon( 'calendar' ), $svg_html ); ?>
-			<span>
-				<?php
-				if ( $view['is_persian'] ) {
-					esc_html_e( 'Dates are shown in the Jalali calendar (built-in converter)', 'product-expiration-easy-peasy' );
-				} else {
-					esc_html_e( 'Dates are shown in the Gregorian calendar', 'product-expiration-easy-peasy' );
-				}
-				?>
-			</span>
-		</p>
 	</header>
 	<hr class="wp-header-end">
 

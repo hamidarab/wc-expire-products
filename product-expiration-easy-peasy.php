@@ -3,8 +3,9 @@
  * Plugin Name: Product Expiration Easy Peasy
  * Plugin URI:  https://www.rtl-theme.com/?p=293806
  * Description: Manage WooCommerce product expiration dates, stock status, and notifications.
- * Version:     3.4.0
+ * Version:     3.4.1
  * Author:      Hamid Arab
+ * Author URI:  https://hamidarab.ir
  * Update URI:  https://www.rtl-theme.com/?p=293806
  * Text Domain: product-expiration-easy-peasy
  * Domain Path: /languages
@@ -25,10 +26,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PRODUCT_EXPIRATION_EASY_PEASY_VERSION', '3.4.0' );
+define( 'PRODUCT_EXPIRATION_EASY_PEASY_VERSION', '3.4.1' );
 define( 'PRODUCT_EXPIRATION_EASY_PEASY_FILE', __FILE__ );
 define( 'PRODUCT_EXPIRATION_EASY_PEASY_PATH', plugin_dir_path( __FILE__ ) );
 define( 'PRODUCT_EXPIRATION_EASY_PEASY_URL', plugin_dir_url( __FILE__ ) );
+
+/**
+ * Add a direct settings shortcut to the plugin row.
+ *
+ * @param array<int|string, string> $links Existing plugin action links.
+ * @return array<int|string, string>
+ */
+function add_plugin_action_links( $links ) {
+	$settings_url  = admin_url( 'admin.php?page=product-expiration-easy-peasy-settings' );
+	$settings_link = sprintf(
+		'<a href="%1$s">%2$s</a>',
+		esc_url( $settings_url ),
+		esc_html__( 'Settings', 'product-expiration-easy-peasy' )
+	);
+
+	array_unshift( $links, $settings_link );
+
+	return $links;
+}
+add_filter( 'plugin_action_links_' . plugin_basename( PRODUCT_EXPIRATION_EASY_PEASY_FILE ), __NAMESPACE__ . '\\add_plugin_action_links' );
 
 /**
  * Load the plugin classes in a deterministic order.

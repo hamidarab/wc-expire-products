@@ -2,7 +2,7 @@
 # This file is distributed under the GPL v3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Product Expiration Easy Peasy 3.4.0\n"
+"Project-Id-Version: Product Expiration Easy Peasy 3.4.1\n"
 "Report-Msgid-Bugs-To: https://www.rtl-theme.com/\n"
 "Last-Translator: RTL-Theme Translation Team\n"
 "Language-Team: Persian\n"
@@ -32,6 +32,10 @@ msgstr ""
 #. Author of the plugin
 #: product-expiration-easy-peasy.php
 msgid "Hamid Arab"
+msgstr ""
+
+#: product-expiration-easy-peasy.php
+msgid "Settings"
 msgstr ""
 
 #: includes/class-admin.php:115
@@ -315,14 +319,6 @@ msgstr ""
 #: views/settings-page.php:77
 #, php-format
 msgid "Version %s"
-msgstr ""
-
-#: views/settings-page.php:86
-msgid "Dates are shown in the Jalali calendar (built-in converter)"
-msgstr ""
-
-#: views/settings-page.php:88
-msgid "Dates are shown in the Gregorian calendar"
 msgstr ""
 
 #: views/settings-page.php:97
