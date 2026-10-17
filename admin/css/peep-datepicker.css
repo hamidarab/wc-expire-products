@@ -241,6 +241,12 @@
 	font-weight: 600;
 }
 
+/* Days inside a from–to range, used by the export tab. */
+.peep-dp-day--range {
+	background: #E3F5EB;
+	color: #064E3B;
+}
+
 .peep-dp-day--selected,
 .peep-dp-day--selected:hover {
 	border-color: var(--peep-dp-accent);

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-17T12:12:28+00:00\n"
+"POT-Creation-Date: 2026-10-17T12:20:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: product-expiration-easy-peasy\n"
@@ -62,7 +62,8 @@ msgstr ""
 
 #: includes/class-admin.php:235
 #: includes/class-admin.php:342
-#: views/settings/page.php:76
+#: views/settings/export.php:22
+#: views/settings/page.php:77
 msgid "Expired"
 msgstr ""
 
@@ -74,7 +75,9 @@ msgstr ""
 msgid "No Expiration Date"
 msgstr ""
 
+#. translators: %s: number of days.
 #: includes/class-admin.php:344
+#: views/settings/export.php:24
 msgid "Near expiry"
 msgstr ""
 
@@ -132,6 +135,45 @@ msgstr ""
 msgid "Clear"
 msgstr ""
 
+#: includes/class-export-controller.php:58
+#: includes/class-settings-page.php:255
+msgid "You do not have sufficient permissions to perform this action."
+msgstr ""
+
+#: includes/class-export-controller.php:82
+#: includes/class-settings-page.php:370
+#: includes/class-settings-page.php:449
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: includes/class-exporter.php:46
+msgid "Product ID"
+msgstr ""
+
+#: includes/class-exporter.php:47
+msgid "Product name"
+msgstr ""
+
+#: includes/class-exporter.php:48
+msgid "SKU"
+msgstr ""
+
+#: includes/class-exporter.php:49
+msgid "Category"
+msgstr ""
+
+#: includes/class-exporter.php:50
+msgid "Expiration date"
+msgstr ""
+
+#: includes/class-exporter.php:51
+msgid "Days left"
+msgstr ""
+
+#: includes/class-exporter.php:52
+msgid "Stock status"
+msgstr ""
+
 #: includes/class-license-check.php:68
 msgid "The RTL-Theme license runtime is missing its activation method."
 msgstr ""
@@ -157,15 +199,15 @@ msgstr ""
 msgid "The RTL-Theme license class could not be loaded."
 msgstr ""
 
-#: includes/class-main.php:91
+#: includes/class-main.php:94
 msgid "Product Expiration Easy Peasy requires WooCommerce to be installed and active."
 msgstr ""
 
-#: includes/class-main.php:107
+#: includes/class-main.php:110
 msgid "Product Expiration Easy Peasy requires WooCommerce 9.0 or newer."
 msgstr ""
 
-#: includes/class-main.php:124
+#: includes/class-main.php:127
 msgid "Please activate the RTL-Theme license to use Product Expiration Easy Peasy."
 msgstr ""
 
@@ -223,87 +265,79 @@ msgstr ""
 msgid "Edit product: %s"
 msgstr ""
 
-#: includes/class-settings-page.php:87
-#: views/settings/page.php:32
+#: includes/class-settings-page.php:96
+#: views/settings/page.php:33
 msgid "Enqezayar settings"
 msgstr ""
 
-#: includes/class-settings-page.php:88
+#: includes/class-settings-page.php:97
 msgid "Expiration"
 msgstr ""
 
-#: includes/class-settings-page.php:153
+#: includes/class-settings-page.php:164
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
-#: includes/class-settings-page.php:244
-msgid "You do not have sufficient permissions to perform this action."
-msgstr ""
-
-#: includes/class-settings-page.php:345
+#: includes/class-settings-page.php:357
 msgid "You have unsaved changes"
 msgstr ""
 
-#: includes/class-settings-page.php:346
+#: includes/class-settings-page.php:358
 msgid "Saving…"
 msgstr ""
 
-#: includes/class-settings-page.php:347
+#: includes/class-settings-page.php:359
 msgid "Enter a whole number from 1 to 365."
 msgstr ""
 
-#: includes/class-settings-page.php:348
+#: includes/class-settings-page.php:360
 msgid "Enter an email address, or untick Custom email."
 msgstr ""
 
-#: includes/class-settings-page.php:349
+#: includes/class-settings-page.php:361
 msgid "Enter a valid email address, for example name@example.com."
 msgstr ""
 
-#: includes/class-settings-page.php:350
+#: includes/class-settings-page.php:362
 msgid "Changes are not saved yet; the test email goes to the previously saved recipients."
 msgstr ""
 
-#: includes/class-settings-page.php:351
+#: includes/class-settings-page.php:363
 msgid "Sending…"
 msgstr ""
 
 #. translators: %s: percentage of the check that is done, without the percent sign.
-#: includes/class-settings-page.php:353
+#: includes/class-settings-page.php:365
 #, php-format
 msgid "Checking… %s%%"
 msgstr ""
 
-#: includes/class-settings-page.php:354
+#: includes/class-settings-page.php:366
 msgid "Checking…"
 msgstr ""
 
-#: includes/class-settings-page.php:355
+#: includes/class-settings-page.php:367
 msgid "Done"
 msgstr ""
 
-#: includes/class-settings-page.php:356
+#: includes/class-settings-page.php:368
 msgid "Stopped"
 msgstr ""
 
-#: includes/class-settings-page.php:357
+#: includes/class-settings-page.php:369
 msgid "Last check: just now"
 msgstr ""
 
-#: includes/class-settings-page.php:358
-msgid "Something went wrong. Please try again."
-msgstr ""
-
-#: includes/class-settings-page.php:359
+#: includes/class-settings-page.php:371
 msgid "No products needed to go out of stock."
 msgstr ""
 
-#: includes/class-settings-page.php:360
+#: includes/class-settings-page.php:372
 msgid "No product had changed by then."
 msgstr ""
 
 #. translators: 1: products checked so far, 2: products to check.
-#: includes/class-settings-page.php:362
+#: includes/class-settings-page.php:374
 #, php-format
 msgid "%1$s of %2$s product checked"
 msgid_plural "%1$s of %2$s products checked"
@@ -311,7 +345,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:364
+#: includes/class-settings-page.php:376
 #, php-format
 msgid "%s product set out of stock so far. Closing this window does not stop the check."
 msgid_plural "%s products set out of stock so far. Closing this window does not stop the check."
@@ -319,7 +353,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:366
+#: includes/class-settings-page.php:378
 #, php-format
 msgid "%s product checked."
 msgid_plural "%s products checked."
@@ -327,7 +361,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:368
+#: includes/class-settings-page.php:380
 #, php-format
 msgid "%s product went out of stock and the report was sent to the recipients."
 msgid_plural "%s products went out of stock and the report was sent to the recipients."
@@ -335,7 +369,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: products checked, 2: products to check.
-#: includes/class-settings-page.php:370
+#: includes/class-settings-page.php:382
 #, php-format
 msgid "%1$s of %2$s product had been checked."
 msgid_plural "%1$s of %2$s products had been checked."
@@ -343,93 +377,162 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:372
+#: includes/class-settings-page.php:384
 #, php-format
 msgid "The %s product set out of stock before cancelling stays out of stock."
 msgid_plural "The %s products set out of stock before cancelling stay out of stock."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-settings-page.php:373
+#: includes/class-settings-page.php:385
 #: views/settings/modals.php:31
-#: views/settings/page.php:50
+#: views/settings/page.php:51
 msgid "Check product dates"
 msgstr ""
 
-#: includes/class-settings-page.php:374
+#: includes/class-settings-page.php:386
 #: views/settings/modals.php:64
-#: views/settings/page.php:53
+#: views/settings/page.php:54
 msgid "Cancel check"
 msgstr ""
 
+#. translators: %s: number of products.
+#: includes/class-settings-page.php:433
+#: views/settings/export.php:61
+#, php-format
+msgid "%s product"
+msgid_plural "%s products"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: number of rows.
+#: includes/class-settings-page.php:435
+#, php-format
+msgid "%s row"
+msgid_plural "%s rows"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: number of days.
+#: includes/class-settings-page.php:437
+#: views/settings/export.php:31
+#, php-format
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: number of days.
+#: includes/class-settings-page.php:439
+#, php-format
+msgid "%s day ago"
+msgid_plural "%s days ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: number of days.
+#: includes/class-settings-page.php:441
+#: views/settings/export.php:24
+#, php-format
+msgid "Expire within the next %s day"
+msgid_plural "Expire within the next %s days"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: first date, 2: last date.
+#: includes/class-settings-page.php:443
+#, php-format
+msgid "Expire between %1$s and %2$s"
+msgstr ""
+
+#: includes/class-settings-page.php:444
+#: views/settings/export.php:162
+msgid "Download Excel file"
+msgstr ""
+
+#: includes/class-settings-page.php:445
+#: views/settings/export.php:162
+msgid "Download CSV file"
+msgstr ""
+
+#: includes/class-settings-page.php:446
+msgid "Building file…"
+msgstr ""
+
+#. translators: %s: file name.
+#: includes/class-settings-page.php:448
+#, php-format
+msgid "File %s was downloaded."
+msgstr ""
+
 #. translators: 1: date, 2: time of day.
-#: includes/class-settings-page.php:398
+#: includes/class-settings-page.php:473
 #, php-format
 msgid "%1$s, at %2$s"
 msgstr ""
 
 #. translators: %s: human-readable time span, such as "5 hours".
-#: includes/class-settings-page.php:400
+#: includes/class-settings-page.php:475
 #, php-format
 msgid "Next check in about %s"
 msgstr ""
 
 #. translators: %s: number of products and variations.
-#: includes/class-settings-page.php:426
+#: includes/class-settings-page.php:501
 #, php-format
 msgid "Check complete. %s product was set out of stock."
 msgid_plural "Check complete. %s products were set out of stock."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-settings-page.php:428
+#: includes/class-settings-page.php:503
 msgid "Another expiration check is already running. Try again in a few minutes."
 msgstr ""
 
-#: includes/class-settings-page.php:430
+#: includes/class-settings-page.php:505
 msgid "The check continues in the background. Reload this page later to see the result."
 msgstr ""
 
-#: includes/class-settings-page.php:432
+#: includes/class-settings-page.php:507
 msgid "Some custom addresses were not valid and were removed. Check the list on the Notifications tab."
 msgstr ""
 
-#: includes/class-settings-page.php:434
+#: includes/class-settings-page.php:509
 msgid "Custom email is selected, but the address was empty or invalid, so no custom email will receive reports."
 msgstr ""
 
-#: includes/class-settings-page.php:451
+#: includes/class-settings-page.php:526
 msgid "Plugin version"
 msgstr ""
 
-#: includes/class-settings-page.php:452
+#: includes/class-settings-page.php:527
 msgid "RTL-Theme license"
 msgstr ""
 
-#: includes/class-settings-page.php:452
+#: includes/class-settings-page.php:527
 msgid "Active"
 msgstr ""
 
-#: includes/class-settings-page.php:452
+#: includes/class-settings-page.php:527
 msgid "Not active"
 msgstr ""
 
-#: includes/class-settings-page.php:454
+#: includes/class-settings-page.php:529
 msgid "ionCube Loader"
 msgstr ""
 
 #. translators: %s: ionCube Loader version.
-#: includes/class-settings-page.php:456
+#: includes/class-settings-page.php:531
 #, php-format
 msgid "Loaded (%s)"
 msgstr ""
 
 #. translators: %s: ionCube Loader version.
-#: includes/class-settings-page.php:456
+#: includes/class-settings-page.php:531
 msgid "Not loaded"
 msgstr ""
 
-#: includes/class-settings-page.php:459
+#: includes/class-settings-page.php:534
 msgid "Not detected"
 msgstr ""
 
@@ -515,6 +618,98 @@ msgstr ""
 msgid "The expiration date is not shown to customers."
 msgstr ""
 
+#: views/settings/export.php:22
+msgid "Their date has passed"
+msgstr ""
+
+#: views/settings/export.php:25
+msgid "Both"
+msgstr ""
+
+#: views/settings/export.php:25
+msgid "Both groups in one file"
+msgstr ""
+
+#: views/settings/export.php:34
+msgid "Custom"
+msgstr ""
+
+#: views/settings/export.php:36
+msgid "Excel"
+msgstr ""
+
+#: views/settings/export.php:36
+msgid "Opens directly in Excel"
+msgstr ""
+
+#: views/settings/export.php:37
+msgid "Lightweight and works with most software"
+msgstr ""
+
+#: views/settings/export.php:45
+#: views/settings/page.php:24
+msgid "Export"
+msgstr ""
+
+#: views/settings/export.php:48
+msgid "Which products?"
+msgstr ""
+
+#: views/settings/export.php:71
+msgid "Near-expiry range"
+msgstr ""
+
+#: views/settings/export.php:88
+msgid "From"
+msgstr ""
+
+#: views/settings/export.php:88
+msgid "To"
+msgstr ""
+
+#: views/settings/export.php:95
+msgid "Output file settings"
+msgstr ""
+
+#: views/settings/export.php:99
+msgid "File format"
+msgstr ""
+
+#: views/settings/export.php:115
+msgid "Excel export needs the PHP Zip extension, so only CSV is available."
+msgstr ""
+
+#: views/settings/export.php:120
+msgid "Dates in the file"
+msgstr ""
+
+#: views/settings/export.php:124
+#: views/settings/general.php:24
+msgid "Jalali"
+msgstr ""
+
+#: views/settings/export.php:125
+#: views/settings/general.php:25
+msgid "Gregorian"
+msgstr ""
+
+#: views/settings/export.php:139
+msgid "File columns"
+msgstr ""
+
+#: views/settings/export.php:140
+msgid "Drag the columns to change their order. The product name is always included in the file."
+msgstr ""
+
+#: views/settings/export.php:145
+msgid "Drag to move"
+msgstr ""
+
+#: views/settings/export.php:164
+#: views/settings/modals.php:101
+msgid "File preview"
+msgstr ""
+
 #: views/settings/general.php:18
 msgid "Days"
 msgstr ""
@@ -529,14 +724,6 @@ msgstr ""
 
 #: views/settings/general.php:23
 msgid "Automatic"
-msgstr ""
-
-#: views/settings/general.php:24
-msgid "Jalali"
-msgstr ""
-
-#: views/settings/general.php:25
-msgid "Gregorian"
 msgstr ""
 
 #: views/settings/general.php:29
@@ -627,7 +814,7 @@ msgid "Enter the date like 1405-01-01. Persian, Arabic and Latin digits are acce
 msgstr ""
 
 #: views/settings/help.php:24
-#: views/settings/page.php:24
+#: views/settings/page.php:25
 msgid "Help & status"
 msgstr ""
 
@@ -669,6 +856,8 @@ msgstr ""
 #: views/settings/modals.php:63
 #: views/settings/modals.php:77
 #: views/settings/modals.php:90
+#: views/settings/modals.php:104
+#: views/settings/modals.php:114
 msgid "Close"
 msgstr ""
 
@@ -686,6 +875,10 @@ msgstr ""
 
 #: views/settings/modals.php:91
 msgid "Start again"
+msgstr ""
+
+#: views/settings/modals.php:112
+msgid "No products found in this range."
 msgstr ""
 
 #: views/settings/notifications.php:18
@@ -784,43 +977,47 @@ msgid "Daily report recipients"
 msgstr ""
 
 #: views/settings/page.php:24
+msgid "Excel and CSV output"
+msgstr ""
+
+#: views/settings/page.php:25
 msgid "Entering dates and requirements"
 msgstr ""
 
 #. translators: %s: plugin version number.
-#: views/settings/page.php:36
+#: views/settings/page.php:37
 #, php-format
 msgid "Version %s"
 msgstr ""
 
-#: views/settings/page.php:62
+#: views/settings/page.php:63
 msgid "Status overview"
 msgstr ""
 
-#: views/settings/page.php:68
+#: views/settings/page.php:69
 msgid "Products and variations with a date"
 msgstr ""
 
-#: views/settings/page.php:74
+#: views/settings/page.php:75
 msgid "Expired list"
 msgstr ""
 
-#: views/settings/page.php:83
+#: views/settings/page.php:84
 msgid "Set out of stock by the plugin"
 msgstr ""
 
-#: views/settings/page.php:88
+#: views/settings/page.php:89
 msgid "Not scheduled"
 msgstr ""
 
-#: views/settings/page.php:95
+#: views/settings/page.php:96
 msgid "Settings sections"
 msgstr ""
 
-#: views/settings/page.php:122
+#: views/settings/page.php:123
 msgid "Settings saved"
 msgstr ""
 
-#: views/settings/page.php:123
+#: views/settings/page.php:124
 msgid "Save changes"
 msgstr ""

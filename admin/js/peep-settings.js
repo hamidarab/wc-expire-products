@@ -45,6 +45,8 @@
 		return 1 === count ? forms[ 0 ] : forms[ 1 ];
 	}
 
+	window.peepUtil = { format, plural, num };
+
 	function setError( input, box, message ) {
 		box.querySelector( 'span' ).textContent = message;
 		box.hidden = '' === message;
@@ -63,6 +65,7 @@
 	const tabList = root.querySelector( '.peep-nav-list' );
 	const tabs = all( '.peep-nav' );
 	const tabInputs = all( '.peep-tab-input' );
+	const forms = all( '.peep-main > form' );
 	const narrow = window.matchMedia( '(max-width: 782px)' );
 	const tabKey = ( tab ) => tab.dataset.peepTab;
 	const panelOf = ( tab ) => byId( 'peep-panel-' + tabKey( tab ) );
@@ -82,8 +85,10 @@
 			input.value = tabKey( tab );
 		} );
 
-		// Tabs outside the settings form hide it, and its save bar with it.
-		form.hidden = ! form.contains( panelOf( tab ) );
+		// A form without the selected panel is hidden, and the save bar with it.
+		forms.forEach( ( item ) => {
+			item.hidden = ! item.contains( panelOf( tab ) );
+		} );
 
 		if ( updateHash ) {
 			window.history.replaceState( null, '', '#' + tabKey( tab ) );

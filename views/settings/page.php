@@ -21,6 +21,7 @@ $peep_tabs = array(
 	'general'       => array( 'zap', __( 'General settings', 'product-expiration-easy-peasy' ), __( 'Out-of-stock timing and calendar', 'product-expiration-easy-peasy' ) ),
 	'display'       => array( 'eye', __( 'Display settings', 'product-expiration-easy-peasy' ), __( 'Text, format and position of the date', 'product-expiration-easy-peasy' ) ),
 	'notifications' => array( 'mail', __( 'Notifications', 'product-expiration-easy-peasy' ), __( 'Daily report recipients', 'product-expiration-easy-peasy' ) ),
+	'export'        => array( 'download', __( 'Export', 'product-expiration-easy-peasy' ), __( 'Excel and CSV output', 'product-expiration-easy-peasy' ) ),
 	'help'          => array( 'help', __( 'Help & status', 'product-expiration-easy-peasy' ), __( 'Entering dates and requirements', 'product-expiration-easy-peasy' ) ),
 );
 ?>
@@ -124,7 +125,10 @@ $peep_tabs = array(
 				</div>
 			</form>
 
-			<?php require __DIR__ . '/help.php'; ?>
+			<?php
+			require __DIR__ . '/export.php';
+			require __DIR__ . '/help.php';
+			?>
 		</div>
 	</div>
 

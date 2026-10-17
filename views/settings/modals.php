@@ -94,3 +94,23 @@ $peep_bullets = array(
 
 	<p class="peep-error" id="peep-check-error" role="alert" hidden><?php View::icon( 'x' ); ?><span></span></p>
 </dialog>
+
+<dialog class="peep-modal peep-modal--wide" id="peep-preview-modal" aria-labelledby="peep-preview-title">
+	<div class="peep-modal-head">
+		<div>
+			<h2 class="peep-modal-title" id="peep-preview-title"><?php esc_html_e( 'File preview', 'product-expiration-easy-peasy' ); ?></h2>
+			<p class="peep-modal-sub" id="peep-preview-count"></p>
+		</div>
+		<button type="button" class="peep-modal-x" data-peep-close aria-label="<?php esc_attr_e( 'Close', 'product-expiration-easy-peasy' ); ?>"><?php View::icon( 'close' ); ?></button>
+	</div>
+	<div class="peep-table-wrap" id="peep-preview-table">
+		<table class="peep-table">
+			<thead></thead>
+			<tbody></tbody>
+		</table>
+	</div>
+	<p class="peep-note" id="peep-preview-empty" hidden><?php esc_html_e( 'No products found in this range.', 'product-expiration-easy-peasy' ); ?></p>
+	<div class="peep-modal-actions">
+		<button type="button" class="peep-btn-soft" data-peep-close><?php esc_html_e( 'Close', 'product-expiration-easy-peasy' ); ?></button>
+	</div>
+</dialog>

@@ -67,8 +67,11 @@ final class Main {
 
 		if ( is_admin() ) {
 			new Admin( $this->settings );
-			new Settings_Page( $this->settings, $cron, $job );
+			$exporter = new Exporter();
+
+			new Settings_Page( $this->settings, $cron, $job, $exporter );
 			new Ajax( $job );
+			new Export_Controller( $exporter );
 		}
 
 		new Frontend( $this->settings );

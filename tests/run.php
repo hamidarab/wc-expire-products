@@ -12,6 +12,7 @@ define( 'ABSPATH', dirname( __DIR__ ) . '/' );
 define( 'MINUTE_IN_SECONDS', 60 );
 define( 'HOUR_IN_SECONDS', 3600 );
 define( 'ARRAY_A', 'ARRAY_A' );
+define( 'ARRAY_N', 'ARRAY_N' );
 define( 'WP_LANG_DIR', '/srv/wp-content/languages' );
 
 $peep_test_actions    = array();
@@ -347,6 +348,22 @@ function esc_html__( $text ) {
 	return __( $text );
 }
 
+function wc_get_product_stock_status_options() {
+	return array(
+		'instock'     => 'In stock',
+		'outofstock'  => 'Out of stock',
+		'onbackorder' => 'On backorder',
+	);
+}
+
+function wc_get_formatted_variation() {
+	return '';
+}
+
+function wp_get_post_terms() {
+	return array( 'Food', 'Drinks' );
+}
+
 function wp_strip_all_tags( $text ) {
 	return strip_tags( (string) $text );
 }
@@ -368,6 +385,10 @@ class Peep_Test_Product {
 
 	public function get_name() {
 		return 'Product ' . $this->id;
+	}
+
+	public function get_sku() {
+		return 0 === $this->id % 2 ? '=SUM(A1)' : 'SKU-' . $this->id;
 	}
 
 	public function get_parent_id() {
@@ -455,6 +476,9 @@ class Peep_Test_Wpdb {
 	public $options  = 'wp_options';
 	public $posts    = 'wp_posts';
 	public $postmeta = 'wp_postmeta';
+	public $terms    = 'wp_terms';
+	public $term_taxonomy      = 'wp_term_taxonomy';
+	public $term_relationships = 'wp_term_relationships';
 	public $reads    = 0;
 
 	public function get_var( $prepared ) {
@@ -467,7 +491,47 @@ class Peep_Test_Wpdb {
 		return array_map( 'strval', array_slice( peep_test_due_ids( $arguments[3], $arguments[4] ), 0, $arguments[8] ) );
 	}
 
-	public function get_row() {
+	/**
+	 * Evaluates Exporter::select() from its prepared arguments.
+	 */
+	public function get_results( $prepared ) {
+		global $peep_test_meta;
+		list( , $a ) = $prepared;
+		$rows        = array();
+
+		foreach ( $peep_test_meta as $post_id => $meta ) {
+			$date = $meta['_expiration_date'] ?? '';
+
+			if ( '' !== $date && ( ( $a[12] && $date < $a[13] ) || ( $a[14] && $date >= $a[15] && $date <= $a[16] ) ) ) {
+				$rows[] = array( (string) $post_id, $date );
+			}
+		}
+
+		usort( $rows, static fn( $x, $y ) => array( $x[1], (int) $x[0] ) <=> array( $y[1], (int) $y[0] ) );
+
+		return array_slice( $rows, 0, $a[17] );
+	}
+
+	public function get_row( $prepared = null ) {
+		global $peep_test_meta;
+
+		// Exporter::counts(): today, from, to, today, from, to come first.
+		if ( is_array( $prepared ) && false !== strpos( $prepared[0], 'any_scope' ) ) {
+			list( $today, $from, $to ) = $prepared[1];
+			$counts                    = array( 'expired' => 0, 'soon' => 0, 'any_scope' => 0 );
+
+			foreach ( $peep_test_meta as $meta ) {
+				$date    = $meta['_expiration_date'] ?? '';
+				$expired = '' !== $date && $date < $today;
+				$soon    = '' !== $date && $date >= $from && $date <= $to;
+				$counts['expired']   += (int) $expired;
+				$counts['soon']      += (int) $soon;
+				$counts['any_scope'] += (int) ( $expired || $soon );
+			}
+
+			return $counts;
+		}
+
 		++$this->reads;
 		return array(
 			'dated'   => '12',
@@ -477,6 +541,11 @@ class Peep_Test_Wpdb {
 	}
 
 	public function prepare( $query, ...$arguments ) {
+		// Like wpdb::prepare(), a single array holds all the arguments.
+		if ( 1 === count( $arguments ) && is_array( $arguments[0] ) ) {
+			$arguments = $arguments[0];
+		}
+
 		return array( $query, $arguments );
 	}
 
@@ -898,5 +967,98 @@ if ( '' === $peep_node ) {
 	peep_test_expect( 0 === $peep_status, "The JS Jalali port does not match PHP:\n" . implode( "\n", $peep_output ) );
 	echo implode( "\n", $peep_output ), "\n";
 }
+
+// Settings: custom_email keeps every valid address of a comma-separated list.
+$settings->save_settings( array( 'custom_email' => ' ops@example.test, bad-address ,buyer@example.test, ops@example.test' ) );
+peep_test_expect( 'ops@example.test, buyer@example.test' === $settings->get_setting( 'custom_email' ), 'The custom address list was not sanitized.' );
+$settings->save_settings( array( 'email_recipients' => array( 'custom' ), 'custom_email' => 'ops@example.test,buyer@example.test' ) );
+peep_test_expect( array( 'ops@example.test', 'buyer@example.test' ) === ProductExpirationEasyPeasy\Report::recipients( $settings ), 'Every custom address should receive the report.' );
+$settings->save_settings( array( 'custom_email' => 'single@example.test' ) );
+peep_test_expect( 'single@example.test' === $settings->get_setting( 'custom_email' ), 'A single custom address changed when saved.' );
+
+// Export: request validation.
+use ProductExpirationEasyPeasy\Exporter;
+
+$peep_day0 = '2026-10-17';
+$peep_req  = Exporter::request( array(), $peep_day0 );
+peep_test_expect( 'both' === $peep_req['scope'] && '30' === $peep_req['range'] && Exporter::DEFAULT_COLUMNS === $peep_req['columns'], 'Export defaults are wrong.' );
+peep_test_expect( '2026-11-16' === $peep_req['to'] && $peep_day0 === $peep_req['from'], 'The default custom range is not today to today + 30 days.' );
+$peep_req = Exporter::request( array( 'scope' => 'evil', 'range' => '45', 'format' => 'pdf', 'calendar' => 'mars', 'from' => '2026-12-01', 'to' => '۱۴۰۵/۰۸/۰۱', 'columns' => array( 'stock', 'date', 'bogus', 'stock', 'id' ) ), $peep_day0 );
+peep_test_expect( 'both' === $peep_req['scope'] && '30' === $peep_req['range'], 'Invalid scope or range was accepted.' );
+peep_test_expect( '2026-10-23' === $peep_req['from'] && '2026-12-01' === $peep_req['to'], 'A backwards custom range was not swapped, or Jalali input was not converted.' );
+peep_test_expect( array( 'name', 'stock', 'date', 'id' ) === $peep_req['columns'], 'Posted column order was not kept, or the name was not forced in.' );
+peep_test_expect( array( 'id', 'name', 'sku' ) === Exporter::request( array( 'columns' => array( 'id', 'sku' ) ), $peep_day0 )['columns'], 'The forced name column is not placed after the ID.' );
+
+// Export: which dates each scope and range selects.
+$peep_cases = array(
+	array( 'expired', '30', '2026-10-16', true ),
+	array( 'expired', '30', '2026-10-17', false ),
+	array( 'soon', '7', '2026-10-17', true ),
+	array( 'soon', '7', '2026-10-24', true ),
+	array( 'soon', '7', '2026-10-25', false ),
+	array( 'soon', '7', '2026-10-16', false ),
+	array( 'both', '7', '2026-10-16', true ),
+	array( 'both', '90', '2027-01-15', true ),
+	array( 'both', '90', '2027-01-16', false ),
+);
+
+foreach ( $peep_cases as list( $peep_scope, $peep_range, $peep_date, $peep_expected ) ) {
+	$peep_req = Exporter::request( array( 'scope' => $peep_scope, 'range' => $peep_range ), $peep_day0 );
+	peep_test_expect( $peep_expected === Exporter::matches( $peep_date, $peep_req, $peep_day0 ), "Export {$peep_scope}/{$peep_range} chose {$peep_date} wrongly." );
+}
+
+$peep_req = Exporter::request( array( 'scope' => 'soon', 'range' => 'custom', 'from' => '2027-03-01', 'to' => '2027-02-01' ), $peep_day0 );
+peep_test_expect( Exporter::matches( '2027-02-15', $peep_req, $peep_day0 ) && ! Exporter::matches( '2027-03-02', $peep_req, $peep_day0 ), 'The custom range selects the wrong dates.' );
+
+// Export: rows follow the column order and cells hold the right values.
+$peep_saved_meta     = $peep_test_meta;
+$peep_saved_products = $peep_test_products;
+$peep_test_meta      = array();
+$peep_test_products  = array();
+$peep_today_iso      = ( new DateTimeImmutable( 'today', wp_timezone() ) )->format( 'Y-m-d' );
+
+foreach ( array( 31 => -3, 32 => 5, 33 => 400 ) as $peep_id => $peep_offset ) {
+	$peep_test_products[ $peep_id ] = new Peep_Test_Product( $peep_id, 32 === $peep_id ? 'outofstock' : 'instock' );
+	update_post_meta( $peep_id, '_expiration_date', ( new DateTimeImmutable( $peep_today_iso ) )->modify( "{$peep_offset} days" )->format( 'Y-m-d' ) );
+}
+
+$peep_exporter = new Exporter();
+$peep_req      = Exporter::request( array( 'columns' => array( 'left', 'name', 'date', 'stock', 'sku', 'cat' ), 'calendar' => 'jalali' ), $peep_today_iso );
+$peep_table    = $peep_exporter->rows( $peep_req, $peep_today_iso );
+peep_test_expect( array( 'left', 'name', 'date', 'stock', 'sku', 'cat' ) === array_column( $peep_table['columns'], 'id' ), 'Export header order is wrong.' );
+peep_test_expect( 2 === $peep_table['count'] && array( -3, 'Product 31' ) === array_slice( $peep_table['rows'][0], 0, 2 ) && 5 === $peep_table['rows'][1][0], 'Export rows are wrong or not soonest first.' );
+peep_test_expect( ProductExpirationEasyPeasy\Jalali::format( get_post_meta( 31, '_expiration_date' ), 'Y/m/d' ) === $peep_table['rows'][0][2], 'Jalali dates in the file do not match Jalali::format().' );
+peep_test_expect( 'Out of stock' === $peep_table['rows'][1][3] && 'Food, Drinks' === $peep_table['rows'][0][5], 'Stock label or categories are wrong.' );
+peep_test_expect( array( 'expired' => 1, 'soon' => 1, 'both' => 2 ) === $peep_exporter->counts( $peep_req, $peep_today_iso ), 'Scope counts are wrong.' );
+peep_test_expect( 1 === count( $peep_exporter->rows( $peep_req, $peep_today_iso, 1 )['rows'] ), 'The preview limit was ignored.' );
+peep_test_expect( 'expiring-products-' . vsprintf( '%04d-%02d-%02d', ProductExpirationEasyPeasy\Jalali::convert( 2026, 10, 17 ) ) . '.csv' === Exporter::filename( array( 'calendar' => 'jalali', 'format' => 'csv' ), '2026-10-17' ), 'The file name does not use the chosen calendar.' );
+
+// CSV: UTF-8 byte order mark and no formula injection; numbers stay numbers.
+$peep_csv = fopen( 'php://memory', 'w+' );
+ProductExpirationEasyPeasy\Csv_Writer::write( $peep_csv, array( 'نام', 'SKU' ), array( array( '=HYPERLINK("x")', -3 ), array( '+1', '@a' ), array( '-x', 'plain' ) ) );
+rewind( $peep_csv );
+$peep_csv_text = stream_get_contents( $peep_csv );
+peep_test_expect( 0 === strpos( $peep_csv_text, "\xEF\xBB\xBF" ), 'The CSV has no UTF-8 BOM.' );
+peep_test_expect( false !== strpos( $peep_csv_text, "\"'=HYPERLINK(\"\"x\"\")\",-3" ) && false !== strpos( $peep_csv_text, "'+1,'@a" ) && false !== strpos( $peep_csv_text, "'-x,plain" ), "Formula cells were not neutralized:\n" . $peep_csv_text );
+
+// XLSX: six well-formed parts, a bold header, and right-to-left when asked.
+$peep_xlsx = tempnam( sys_get_temp_dir(), 'peep-xlsx-' );
+peep_test_expect( ProductExpirationEasyPeasy\Xlsx_Writer::write( $peep_xlsx, array( 'نام', 'A & B <c>' ), array( array( 'محصول', 7 ), array( "bad\x01char", -2 ) ), true ), 'The XLSX could not be written.' );
+$peep_zip = new ZipArchive();
+$peep_zip->open( $peep_xlsx );
+$peep_parts = array( '[Content_Types].xml', '_rels/.rels', 'xl/workbook.xml', 'xl/_rels/workbook.xml.rels', 'xl/styles.xml', 'xl/worksheets/sheet1.xml' );
+
+foreach ( $peep_parts as $peep_part ) {
+	$peep_xml = $peep_zip->getFromName( $peep_part );
+	peep_test_expect( false !== $peep_xml && false !== simplexml_load_string( $peep_xml ), "XLSX part {$peep_part} is missing or not valid XML." );
+}
+
+$peep_sheet = $peep_zip->getFromName( 'xl/worksheets/sheet1.xml' );
+peep_test_expect( 6 === $peep_zip->numFiles && false !== strpos( $peep_sheet, 'rightToLeft="1"' ) && false !== strpos( $peep_sheet, '<c r="B3"><v>-2</v></c>' ) && false !== strpos( $peep_sheet, 's="1"' ), 'The XLSX sheet content is wrong.' );
+$peep_zip->close();
+unlink( $peep_xlsx );
+
+$peep_test_meta     = $peep_saved_meta;
+$peep_test_products = $peep_saved_products;
 
 echo "bootstrap-smoke=passed\n";

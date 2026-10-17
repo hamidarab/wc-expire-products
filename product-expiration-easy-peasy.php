@@ -75,11 +75,15 @@ function include_files() {
 		'includes/class-stock.php',
 		'includes/class-report.php',
 		'includes/class-check-job.php',
+		'includes/class-xlsx-writer.php',
+		'includes/class-csv-writer.php',
+		'includes/class-exporter.php',
 		'includes/class-admin.php',
 		'includes/class-settings-page.php',
 		'includes/class-frontend.php',
 		'includes/class-cron.php',
 		'includes/class-ajax.php',
+		'includes/class-export-controller.php',
 		'includes/class-main.php',
 	);
 

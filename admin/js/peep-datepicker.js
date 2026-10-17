@@ -114,6 +114,12 @@
 		return Date.UTC( now.getFullYear(), now.getMonth(), now.getDate() );
 	}
 
+	function isoTime( value ) {
+		var match = /^(\d{4})-(\d{2})-(\d{2})$/.exec( value || '' );
+
+		return match ? utc( [ +match[ 1 ], +match[ 2 ], +match[ 3 ] ] ) : NaN;
+	}
+
 	function inputTime( input ) {
 		var parts = J.parseInput( input.value );
 
@@ -387,6 +393,9 @@
 		var offset = ( new Date( first ).getUTCDay() - cal.weekStart + 7 ) % 7;
 		var html = '';
 		var index;
+		// Optional range to shade, as Gregorian Y-m-d in data-range-from/-to.
+		var rangeFrom = isoTime( state.input.getAttribute( 'data-range-from' ) );
+		var rangeTo = isoTime( state.input.getAttribute( 'data-range-to' ) );
 
 		parts.title.textContent = cal.months[ focus.m - 1 ] + ' ' + cal.number( focus.y );
 
@@ -436,6 +445,9 @@
 			}
 			if ( isSelected ) {
 				classes += ' peep-dp-day--selected';
+			}
+			if ( time >= rangeFrom && time <= rangeTo ) {
+				classes += ' peep-dp-day--range';
 			}
 
 			html += '<td role="gridcell"' + ( isSelected ? ' aria-selected="true"' : '' ) + '>' +

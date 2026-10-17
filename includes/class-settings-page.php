@@ -27,7 +27,7 @@ final class Settings_Page {
 	 *
 	 * @var array<int, string>
 	 */
-	public const TABS = array( 'general', 'display', 'notifications', 'help' );
+	public const TABS = array( 'general', 'display', 'notifications', 'export', 'help' );
 
 	/**
 	 * Handle of the page script and style.
@@ -58,16 +58,25 @@ final class Settings_Page {
 	private $job;
 
 	/**
+	 * Export query service.
+	 *
+	 * @var Exporter
+	 */
+	private $exporter;
+
+	/**
 	 * Register the page and its form handlers.
 	 *
 	 * @param Settings  $settings Settings service.
 	 * @param Cron      $cron     Expiration processing service.
 	 * @param Check_Job $job      Background check.
+	 * @param Exporter  $exporter Export query service.
 	 */
-	public function __construct( Settings $settings, Cron $cron, Check_Job $job ) {
+	public function __construct( Settings $settings, Cron $cron, Check_Job $job, Exporter $exporter ) {
 		$this->settings = $settings;
 		$this->cron     = $cron;
 		$this->job      = $job;
+		$this->exporter = $exporter;
 
 		add_action( 'admin_menu', array( $this, 'add_menu' ), 60 );
 		add_action( 'admin_post_peep_save_settings', array( $this, 'handle_save' ) );
@@ -124,10 +133,12 @@ final class Settings_Page {
 	public function enqueue() {
 		wp_enqueue_style( self::HANDLE, PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/css/peep-settings.css', array(), PRODUCT_EXPIRATION_EASY_PEASY_VERSION );
 
-		Assets::enqueue_jalali();
+		Assets::enqueue_datepicker();
 
 		wp_enqueue_script( self::HANDLE, PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/js/peep-settings.js', array( Assets::JALALI ), PRODUCT_EXPIRATION_EASY_PEASY_VERSION, true );
 		wp_localize_script( self::HANDLE, 'peepSettings', $this->script_data() );
+		wp_enqueue_script( self::HANDLE . '-export', PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/js/peep-export.js', array( self::HANDLE, Assets::DATEPICKER ), PRODUCT_EXPIRATION_EASY_PEASY_VERSION, true );
+		wp_localize_script( self::HANDLE . '-export', 'peepExport', $this->export_script_data() );
 	}
 
 	/**
@@ -322,6 +333,7 @@ final class Settings_Page {
 			'notice'       => $this->notice( $notice_key ),
 			'test_status'  => 0 === strpos( $notice_key, 'test_' ) ? substr( $notice_key, 5 ) : '',
 			'status_rows'  => $this->status_rows(),
+			'export'       => $this->export_data( $today ),
 		);
 	}
 
@@ -372,6 +384,69 @@ final class Settings_Page {
 				'cancelChanged' => $plural( _n_noop( 'The %s product set out of stock before cancelling stays out of stock.', 'The %s products set out of stock before cancelling stay out of stock.', 'product-expiration-easy-peasy' ) ),
 				'checkLabel'    => __( 'Check product dates', 'product-expiration-easy-peasy' ),
 				'cancelLabel'   => __( 'Cancel check', 'product-expiration-easy-peasy' ),
+			),
+		);
+	}
+
+	/**
+	 * Defaults and counts for the export tab.
+	 *
+	 * @param string $today Site today, Gregorian Y-m-d.
+	 * @return array<string, mixed>
+	 */
+	private function export_data( $today ) {
+		$request = Exporter::request( array(), $today );
+		$picker  = Date::input_calendar();
+
+		return array(
+			'counts'   => $this->exporter->counts( $request, $today ),
+			'labels'   => Exporter::labels(),
+			'columns'  => $request['columns'],
+			'format'   => $request['format'],
+			'calendar' => $request['calendar'],
+			'xlsx'     => Xlsx_Writer::is_available(),
+			'picker'   => $picker,
+			'from'     => Date::input_value( $request['from'], $picker ),
+			'to'       => Date::input_value( $request['to'], $picker ),
+		);
+	}
+
+	/**
+	 * Data and strings for peep-export.js.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function export_script_data() {
+		$plural   = static function ( $nooped ) {
+			return array( translate_nooped_plural( $nooped, 1, 'product-expiration-easy-peasy' ), translate_nooped_plural( $nooped, 2, 'product-expiration-easy-peasy' ) );
+		};
+		$statuses = wc_get_product_stock_status_options();
+
+		return array(
+			'nonce' => wp_create_nonce( Export_Controller::NONCE ),
+			'stock' => array(
+				'in'  => $statuses['instock'] ?? '',
+				'out' => $statuses['outofstock'] ?? '',
+			),
+			'i18n'  => array(
+				/* translators: %s: number of products. */
+				'products'     => $plural( _n_noop( '%s product', '%s products', 'product-expiration-easy-peasy' ) ),
+				/* translators: %s: number of rows. */
+				'rows'         => $plural( _n_noop( '%s row', '%s rows', 'product-expiration-easy-peasy' ) ),
+				/* translators: %s: number of days. */
+				'days'         => $plural( _n_noop( '%s day', '%s days', 'product-expiration-easy-peasy' ) ),
+				/* translators: %s: number of days. */
+				'daysAgo'      => $plural( _n_noop( '%s day ago', '%s days ago', 'product-expiration-easy-peasy' ) ),
+				/* translators: %s: number of days. */
+				'within'       => $plural( _n_noop( 'Expire within the next %s day', 'Expire within the next %s days', 'product-expiration-easy-peasy' ) ),
+				/* translators: 1: first date, 2: last date. */
+				'between'      => __( 'Expire between %1$s and %2$s', 'product-expiration-easy-peasy' ),
+				'downloadXlsx' => __( 'Download Excel file', 'product-expiration-easy-peasy' ),
+				'downloadCsv'  => __( 'Download CSV file', 'product-expiration-easy-peasy' ),
+				'building'     => __( 'Building file…', 'product-expiration-easy-peasy' ),
+				/* translators: %s: file name. */
+				'downloaded'   => __( 'File %s was downloaded.', 'product-expiration-easy-peasy' ),
+				'failed'       => __( 'Something went wrong. Please try again.', 'product-expiration-easy-peasy' ),
 			),
 		);
 	}
