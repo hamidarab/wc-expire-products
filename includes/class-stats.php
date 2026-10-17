@@ -16,11 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Stats {
 	/**
-	 * Transient that caches the counts.
+	 * Transient that caches the counts. Renamed in 3.5.0 so counts cached
+	 * under the old definition of a dated item are not shown.
 	 *
 	 * @var string
 	 */
-	public const TRANSIENT = 'peep_dashboard_counts';
+	public const TRANSIENT = 'peep_status_counts';
 
 	/**
 	 * Return product and variation counts for the status cards.
@@ -44,11 +45,13 @@ final class Stats {
 			$wpdb->prepare(
 				'SELECT COUNT( DISTINCT p.ID ) AS dated,
 					COUNT( DISTINCT CASE WHEN ' . Dated_Items::DATE . ' < %s THEN p.ID END ) AS expired,
-					COUNT( DISTINCT CASE WHEN EXISTS (
-						SELECT 1 FROM %i AS m WHERE m.post_id = p.ID AND m.meta_key = %s AND m.meta_value = %s
-					) THEN p.ID END ) AS managed
+					(
+						SELECT COUNT( DISTINCT m.post_id ) FROM %i AS m
+						INNER JOIN %i AS mp ON mp.ID = m.post_id
+						WHERE m.meta_key = %s AND m.meta_value = %s AND mp.post_status NOT IN ( %s, %s )
+					) AS managed
 				' . $base,
-				array_merge( array( Date::today(), $wpdb->postmeta, '_peep_stock_managed', 'yes' ), $args )
+				array_merge( array( Date::today(), $wpdb->postmeta, $wpdb->posts, '_peep_stock_managed', 'yes', 'trash', 'auto-draft' ), $args )
 			),
 			ARRAY_A
 		);

@@ -695,15 +695,12 @@
 	--peep-pct: 0;
 	height: 14px;
 	border-radius: 999px;
-	background: linear-gradient(90deg, #064E3B, #047857 20%, #34D399 50%, #E5EFEA 50%) no-repeat;
-	background-size: 200% 100%;
-	background-position: calc(100% - var(--peep-pct) * 1%) 0;
-	transition: background-position .4s ease;
+	background: linear-gradient(90deg, #064E3B, #047857 40%, #34D399) no-repeat left / calc(var(--peep-pct) * 1%) 100%, #E5EFEA;
+	transition: background-size .4s ease;
 }
 
 [dir="rtl"] .peep-progress {
-	background-image: linear-gradient(270deg, #064E3B, #047857 20%, #34D399 50%, #E5EFEA 50%);
-	background-position: calc(var(--peep-pct) * 1%) 0;
+	background: linear-gradient(270deg, #064E3B, #047857 40%, #34D399) no-repeat right / calc(var(--peep-pct) * 1%) 100%, #E5EFEA;
 }
 
 .peep-note {

@@ -109,6 +109,7 @@ function peep_uninstall_site_data() {
 	}
 
 	delete_transient( 'peep_dashboard_counts' );
+	delete_transient( 'peep_status_counts' );
 	peep_uninstall_delete_product_meta( '_expiration_date' );
 	peep_uninstall_delete_product_meta( '_peep_stock_managed' );
 	peep_uninstall_delete_product_meta( '_peep_previous_stock_status' );

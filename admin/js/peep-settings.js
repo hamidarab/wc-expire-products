@@ -67,6 +67,10 @@
 	const tabInputs = all( '.peep-tab-input' );
 	const forms = all( '.peep-main > form' );
 	const saveBar = byId( 'peep-savebar' );
+
+	// Without JavaScript the bar stays inside the settings form. With tabs it moves
+	// after every panel, so it can keep its space on the Export and Help tabs.
+	root.querySelector( '.peep-main' ).appendChild( saveBar );
 	const reducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' );
 	const narrow = window.matchMedia( '(max-width: 782px)' );
 	const tabKey = ( tab ) => tab.dataset.peepTab;

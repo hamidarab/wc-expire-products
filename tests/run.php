@@ -311,6 +311,13 @@ function peep_test_dated() {
 }
 
 /**
+ * How many arguments Dated_Items::query() adds; callers' own arguments follow.
+ */
+function peep_test_fragment_args() {
+	return count( ProductExpirationEasyPeasy\Dated_Items::query()[1] );
+}
+
+/**
  * Dated items at or before the cutoff, as the job's SQL selects them.
  */
 function peep_test_due_ids( $cutoff, $after = 0 ) {
@@ -493,33 +500,39 @@ class Peep_Test_Wpdb {
 
 	public function get_var( $prepared ) {
 		list( , $arguments ) = $prepared;
-		return (string) count( peep_test_due_ids( $arguments[14] ) );
+		$n = peep_test_fragment_args();
+
+		return (string) count( peep_test_due_ids( $arguments[ $n + 1 ] ) );
 	}
 
 	public function get_col( $prepared ) {
 		list( , $arguments ) = $prepared;
-		return array_map( 'strval', array_slice( peep_test_due_ids( $arguments[14], $arguments[15] ), 0, $arguments[16] ) );
+		list( , , $cutoff, $after, $limit ) = array_slice( $arguments, peep_test_fragment_args() - 1 );
+
+		return array_map( 'strval', array_slice( peep_test_due_ids( $cutoff, $after ), 0, $limit ) );
 	}
 
 	/**
 	 * Evaluates Exporter::select() from its prepared arguments.
 	 */
 	public function get_results( $prepared ) {
-		list( , $a ) = $prepared;
-		$rows        = array();
+		list( $expired, $today, $soon, $from, $to, $limit ) = array_slice( $prepared[1], peep_test_fragment_args() );
+		$rows = array();
 
 		foreach ( peep_test_dated() as $post_id => $date ) {
-			if ( ( $a[13] && $date < $a[14] ) || ( $a[15] && $date >= $a[16] && $date <= $a[17] ) ) {
+			if ( ( $expired && $date < $today ) || ( $soon && $date >= $from && $date <= $to ) ) {
 				$rows[] = array( (string) $post_id, $date );
 			}
 		}
 
 		usort( $rows, static fn( $x, $y ) => array( $x[1], (int) $x[0] ) <=> array( $y[1], (int) $y[0] ) );
 
-		return array_slice( $rows, 0, $a[18] );
+		return array_slice( $rows, 0, $limit );
 	}
 
 	public function get_row( $prepared ) {
+		global $peep_test_meta;
+
 		// Exporter::counts(): today, from, to, today, from, to come first.
 		if ( false !== strpos( $prepared[0], 'any_scope' ) ) {
 			list( $today, $from, $to ) = $prepared[1];
@@ -543,7 +556,7 @@ class Peep_Test_Wpdb {
 		$counts = array(
 			'dated'   => count( $dated ),
 			'expired' => count( array_filter( $dated, static fn( $date ) => $date < $today ) ),
-			'managed' => count( array_filter( array_keys( $dated ), static fn( $id ) => 'yes' === get_post_meta( $id, '_peep_stock_managed' ) ) ),
+			'managed' => count( array_filter( array_keys( $peep_test_meta ), static fn( $id ) => 'yes' === get_post_meta( $id, '_peep_stock_managed' ) ) ),
 		);
 
 		return array_map( 'strval', $counts );

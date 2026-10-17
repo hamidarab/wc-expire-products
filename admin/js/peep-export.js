@@ -134,6 +134,7 @@
 	const nameBox = list.querySelector( '[data-peep-column="name"] input[type="checkbox"]' );
 	const reducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' );
 	let drag = null;
+	let settling = false;
 	let swallowClick = false;
 
 	// The product name is always exported; its box stays focusable so the pill can move.
@@ -157,6 +158,10 @@
 			const dy = before[ index ].top - now.top;
 
 			if ( dx || dy ) {
+				if ( drag && item !== drag.holder ) {
+					drag.slid.add( item );
+				}
+
 				item.style.transition = 'none';
 				item.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
 				item.getBoundingClientRect();
@@ -225,18 +230,22 @@
 
 		const target = current.holder.getBoundingClientRect();
 
+		// The order is final now (the form and the arrow keys see it); only the
+		// fixed pill still glides into the holder's place.
+		list.insertBefore( current.pill, current.holder );
 		current.pill.style.transition = 'transform .15s ease';
 		current.pill.style.transform = 'translate(' + ( target.left - current.box.left ) + 'px, ' + ( target.top - current.box.top ) + 'px)';
 		swallowClick = true;
+		settling = true;
 		drag = null;
 
 		window.setTimeout( () => {
-			list.insertBefore( current.pill, current.holder );
 			current.holder.remove();
 			current.pill.removeAttribute( 'style' );
 			current.pill.classList.remove( 'is-drag' );
+			current.slid.forEach( ( item ) => item.removeAttribute( 'style' ) );
 			document.body.classList.remove( 'peep-dragging' );
-			Array.from( list.children ).forEach( ( item ) => item.removeAttribute( 'style' ) );
+			settling = false;
 		}, reducedMotion.matches ? 0 : 160 );
 	}
 
@@ -245,8 +254,8 @@
 
 		swallowClick = false;
 
-		if ( pill && 0 === event.button && ! drag ) {
-			drag = { pill, x: event.clientX, y: event.clientY, active: false };
+		if ( pill && 0 === event.button && ! drag && ! settling ) {
+			drag = { pill, x: event.clientX, y: event.clientY, active: false, slid: new Set() };
 		}
 	} );
 
