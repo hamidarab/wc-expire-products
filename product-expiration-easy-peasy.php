@@ -68,6 +68,8 @@ function include_files() {
 		'includes/class-date.php',
 		'includes/class-settings.php',
 		'includes/class-stats.php',
+		'includes/class-stock.php',
+		'includes/class-report.php',
 		'includes/class-admin.php',
 		'includes/class-frontend.php',
 		'includes/class-cron.php',

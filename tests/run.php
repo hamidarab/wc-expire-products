@@ -298,10 +298,12 @@ function wp_strip_all_tags( $text ) {
 class Peep_Test_Product {
 	private $id;
 	private $status;
+	private $type;
 
-	public function __construct( $id, $status = 'instock' ) {
+	public function __construct( $id, $status = 'instock', $type = 'simple' ) {
 		$this->id     = $id;
 		$this->status = $status;
+		$this->type   = $type;
 	}
 
 	public function get_id() {
@@ -317,7 +319,7 @@ class Peep_Test_Product {
 	}
 
 	public function is_type( $type ) {
-		return in_array( 'simple', (array) $type, true );
+		return in_array( $this->type, (array) $type, true );
 	}
 
 	public function get_stock_status() {
@@ -609,6 +611,36 @@ peep_test_expect( 'instock' === $peep_test_products[7]->get_stock_status(), 'The
 peep_test_expect( '' === get_post_meta( 7, '_peep_stock_managed' ), 'The managed flag was not cleared.' );
 peep_test_expect( 'outofstock' === $peep_test_products[8]->get_stock_status(), 'A product inside the new cutoff was restored.' );
 
+// The shared per-item step changes only dated, in-stock or backorder, non-variable items.
+$peep_item_date = $peep_today->format( 'Y-m-d' );
+$peep_items     = array(
+	901 => array( 'onbackorder', 'simple', true ),
+	902 => array( 'outofstock', 'simple', false ),
+	903 => array( 'instock', 'variable', false ),
+	904 => array( 'instock', 'simple', false ),
+);
+
+foreach ( $peep_items as $peep_id => list( $peep_status, $peep_type ) ) {
+	$peep_test_products[ $peep_id ] = new Peep_Test_Product( $peep_id, $peep_status, $peep_type );
+
+	if ( 904 !== $peep_id ) {
+		update_post_meta( $peep_id, '_expiration_date', $peep_item_date );
+	}
+}
+
+foreach ( $peep_items as $peep_id => list( , , $peep_expected ) ) {
+	peep_test_expect( $peep_expected === ProductExpirationEasyPeasy\Stock::mark_out_of_stock( $peep_id ), "Stock::mark_out_of_stock({$peep_id}) returned the wrong result." );
+}
+
+peep_test_expect( 'onbackorder' === get_post_meta( 901, '_peep_previous_stock_status' ), 'The previous backorder status was not kept.' );
+peep_test_expect( '' === get_post_meta( 902, '_peep_stock_managed' ), 'A product already out of stock was marked as managed.' );
+peep_test_expect( true === ProductExpirationEasyPeasy\Stock::restore( 901 ) && 'onbackorder' === $peep_test_products[901]->get_stock_status(), 'Backorder status was not restored.' );
+peep_test_expect( false === ProductExpirationEasyPeasy\Stock::restore( 901 ), 'An unmanaged product was restored twice.' );
+
+foreach ( array_keys( $peep_items ) as $peep_id ) {
+	unset( $peep_test_meta[ $peep_id ], $peep_test_products[ $peep_id ] );
+}
+
 // Dashboard counts are cached and every worker run drops the cache.
 peep_test_expect( array( 'dated' => 12, 'expired' => 3, 'managed' => 2 ) === ProductExpirationEasyPeasy\Stats::get_counts(), 'Dashboard counts were not read.' );
 ProductExpirationEasyPeasy\Stats::get_counts();
@@ -618,12 +650,12 @@ ProductExpirationEasyPeasy\Stats::get_counts();
 peep_test_expect( 2 === $wpdb->reads, 'A worker run did not flush the dashboard counts.' );
 
 // The public recipient resolver and test email share the same rules.
-peep_test_expect( 'no_recipients' === ProductExpirationEasyPeasy\Cron::send_test_email( $settings ), 'Test email ignored the empty recipient list.' );
+peep_test_expect( 'no_recipients' === ProductExpirationEasyPeasy\Report::send_test( $settings ), 'Test email ignored the empty recipient list.' );
 $settings->save_settings( array( 'email_recipients' => array( 'admin', 'custom' ), 'custom_email' => 'not-an-email' ) );
 $peep_test_options['admin_email'] = 'admin@example.test';
-peep_test_expect( array( 'admin@example.test' ) === ProductExpirationEasyPeasy\Cron::get_recipient_emails( $settings ), 'Invalid custom email was not filtered.' );
+peep_test_expect( array( 'admin@example.test' ) === ProductExpirationEasyPeasy\Report::recipients( $settings ), 'Invalid custom email was not filtered.' );
 $peep_test_mail = array();
-peep_test_expect( 'sent' === ProductExpirationEasyPeasy\Cron::send_test_email( $settings ) && 1 === count( $peep_test_mail ), 'Test email was not sent.' );
+peep_test_expect( 'sent' === ProductExpirationEasyPeasy\Report::send_test( $settings ) && 1 === count( $peep_test_mail ), 'Test email was not sent.' );
 
 // The bundled translation wins over a stale WordPress.org language pack.
 $peep_test_bundled = dirname( __DIR__ ) . '/languages/product-expiration-easy-peasy-fa_IR';

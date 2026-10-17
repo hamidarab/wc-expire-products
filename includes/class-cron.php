@@ -113,48 +113,6 @@ final class Cron {
 	}
 
 	/**
-	 * Restore stock previously changed by this plugin.
-	 *
-	 * @param int $product_id Product or variation ID.
-	 * @return bool Whether a managed stock value was restored.
-	 */
-	public static function restore_managed_stock( $product_id ) {
-		if ( 'yes' !== get_post_meta( $product_id, '_peep_stock_managed', true ) ) {
-			return false;
-		}
-
-		$previous_status = get_post_meta( $product_id, '_peep_previous_stock_status', true );
-		$product         = wc_get_product( $product_id );
-
-		if ( ! in_array( $previous_status, array( 'instock', 'outofstock', 'onbackorder' ), true ) ) {
-			$previous_status = 'instock';
-		}
-
-		if ( ! $product || 'outofstock' !== $product->get_stock_status() ) {
-			delete_post_meta( $product_id, '_peep_stock_managed' );
-			delete_post_meta( $product_id, '_peep_previous_stock_status' );
-			self::sync_variation_parent( $product_id );
-			return false;
-		}
-
-		$stock_quantity = $product->get_stock_quantity();
-
-		if ( 'instock' === $previous_status && $product->managing_stock() && null !== $stock_quantity && $stock_quantity <= 0 ) {
-			delete_post_meta( $product_id, '_peep_stock_managed' );
-			delete_post_meta( $product_id, '_peep_previous_stock_status' );
-			self::sync_variation_parent( $product_id );
-			return false;
-		}
-
-		wc_update_product_stock_status( $product_id, $previous_status );
-		delete_post_meta( $product_id, '_peep_stock_managed' );
-		delete_post_meta( $product_id, '_peep_previous_stock_status' );
-		self::sync_variation_parent( $product_id );
-
-		return true;
-	}
-
-	/**
 	 * Scheduled callback for the daily expiration check.
 	 *
 	 * @return int Number of products whose stock was changed.
@@ -213,7 +171,7 @@ final class Cron {
 				$product_ids = array_map( 'absint', $query->posts );
 
 				foreach ( $product_ids as $product_id ) {
-					if ( $this->mark_out_of_stock( $product_id ) ) {
+					if ( Stock::mark_out_of_stock( $product_id ) ) {
 						$changed_ids[] = $product_id;
 					}
 				}
@@ -228,9 +186,7 @@ final class Cron {
 		}
 
 		// One aggregated report per run instead of one email per batch.
-		if ( ! empty( $changed_ids ) ) {
-			$this->send_notification_email( $changed_ids, $cutoff );
-		}
+		Report::send( $this->settings, $changed_ids, $cutoff );
 
 		return count( $changed_ids );
 	}
@@ -297,7 +253,7 @@ final class Cron {
 				foreach ( $product_ids as $product_id ) {
 					$seen[] = $product_id;
 
-					if ( self::restore_managed_stock( $product_id ) ) {
+					if ( Stock::restore( $product_id ) ) {
 						++$restored;
 					}
 				}
@@ -311,46 +267,6 @@ final class Cron {
 		}
 
 		return $restored;
-	}
-
-	/**
-	 * Set one dated product to out of stock and remember its previous status.
-	 *
-	 * @param int $product_id Product or variation ID.
-	 * @return bool Whether the stock status was changed.
-	 */
-	private function mark_out_of_stock( $product_id ) {
-		$date    = Date::sanitize( get_post_meta( $product_id, '_expiration_date', true ) );
-		$product = wc_get_product( $product_id );
-
-		if (
-			'' === $date
-			|| ! $product
-			|| $product->is_type( 'variable' )
-			|| ! in_array( $product->get_stock_status(), array( 'instock', 'onbackorder' ), true )
-		) {
-			return false;
-		}
-
-		update_post_meta( $product_id, '_peep_previous_stock_status', $product->get_stock_status() );
-		update_post_meta( $product_id, '_peep_stock_managed', 'yes' );
-
-		try {
-			$product->set_stock_status( 'outofstock' );
-			$saved_product_id = $product->save();
-		} catch ( \Throwable $throwable ) {
-			$saved_product_id = 0;
-		}
-
-		if ( ! $saved_product_id ) {
-			delete_post_meta( $product_id, '_peep_stock_managed' );
-			delete_post_meta( $product_id, '_peep_previous_stock_status' );
-			return false;
-		}
-
-		self::sync_variation_parent( $product_id );
-
-		return true;
 	}
 
 	/**
@@ -418,161 +334,5 @@ final class Cron {
 		);
 		wp_cache_delete( self::LOCK_OPTION, 'options' );
 		$this->lock_value = '';
-	}
-
-	/**
-	 * Send one plain-text report to the selected store staff.
-	 *
-	 * @param array<int, int> $product_ids Products changed during this run.
-	 * @param string          $cutoff      Cutoff date.
-	 * @return bool Whether the message was accepted for delivery.
-	 */
-	private function send_notification_email( array $product_ids, $cutoff ) {
-		$emails = self::get_recipient_emails( $this->settings );
-
-		if ( empty( $emails ) ) {
-			return false;
-		}
-
-		$body = sprintf(
-			/* translators: %s: localized cutoff date. */
-			__( 'The following products expire by %s and were set to out of stock:', 'product-expiration-easy-peasy' ),
-			Date::format( $cutoff )
-		) . "\n\n";
-
-		foreach ( $product_ids as $product_id ) {
-			$product = wc_get_product( $product_id );
-
-			if ( $product ) {
-				$body .= self::describe_product( $product );
-			}
-		}
-
-		return wp_mail(
-			$emails,
-			__( 'Products near expiration', 'product-expiration-easy-peasy' ),
-			$body,
-			array( 'Content-Type: text/plain; charset=UTF-8' )
-		);
-	}
-
-	/**
-	 * Send a sample report to the saved recipients.
-	 *
-	 * @param Settings $settings Settings service.
-	 * @return string One of "sent", "failed", or "no_recipients".
-	 */
-	public static function send_test_email( Settings $settings ) {
-		$emails = self::get_recipient_emails( $settings );
-
-		if ( empty( $emails ) ) {
-			return 'no_recipients';
-		}
-
-		$body  = __( 'This is a test message from Product Expiration Easy Peasy.', 'product-expiration-easy-peasy' ) . "\n\n";
-		$body .= sprintf(
-			/* translators: %s: localized cutoff date. */
-			__( 'With the current settings, products expiring on or before %s are set to out of stock and listed in the daily report sent to this address.', 'product-expiration-easy-peasy' ),
-			Date::format( self::get_cutoff_date( $settings ) )
-		) . "\n";
-
-		$sent = wp_mail(
-			$emails,
-			__( '[Test] Products near expiration', 'product-expiration-easy-peasy' ),
-			$body,
-			array( 'Content-Type: text/plain; charset=UTF-8' )
-		);
-
-		return $sent ? 'sent' : 'failed';
-	}
-
-	/**
-	 * Build the report lines for one product.
-	 *
-	 * @param \WC_Product $product Product or variation.
-	 * @return string
-	 */
-	private static function describe_product( $product ) {
-		$product_id = $product->get_id();
-		$date       = Date::sanitize( get_post_meta( $product_id, '_expiration_date', true ) );
-		$edit_id    = $product->is_type( 'variation' ) && $product->get_parent_id() ? $product->get_parent_id() : $product_id;
-		$edit_link  = add_query_arg(
-			array(
-				'post'   => $edit_id,
-				'action' => 'edit',
-			),
-			admin_url( 'post.php' )
-		);
-
-		/* translators: %s: product name. */
-		$text = sprintf( __( 'Product: %s', 'product-expiration-easy-peasy' ), wp_strip_all_tags( $product->get_name() ) ) . "\n";
-		/* translators: %d: product or variation ID. */
-		$text .= sprintf( __( 'Product ID: %d', 'product-expiration-easy-peasy' ), $product_id ) . "\n";
-		/* translators: %s: localized expiration date. */
-		$text .= sprintf( __( 'Expiration date: %s', 'product-expiration-easy-peasy' ), Date::format( $date ) ) . "\n";
-
-		if ( $product->is_type( 'variation' ) ) {
-			$parent = wc_get_product( $product->get_parent_id() );
-
-			if ( $parent ) {
-				/* translators: %s: parent product name. */
-				$text .= sprintf( __( 'Parent product: %s', 'product-expiration-easy-peasy' ), wp_strip_all_tags( $parent->get_name() ) ) . "\n";
-			}
-		}
-
-		/* translators: %s: product edit URL. */
-		$text .= sprintf( __( 'Edit product: %s', 'product-expiration-easy-peasy' ), esc_url_raw( $edit_link ) ) . "\n\n";
-
-		return $text;
-	}
-
-	/**
-	 * Resolve and validate the configured notification recipients.
-	 *
-	 * @param Settings $settings Settings service.
-	 * @return array<int, string>
-	 */
-	public static function get_recipient_emails( Settings $settings ) {
-		$selected = (array) $settings->get_setting( 'email_recipients' );
-		$emails   = array();
-
-		if ( in_array( 'admin', $selected, true ) ) {
-			$emails[] = get_option( 'admin_email' );
-		}
-
-		if ( in_array( 'shop_manager', $selected, true ) ) {
-			$emails = array_merge(
-				$emails,
-				get_users(
-					array(
-						'role'   => 'shop_manager',
-						'fields' => 'user_email',
-					)
-				)
-			);
-		}
-
-		if ( in_array( 'custom', $selected, true ) ) {
-			$emails[] = $settings->get_setting( 'custom_email' );
-		}
-
-		$emails = array_map( 'sanitize_email', $emails );
-		$emails = array_filter( $emails, 'is_email' );
-
-		return array_values( array_unique( $emails ) );
-	}
-
-	/**
-	 * Synchronize a variable parent after a variation stock change.
-	 *
-	 * @param int $product_id Product or variation ID.
-	 * @return void
-	 */
-	private static function sync_variation_parent( $product_id ) {
-		$product = wc_get_product( $product_id );
-
-		if ( $product && $product->is_type( 'variation' ) && $product->get_parent_id() ) {
-			\WC_Product_Variable::sync_stock_status( $product->get_parent_id() );
-		}
 	}
 }

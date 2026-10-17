@@ -248,7 +248,7 @@ final class Admin {
 
 		check_admin_referer( 'peep_send_test_email', 'peep_test_email_nonce' );
 
-		$this->redirect_to_settings( array( 'peep_notice' => 'test_' . Cron::send_test_email( $this->settings ) ) );
+		$this->redirect_to_settings( array( 'peep_notice' => 'test_' . Report::send_test( $this->settings ) ) );
 	}
 
 	/**
@@ -993,7 +993,7 @@ final class Admin {
 		$raw = sanitize_text_field( (string) $raw );
 
 		if ( '' === $raw ) {
-			Cron::restore_managed_stock( $post_id );
+			Stock::restore( $post_id );
 			delete_post_meta( $post_id, '_expiration_date' );
 			Stats::flush();
 			return;
@@ -1013,7 +1013,7 @@ final class Admin {
 		Stats::flush();
 
 		if ( $date > Cron::get_cutoff_date( $this->settings ) ) {
-			Cron::restore_managed_stock( $post_id );
+			Stock::restore( $post_id );
 		}
 	}
 }
