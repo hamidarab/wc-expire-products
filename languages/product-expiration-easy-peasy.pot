@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-17T13:35:29+00:00\n"
+"POT-Creation-Date: 2026-10-17T14:00:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: product-expiration-easy-peasy\n"
@@ -398,7 +398,7 @@ msgstr ""
 
 #. translators: %s: number of products.
 #: includes/class-settings-page.php:443
-#: views/settings/export.php:69
+#: views/settings/export.php:68
 #, php-format
 msgid "%s product"
 msgid_plural "%s products"
@@ -441,7 +441,6 @@ msgstr[1] ""
 
 #. translators: 1: first date, 2: last date.
 #: includes/class-settings-page.php:453
-#: views/settings/export.php:79
 #, php-format
 msgid "Expire between %1$s and %2$s"
 msgstr ""
@@ -640,69 +639,69 @@ msgstr ""
 msgid "Export"
 msgstr ""
 
-#: views/settings/export.php:54
+#: views/settings/export.php:53
 msgid "Choose products"
 msgstr ""
 
-#: views/settings/export.php:58
+#: views/settings/export.php:57
 msgid "Which products?"
 msgstr ""
 
-#: views/settings/export.php:94
+#: views/settings/export.php:81
 msgid "Near-expiry range"
 msgstr ""
 
-#: views/settings/export.php:110
+#: views/settings/export.php:97
 msgid "From"
 msgstr ""
 
-#: views/settings/export.php:110
+#: views/settings/export.php:97
 msgid "To"
 msgstr ""
 
-#: views/settings/export.php:122
+#: views/settings/export.php:108
 msgid "Output file settings"
 msgstr ""
 
-#: views/settings/export.php:127
+#: views/settings/export.php:113
 msgid "File format"
 msgstr ""
 
-#: views/settings/export.php:140
+#: views/settings/export.php:126
 msgid "Excel export needs the PHP Zip extension, so only CSV is available."
 msgstr ""
 
-#: views/settings/export.php:145
+#: views/settings/export.php:131
 msgid "Dates in the file"
 msgstr ""
 
-#: views/settings/export.php:161
+#: views/settings/export.php:147
 msgid "File columns"
 msgstr ""
 
-#: views/settings/export.php:162
+#: views/settings/export.php:148
 msgid "Drag the columns to change their order. The product name is always included in the file."
 msgstr ""
 
-#: views/settings/export.php:167
+#: views/settings/export.php:153
 msgid "Drag to move"
 msgstr ""
 
-#: views/settings/export.php:186
+#: views/settings/export.php:169
+#: views/settings/modals.php:99
+msgid "File preview"
+msgstr ""
+
+#: views/settings/export.php:174
 msgid "Download Excel file"
 msgstr ""
 
-#: views/settings/export.php:187
+#: views/settings/export.php:175
 msgid "Download CSV file"
 msgstr ""
 
-#: views/settings/export.php:188
+#: views/settings/export.php:176
 msgid "Building file…"
-msgstr ""
-
-#: views/settings/export.php:191
-#: views/settings/modals.php:99
-msgid "File preview"
 msgstr ""
 
 #: views/settings/general.php:18

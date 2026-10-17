@@ -50,13 +50,12 @@ $peep_calendars        = array(
 
 		<section class="peep-block" aria-labelledby="peep-export-products">
 			<div class="peep-block-head">
-				<span class="peep-block-num" aria-hidden="true"><?php echo esc_html( View::number( 1 ) ); ?></span>
 				<h3 class="peep-block-title" id="peep-export-products"><?php esc_html_e( 'Choose products', 'product-expiration-easy-peasy' ); ?></h3>
 			</div>
 
 			<fieldset class="peep-field">
 				<legend class="peep-sublabel"><?php esc_html_e( 'Which products?', 'product-expiration-easy-peasy' ); ?></legend>
-				<div class="peep-cards peep-cards--3">
+				<div class="peep-cards peep-cards--3 peep-cards--scope">
 					<?php foreach ( $peep_scopes as $peep_scope => $peep_scope_text ) : ?>
 						<label class="peep-choice peep-scope">
 							<span class="peep-scope-row">
@@ -70,19 +69,7 @@ $peep_calendars        = array(
 									?>
 								</span>
 							</span>
-							<?php if ( 'soon' === $peep_scope ) : ?>
-								<span class="peep-scope-sub peep-stack">
-									<span id="peep-scope-sub-preset"><?php echo esc_html( $peep_scope_text[1] ); ?></span>
-									<span id="peep-scope-sub-custom">
-										<?php
-										/* translators: 1: first date, 2: last date. */
-										echo esc_html( sprintf( __( 'Expire between %1$s and %2$s', 'product-expiration-easy-peasy' ), $peep_export['from'], $peep_export['to'] ) );
-										?>
-									</span>
-								</span>
-							<?php else : ?>
-								<span class="peep-scope-sub"><?php echo esc_html( $peep_scope_text[1] ); ?></span>
-							<?php endif; ?>
+							<span class="peep-scope-sub" id="<?php echo esc_attr( 'peep-scope-sub-' . $peep_scope ); ?>"><?php echo esc_html( $peep_scope_text[1] ); ?></span>
 						</label>
 					<?php endforeach; ?>
 				</div>
@@ -118,7 +105,6 @@ $peep_calendars        = array(
 
 		<section class="peep-block" aria-labelledby="peep-export-file">
 			<div class="peep-block-head">
-				<span class="peep-block-num" aria-hidden="true"><?php echo esc_html( View::number( 2 ) ); ?></span>
 				<h3 class="peep-block-title" id="peep-export-file"><?php esc_html_e( 'Output file settings', 'product-expiration-easy-peasy' ); ?></h3>
 			</div>
 
@@ -179,6 +165,8 @@ $peep_calendars        = array(
 		</section>
 
 		<div class="peep-export-bar">
+			<p class="peep-export-status" id="peep-export-status" role="status"></p>
+			<button type="button" class="peep-btn-text peep-js-only" id="peep-export-preview" aria-haspopup="dialog"><?php View::icon( 'eye' ); ?><?php esc_html_e( 'File preview', 'product-expiration-easy-peasy' ); ?></button>
 			<button type="submit" class="peep-btn" id="peep-export-submit">
 				<?php View::icon( 'download', 'peep-export-icon' ); ?>
 				<?php View::icon( 'spinner', 'peep-spin peep-export-spinner' ); ?>
@@ -188,8 +176,6 @@ $peep_calendars        = array(
 					<span data-peep-label="busy"><?php esc_html_e( 'Building file…', 'product-expiration-easy-peasy' ); ?></span>
 				</span>
 			</button>
-			<button type="button" class="peep-btn-text peep-js-only" id="peep-export-preview" aria-haspopup="dialog"><?php View::icon( 'eye' ); ?><?php esc_html_e( 'File preview', 'product-expiration-easy-peasy' ); ?></button>
-			<p class="peep-export-status" id="peep-export-status" role="status"></p>
 		</div>
 	</section>
 </form>

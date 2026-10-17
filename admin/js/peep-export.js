@@ -110,13 +110,10 @@
 			input.dataset.rangeTo = isoOf( to );
 		} );
 
-		// CSS shows the range, the date row and the right description from the checked
-		// radios, keeping their space so nothing below them moves.
-		byId( 'peep-scope-sub-custom' ).textContent = format( i18n.between, from.value, to.value );
-
-		if ( 'custom' !== range ) {
-			byId( 'peep-scope-sub-preset' ).textContent = format( plural( i18n.within, days ), num( days ) );
-		}
+		// CSS shows the range and the date row from the checked radios.
+		byId( 'peep-scope-sub-soon' ).textContent = 'custom' === range
+			? format( i18n.between, from.value, to.value )
+			: format( plural( i18n.within, days ), num( days ) );
 		renderCounts();
 	}
 

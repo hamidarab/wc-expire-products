@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Product Expiration Easy Peasy 3.5.0\n"
 "Report-Msgid-Bugs-To: https://www.rtl-theme.com/\n"
-"POT-Creation-Date: 2026-10-17T13:35:29+00:00\n"
+"POT-Creation-Date: 2026-10-17T14:00:36+00:00\n"
 "PO-Revision-Date: 2026-10-11 13:00+0330\n"
 "Last-Translator: RTL-Theme Translation Team\n"
 "Language-Team: Persian\n"
@@ -389,7 +389,7 @@ msgid "Cancel check"
 msgstr "لغو بررسی"
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:443 views/settings/export.php:69
+#: includes/class-settings-page.php:443 views/settings/export.php:68
 #, php-format
 msgid "%s product"
 msgid_plural "%s products"
@@ -429,7 +429,7 @@ msgstr[0] "تا %s روز آینده منقضی می‌شوند"
 msgstr[1] "تا %s روز آینده منقضی می‌شوند"
 
 #. translators: 1: first date, 2: last date.
-#: includes/class-settings-page.php:453 views/settings/export.php:79
+#: includes/class-settings-page.php:453
 #, php-format
 msgid "Expire between %1$s and %2$s"
 msgstr "بین %1$s و %2$s منقضی می‌شوند"
@@ -624,69 +624,69 @@ msgstr "میلادی"
 msgid "Export"
 msgstr "برون‌بری"
 
-#: views/settings/export.php:54
+#: views/settings/export.php:53
 msgid "Choose products"
 msgstr "انتخاب محصولات"
 
-#: views/settings/export.php:58
+#: views/settings/export.php:57
 msgid "Which products?"
 msgstr "کدام محصولات؟"
 
-#: views/settings/export.php:94
+#: views/settings/export.php:81
 msgid "Near-expiry range"
 msgstr "بازهٔ نزدیک به انقضا"
 
-#: views/settings/export.php:110
+#: views/settings/export.php:97
 msgid "From"
 msgstr "از"
 
-#: views/settings/export.php:110
+#: views/settings/export.php:97
 msgid "To"
 msgstr "تا"
 
-#: views/settings/export.php:122
+#: views/settings/export.php:108
 msgid "Output file settings"
 msgstr "تنظیمات فایل خروجی"
 
-#: views/settings/export.php:127
+#: views/settings/export.php:113
 msgid "File format"
 msgstr "قالب فایل"
 
-#: views/settings/export.php:140
+#: views/settings/export.php:126
 msgid "Excel export needs the PHP Zip extension, so only CSV is available."
 msgstr "خروجی اکسل به افزونهٔ Zip در PHP نیاز دارد؛ برای همین فقط CSV در دسترس است."
 
-#: views/settings/export.php:145
+#: views/settings/export.php:131
 msgid "Dates in the file"
 msgstr "تاریخ‌ها در فایل"
 
-#: views/settings/export.php:161
+#: views/settings/export.php:147
 msgid "File columns"
 msgstr "ستون‌های فایل"
 
-#: views/settings/export.php:162
+#: views/settings/export.php:148
 msgid "Drag the columns to change their order. The product name is always included in the file."
 msgstr "برای تغییر ترتیب، ستون‌ها را بکشید و جابه‌جا کنید. نام محصول همیشه در فایل درج می‌شود."
 
-#: views/settings/export.php:167
+#: views/settings/export.php:153
 msgid "Drag to move"
 msgstr "برای جابه‌جایی بکشید"
 
-#: views/settings/export.php:186
+#: views/settings/export.php:169 views/settings/modals.php:99
+msgid "File preview"
+msgstr "پیش‌نمایش فایل"
+
+#: views/settings/export.php:174
 msgid "Download Excel file"
 msgstr "دریافت فایل اکسل"
 
-#: views/settings/export.php:187
+#: views/settings/export.php:175
 msgid "Download CSV file"
 msgstr "دریافت فایل CSV"
 
-#: views/settings/export.php:188
+#: views/settings/export.php:176
 msgid "Building file…"
 msgstr "در حال ساخت فایل…"
-
-#: views/settings/export.php:191 views/settings/modals.php:99
-msgid "File preview"
-msgstr "پیش‌نمایش فایل"
 
 #: views/settings/general.php:18
 msgid "Days"
