@@ -67,6 +67,7 @@ function include_files() {
 		'includes/class-jalali.php',
 		'includes/class-date.php',
 		'includes/class-settings.php',
+		'includes/class-dated-items.php',
 		'includes/class-stats.php',
 		'includes/class-icons.php',
 		'includes/class-view.php',

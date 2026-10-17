@@ -480,23 +480,19 @@ final class Check_Job {
 	private function count( $cutoff ) {
 		global $wpdb;
 
-		return absint(
-			$wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One count per job start.
-				$wpdb->prepare(
-					'SELECT COUNT( DISTINCT p.ID ) FROM %i AS p
-					INNER JOIN %i AS pm ON pm.post_id = p.ID
-					WHERE pm.meta_key = %s AND CAST( pm.meta_value AS DATE ) <= %s
-						AND p.post_type IN ( %s, %s ) AND p.post_status = %s',
-					$wpdb->posts,
-					$wpdb->postmeta,
-					'_expiration_date',
-					$cutoff,
-					'product',
-					'product_variation',
-					'publish'
-				)
+		list( $base, $args ) = Dated_Items::query();
+
+		// $base is the shared dated-items fragment; its placeholders are filled from $args.
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		$count = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One count per job start.
+			$wpdb->prepare(
+				'SELECT COUNT( DISTINCT p.ID ) ' . $base . ' AND p.post_status = %s AND ' . Dated_Items::DATE . ' <= %s',
+				array_merge( $args, array( 'publish', $cutoff ) )
 			)
 		);
+		// phpcs:enable
+
+		return absint( $count );
 	}
 
 	/**
@@ -509,24 +505,19 @@ final class Check_Job {
 	private function query_ids( $cutoff, $last_id ) {
 		global $wpdb;
 
+		list( $base, $args ) = Dated_Items::query();
+
+		// $base is the shared dated-items fragment; its placeholders are filled from $args.
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		$ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Keyset pagination over live data.
 			$wpdb->prepare(
-				'SELECT DISTINCT p.ID FROM %i AS p
-				INNER JOIN %i AS pm ON pm.post_id = p.ID
-				WHERE pm.meta_key = %s AND CAST( pm.meta_value AS DATE ) <= %s
-					AND p.ID > %d AND p.post_type IN ( %s, %s ) AND p.post_status = %s
+				'SELECT DISTINCT p.ID ' . $base . '
+					AND p.post_status = %s AND ' . Dated_Items::DATE . ' <= %s AND p.ID > %d
 				ORDER BY p.ID ASC LIMIT %d',
-				$wpdb->posts,
-				$wpdb->postmeta,
-				'_expiration_date',
-				$cutoff,
-				$last_id,
-				'product',
-				'product_variation',
-				'publish',
-				self::BATCH_SIZE
+				array_merge( $args, array( 'publish', $cutoff, $last_id, self::BATCH_SIZE ) )
 			)
 		);
+		// phpcs:enable
 
 		return array_map( 'absint', (array) $ids );
 	}

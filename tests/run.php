@@ -290,22 +290,31 @@ function peep_test_drain( $job ) {
 }
 
 /**
- * Dated products at or before the cutoff, as the job's SQL selects them.
+ * Dated items and their dates, as Dated_Items::query() selects them:
+ * a non-empty date, and not a variable product.
  */
-function peep_test_due_ids( $cutoff, $after = 0 ) {
+function peep_test_dated() {
 	global $peep_test_meta;
-	$ids = array();
+	$dated = array();
 
 	foreach ( $peep_test_meta as $post_id => $meta ) {
-		$date = $meta['_expiration_date'] ?? '';
+		$date    = $meta['_expiration_date'] ?? '';
+		$product = wc_get_product( $post_id );
 
-		if ( '' !== $date && $date <= $cutoff && $post_id > $after ) {
-			$ids[] = $post_id;
+		if ( '' !== $date && ! ( $product && $product->is_type( 'variable' ) ) ) {
+			$dated[ $post_id ] = $date;
 		}
 	}
 
-	sort( $ids );
-	return $ids;
+	ksort( $dated );
+	return $dated;
+}
+
+/**
+ * Dated items at or before the cutoff, as the job's SQL selects them.
+ */
+function peep_test_due_ids( $cutoff, $after = 0 ) {
+	return array_keys( array_filter( peep_test_dated(), static fn( $date, $id ) => $date <= $cutoff && $id > $after, ARRAY_FILTER_USE_BOTH ) );
 }
 
 function get_transient( $key ) {
@@ -480,50 +489,45 @@ class Peep_Test_Wpdb {
 	public $term_taxonomy      = 'wp_term_taxonomy';
 	public $term_relationships = 'wp_term_relationships';
 	public $reads    = 0;
+	public $queries  = array();
 
 	public function get_var( $prepared ) {
 		list( , $arguments ) = $prepared;
-		return (string) count( peep_test_due_ids( $arguments[3] ) );
+		return (string) count( peep_test_due_ids( $arguments[14] ) );
 	}
 
 	public function get_col( $prepared ) {
 		list( , $arguments ) = $prepared;
-		return array_map( 'strval', array_slice( peep_test_due_ids( $arguments[3], $arguments[4] ), 0, $arguments[8] ) );
+		return array_map( 'strval', array_slice( peep_test_due_ids( $arguments[14], $arguments[15] ), 0, $arguments[16] ) );
 	}
 
 	/**
 	 * Evaluates Exporter::select() from its prepared arguments.
 	 */
 	public function get_results( $prepared ) {
-		global $peep_test_meta;
 		list( , $a ) = $prepared;
 		$rows        = array();
 
-		foreach ( $peep_test_meta as $post_id => $meta ) {
-			$date = $meta['_expiration_date'] ?? '';
-
-			if ( '' !== $date && ( ( $a[12] && $date < $a[13] ) || ( $a[14] && $date >= $a[15] && $date <= $a[16] ) ) ) {
+		foreach ( peep_test_dated() as $post_id => $date ) {
+			if ( ( $a[13] && $date < $a[14] ) || ( $a[15] && $date >= $a[16] && $date <= $a[17] ) ) {
 				$rows[] = array( (string) $post_id, $date );
 			}
 		}
 
 		usort( $rows, static fn( $x, $y ) => array( $x[1], (int) $x[0] ) <=> array( $y[1], (int) $y[0] ) );
 
-		return array_slice( $rows, 0, $a[17] );
+		return array_slice( $rows, 0, $a[18] );
 	}
 
-	public function get_row( $prepared = null ) {
-		global $peep_test_meta;
-
+	public function get_row( $prepared ) {
 		// Exporter::counts(): today, from, to, today, from, to come first.
-		if ( is_array( $prepared ) && false !== strpos( $prepared[0], 'any_scope' ) ) {
+		if ( false !== strpos( $prepared[0], 'any_scope' ) ) {
 			list( $today, $from, $to ) = $prepared[1];
 			$counts                    = array( 'expired' => 0, 'soon' => 0, 'any_scope' => 0 );
 
-			foreach ( $peep_test_meta as $meta ) {
-				$date    = $meta['_expiration_date'] ?? '';
-				$expired = '' !== $date && $date < $today;
-				$soon    = '' !== $date && $date >= $from && $date <= $to;
+			foreach ( peep_test_dated() as $date ) {
+				$expired = $date < $today;
+				$soon    = $date >= $from && $date <= $to;
 				$counts['expired']   += (int) $expired;
 				$counts['soon']      += (int) $soon;
 				$counts['any_scope'] += (int) ( $expired || $soon );
@@ -532,12 +536,17 @@ class Peep_Test_Wpdb {
 			return $counts;
 		}
 
+		// Stats::get_counts(): today comes first.
 		++$this->reads;
-		return array(
-			'dated'   => '12',
-			'expired' => '3',
-			'managed' => '2',
+		$today  = $prepared[1][0];
+		$dated  = peep_test_dated();
+		$counts = array(
+			'dated'   => count( $dated ),
+			'expired' => count( array_filter( $dated, static fn( $date ) => $date < $today ) ),
+			'managed' => count( array_filter( array_keys( $dated ), static fn( $id ) => 'yes' === get_post_meta( $id, '_peep_stock_managed' ) ) ),
 		);
+
+		return array_map( 'strval', $counts );
 	}
 
 	public function prepare( $query, ...$arguments ) {
@@ -545,6 +554,8 @@ class Peep_Test_Wpdb {
 		if ( 1 === count( $arguments ) && is_array( $arguments[0] ) ) {
 			$arguments = $arguments[0];
 		}
+
+		$this->queries[] = $query;
 
 		return array( $query, $arguments );
 	}
@@ -824,7 +835,8 @@ foreach ( array_keys( $peep_items ) as $peep_id ) {
 // Dashboard counts are cached and every finished check drops the cache.
 ProductExpirationEasyPeasy\Stats::flush();
 $peep_reads = $wpdb->reads;
-peep_test_expect( array( 'dated' => 12, 'expired' => 3, 'managed' => 2 ) === ProductExpirationEasyPeasy\Stats::get_counts(), 'Dashboard counts were not read.' );
+$peep_stats = ProductExpirationEasyPeasy\Stats::get_counts();
+peep_test_expect( count( peep_test_dated() ) === $peep_stats['dated'] && $peep_stats['dated'] > 0, 'Dashboard counts were not read.' );
 ProductExpirationEasyPeasy\Stats::get_counts();
 peep_test_expect( $peep_reads + 1 === $wpdb->reads, 'Dashboard counts were not cached.' );
 $peep_job->run_now( 'manual' );
@@ -1057,6 +1069,40 @@ $peep_sheet = $peep_zip->getFromName( 'xl/worksheets/sheet1.xml' );
 peep_test_expect( 6 === $peep_zip->numFiles && false !== strpos( $peep_sheet, 'rightToLeft="1"' ) && false !== strpos( $peep_sheet, '<c r="B3"><v>-2</v></c>' ) && false !== strpos( $peep_sheet, 's="1"' ), 'The XLSX sheet content is wrong.' );
 $peep_zip->close();
 unlink( $peep_xlsx );
+
+$peep_test_meta     = $peep_saved_meta;
+$peep_test_products = $peep_saved_products;
+
+// One definition of a dated item: Stats, the export and the check agree, and skip variable parents.
+$peep_saved_meta     = $peep_test_meta;
+$peep_saved_products = $peep_test_products;
+$peep_test_meta      = array();
+$peep_test_products  = array(
+	41 => new Peep_Test_Product( 41 ),
+	42 => new Peep_Test_Product( 42, 'instock', 'variable' ),
+	43 => new Peep_Test_Product( 43, 'instock', 'variation' ),
+);
+$peep_past = ( new DateTimeImmutable( 'today', wp_timezone() ) )->modify( '-10 days' )->format( 'Y-m-d' );
+
+foreach ( array_keys( $peep_test_products ) as $peep_id ) {
+	update_post_meta( $peep_id, '_expiration_date', $peep_past );
+}
+
+$wpdb->queries = array();
+ProductExpirationEasyPeasy\Stats::flush();
+$peep_stats   = ProductExpirationEasyPeasy\Stats::get_counts();
+$peep_today   = ( new DateTimeImmutable( 'today', wp_timezone() ) )->format( 'Y-m-d' );
+$peep_exports = ( new ProductExpirationEasyPeasy\Exporter() )->counts( ProductExpirationEasyPeasy\Exporter::request( array(), $peep_today ), $peep_today );
+peep_test_expect( 2 === $peep_stats['expired'] && $peep_stats['expired'] === $peep_exports['expired'] && 2 === $peep_stats['dated'], 'The Expired card and the export disagree, or a variable parent was counted.' );
+
+list( $peep_fragment ) = ProductExpirationEasyPeasy\Dated_Items::query();
+peep_test_expect( 2 === count( array_filter( $wpdb->queries, static fn( $query ) => false !== strpos( $query, $peep_fragment ) ) ), 'Stats or the export does not use the shared Dated_Items query.' );
+
+$peep_test_queue = array();
+$peep_job->start( 'manual' );
+$peep_check_sql = array_filter( $wpdb->queries, static fn( $query ) => false !== strpos( $query, $peep_fragment . ' AND p.post_status = %s' ) );
+peep_test_expect( 2 === ProductExpirationEasyPeasy\Check_Job::get()['total'] && array() !== $peep_check_sql, 'The check does not use the shared Dated_Items query.' );
+peep_test_drain( $peep_job );
 
 $peep_test_meta     = $peep_saved_meta;
 $peep_test_products = $peep_saved_products;

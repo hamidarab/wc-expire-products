@@ -141,14 +141,14 @@ final class Exporter {
 		global $wpdb;
 
 		list( $from, $to )   = self::window( $request, $today );
-		list( $base, $args ) = self::base_query();
+		list( $base, $args ) = Dated_Items::query();
 
-		// $base is a fixed SQL fragment whose placeholders are filled from $args.
+		// $base is the shared dated-items fragment; its placeholders are filled from $args.
 		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Live counts for the export cards.
 			$wpdb->prepare(
 				'SELECT SUM( expires < %s ) AS expired, SUM( expires BETWEEN %s AND %s ) AS soon, SUM( expires < %s OR expires BETWEEN %s AND %s ) AS any_scope
-				FROM ( SELECT MIN( CAST( pm.meta_value AS DATE ) ) AS expires ' . $base . ' GROUP BY p.ID ) AS dated',
+				FROM ( SELECT MIN( ' . Dated_Items::DATE . ' ) AS expires ' . $base . ' GROUP BY p.ID ) AS dated',
 				array_merge( array( $today, $from, $to, $today, $from, $to ), $args )
 			),
 			ARRAY_A
@@ -279,13 +279,13 @@ final class Exporter {
 
 		list( $from, $to ) = self::window( $request, $today );
 
-		list( $base, $args ) = self::base_query();
+		list( $base, $args ) = Dated_Items::query();
 
-		// $base is a fixed SQL fragment whose placeholders are filled from $args.
+		// $base is the shared dated-items fragment; its placeholders are filled from $args.
 		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		$results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- On-demand export of live data.
 			$wpdb->prepare(
-				'SELECT p.ID, MIN( CAST( pm.meta_value AS DATE ) ) AS expires ' . $base . '
+				'SELECT p.ID, MIN( ' . Dated_Items::DATE . ' ) AS expires ' . $base . '
 				GROUP BY p.ID
 				HAVING ( %d = 1 AND expires < %s ) OR ( %d = 1 AND expires BETWEEN %s AND %s )
 				ORDER BY expires ASC, p.ID ASC
@@ -313,32 +313,6 @@ final class Exporter {
 		}
 
 		return $items;
-	}
-
-	/**
-	 * FROM and WHERE shared by every export query, with their arguments.
-	 *
-	 * Dated products and variations that are not trashed; variable parents
-	 * are left out because their variations carry the dates.
-	 *
-	 * @return array{0: string, 1: array<int, string>}
-	 */
-	private static function base_query() {
-		global $wpdb;
-
-		return array(
-			'FROM %i AS p
-			INNER JOIN %i AS pm ON pm.post_id = p.ID AND pm.meta_key = %s
-			WHERE p.post_type IN ( %s, %s )
-				AND p.post_status NOT IN ( %s, %s )
-				AND NOT EXISTS (
-					SELECT 1 FROM %i AS tr
-					INNER JOIN %i AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
-					INNER JOIN %i AS t ON t.term_id = tt.term_id
-					WHERE tr.object_id = p.ID AND tt.taxonomy = %s AND t.slug = %s
-				)',
-			array( $wpdb->posts, $wpdb->postmeta, '_expiration_date', 'product', 'product_variation', 'trash', 'auto-draft', $wpdb->term_relationships, $wpdb->term_taxonomy, $wpdb->terms, 'product_type', 'variable' ),
-		);
 	}
 
 	/**

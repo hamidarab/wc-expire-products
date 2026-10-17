@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Computes and caches dashboard counts with a single aggregate query.
+ * Computes and caches the status card counts with one aggregate query over Dated_Items.
  */
 final class Stats {
 	/**
@@ -36,35 +36,23 @@ final class Stats {
 
 		global $wpdb;
 
+		list( $base, $args ) = Dated_Items::query();
+
+		// $base is the shared dated-items fragment; its placeholders are filled from $args.
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregate count, cached in a transient below.
 			$wpdb->prepare(
-				'SELECT
-					COUNT( DISTINCT CASE WHEN pm.meta_key = %s THEN pm.post_id END ) AS dated,
-					COUNT( DISTINCT CASE WHEN pm.meta_key = %s AND pm.meta_value < %s THEN pm.post_id END ) AS expired,
-					COUNT( DISTINCT CASE WHEN pm.meta_key = %s AND pm.meta_value = %s THEN pm.post_id END ) AS managed
-				FROM %i AS pm
-				INNER JOIN %i AS p ON p.ID = pm.post_id
-				WHERE pm.meta_key IN ( %s, %s )
-					AND pm.meta_value <> %s
-					AND p.post_type IN ( %s, %s )
-					AND p.post_status NOT IN ( %s, %s )',
-				'_expiration_date',
-				'_expiration_date',
-				Date::today(),
-				'_peep_stock_managed',
-				'yes',
-				$wpdb->postmeta,
-				$wpdb->posts,
-				'_expiration_date',
-				'_peep_stock_managed',
-				'',
-				'product',
-				'product_variation',
-				'trash',
-				'auto-draft'
+				'SELECT COUNT( DISTINCT p.ID ) AS dated,
+					COUNT( DISTINCT CASE WHEN ' . Dated_Items::DATE . ' < %s THEN p.ID END ) AS expired,
+					COUNT( DISTINCT CASE WHEN EXISTS (
+						SELECT 1 FROM %i AS m WHERE m.post_id = p.ID AND m.meta_key = %s AND m.meta_value = %s
+					) THEN p.ID END ) AS managed
+				' . $base,
+				array_merge( array( Date::today(), $wpdb->postmeta, '_peep_stock_managed', 'yes' ), $args )
 			),
 			ARRAY_A
 		);
+		// phpcs:enable
 
 		$counts = array(
 			'dated'   => isset( $row['dated'] ) ? absint( $row['dated'] ) : 0,
