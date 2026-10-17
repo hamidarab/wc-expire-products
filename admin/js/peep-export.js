@@ -132,6 +132,7 @@
 	 * ------------------------------------------------------------------ */
 
 	const nameBox = list.querySelector( '[data-peep-column="name"] input[type="checkbox"]' );
+	const reducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' );
 	let drag = null;
 	let swallowClick = false;
 
@@ -144,11 +145,108 @@
 		list.insertBefore( pill, after ? target.nextElementSibling : target );
 	}
 
+	/** Run a DOM change and slide the other pills from where they were (FLIP). */
+	function flip( change ) {
+		const items = Array.from( list.children ).filter( ( item ) => ! drag || item !== drag.pill );
+		const before = items.map( ( item ) => item.getBoundingClientRect() );
+
+		change();
+		items.forEach( ( item, index ) => {
+			const now = item.getBoundingClientRect();
+			const dx = before[ index ].left - now.left;
+			const dy = before[ index ].top - now.top;
+
+			if ( dx || dy ) {
+				item.style.transition = 'none';
+				item.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+				item.getBoundingClientRect();
+				item.style.transition = 'transform .15s ease';
+				item.style.transform = '';
+			}
+		} );
+	}
+
+	function startDrag( event ) {
+		const box = drag.pill.getBoundingClientRect();
+
+		drag.box = box;
+		drag.home = drag.pill.nextElementSibling;
+		drag.holder = document.createElement( 'span' );
+		drag.holder.className = 'peep-pill-holder';
+		drag.holder.style.width = box.width + 'px';
+		drag.holder.style.height = box.height + 'px';
+		list.insertBefore( drag.holder, drag.pill );
+
+		// The pill leaves the flow and follows the pointer; the holder keeps its place.
+		Object.assign( drag.pill.style, { position: 'fixed', left: box.left + 'px', top: box.top + 'px', width: box.width + 'px', zIndex: 100000 } );
+		drag.pill.classList.add( 'is-drag' );
+		document.body.classList.add( 'peep-dragging' );
+		list.setPointerCapture( event.pointerId );
+		drag.active = true;
+	}
+
+	function follow( event ) {
+		const dx = event.clientX - drag.x;
+		const dy = event.clientY - drag.y;
+		const hit = document.elementFromPoint( event.clientX, event.clientY );
+		const over = hit && hit.closest( '.peep-pill' );
+
+		drag.pill.style.transform = 'translate(' + dx + 'px, ' + dy + 'px) scale(1.04)';
+
+		if ( ! over || over === drag.pill || ! list.contains( over ) ) {
+			return;
+		}
+
+		const box = over.getBoundingClientRect();
+		const middle = box.left + ( box.width / 2 );
+		let next = ( isRtl ? event.clientX < middle : event.clientX > middle ) ? over.nextElementSibling : over;
+
+		if ( next === drag.pill ) {
+			next = next.nextElementSibling;
+		}
+
+		if ( next !== drag.holder && drag.holder.nextElementSibling !== next ) {
+			flip( () => list.insertBefore( drag.holder, next ) );
+		}
+	}
+
+	/** Settle the pill into the holder; cancelling first puts the holder back home. */
+	function endDrag( cancel ) {
+		if ( ! drag || ! drag.active ) {
+			drag = null;
+			return;
+		}
+
+		const current = drag;
+
+		if ( cancel ) {
+			flip( () => list.insertBefore( current.holder, current.home ) );
+		}
+
+		const target = current.holder.getBoundingClientRect();
+
+		current.pill.style.transition = 'transform .15s ease';
+		current.pill.style.transform = 'translate(' + ( target.left - current.box.left ) + 'px, ' + ( target.top - current.box.top ) + 'px)';
+		swallowClick = true;
+		drag = null;
+
+		window.setTimeout( () => {
+			list.insertBefore( current.pill, current.holder );
+			current.holder.remove();
+			current.pill.removeAttribute( 'style' );
+			current.pill.classList.remove( 'is-drag' );
+			document.body.classList.remove( 'peep-dragging' );
+			Array.from( list.children ).forEach( ( item ) => item.removeAttribute( 'style' ) );
+		}, reducedMotion.matches ? 0 : 160 );
+	}
+
 	list.addEventListener( 'pointerdown', ( event ) => {
 		const pill = event.target.closest( '.peep-pill' );
 
-		if ( pill && 0 === event.button ) {
-			drag = { pill, x: event.clientX, y: event.clientY, active: false, over: null, after: false };
+		swallowClick = false;
+
+		if ( pill && 0 === event.button && ! drag ) {
+			drag = { pill, x: event.clientX, y: event.clientY, active: false };
 		}
 	} );
 
@@ -157,47 +255,26 @@
 			return;
 		}
 
-		if ( ! drag.active ) {
-			if ( Math.hypot( event.clientX - drag.x, event.clientY - drag.y ) < 6 ) {
-				return;
-			}
-
-			drag.active = true;
-			drag.pill.classList.add( 'is-drag' );
-			list.setPointerCapture( event.pointerId );
-		}
-
-		const hit = document.elementFromPoint( event.clientX, event.clientY );
-		const over = hit && hit.closest( '.peep-pill' );
-
-		drag.over = over && over !== drag.pill && list.contains( over ) ? over : null;
-
-		if ( drag.over ) {
-			const box = drag.over.getBoundingClientRect();
-			const middle = box.left + ( box.width / 2 );
-
-			drag.after = isRtl ? event.clientX < middle : event.clientX > middle;
-		}
-
-		list.querySelectorAll( '.peep-pill' ).forEach( ( pill ) => pill.classList.toggle( 'is-over', pill === drag.over ) );
-	} );
-
-	function endDrag() {
-		if ( ! drag ) {
+		// A short move is still a click on the checkbox.
+		if ( ! drag.active && Math.hypot( event.clientX - drag.x, event.clientY - drag.y ) < 4 ) {
 			return;
 		}
 
-		if ( drag.active && drag.over ) {
-			place( drag.pill, drag.over, drag.after );
+		if ( ! drag.active ) {
+			startDrag( event );
 		}
 
-		swallowClick = drag.active;
-		list.querySelectorAll( '.peep-pill' ).forEach( ( pill ) => pill.classList.remove( 'is-drag', 'is-over' ) );
-		drag = null;
-	}
+		follow( event );
+	} );
 
-	list.addEventListener( 'pointerup', endDrag );
-	list.addEventListener( 'pointercancel', endDrag );
+	list.addEventListener( 'pointerup', () => endDrag( false ) );
+	list.addEventListener( 'pointercancel', () => endDrag( true ) );
+	document.addEventListener( 'keydown', ( event ) => {
+		if ( 'Escape' === event.key && drag && drag.active ) {
+			event.preventDefault();
+			endDrag( true );
+		}
+	} );
 
 	// A drag ends with a click on the label; it must not toggle the checkbox.
 	list.addEventListener( 'click', ( event ) => {

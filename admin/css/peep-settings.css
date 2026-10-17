@@ -1278,8 +1278,9 @@
 .peep-pill:has(:checked){border-color:#8FD3B5;color:#064E3B;background:linear-gradient(135deg,#F3FBF7,#E2F5EB);box-shadow:0 10px 20px -16px rgba(4,120,87,.8)}
 .peep-settings .peep-pill input{width:16px;height:16px;margin:0;accent-color:#047857}
 .peep-pill:active{cursor:grabbing}
-.peep-pill.is-drag{opacity:.45}
-.peep-pill.is-over{border-color:#059669;box-shadow:0 0 0 4px rgba(16,185,129,.2)}
+.peep-pill.is-drag{cursor:grabbing;pointer-events:none;border-color:#059669;box-shadow:0 22px 40px -14px rgba(4,120,87,.6),0 0 0 4px rgba(16,185,129,.18)}
+.peep-pill-holder{display:inline-block;border:1.5px dashed #8FD3B5;border-radius:999px;background:#F3FBF7}
+body.peep-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 .peep-pill:has([aria-disabled="true"]),.peep-pill:has(:disabled){color:#7C918A}
 .peep-grip{flex:none;display:inline-flex;color:#9AB0A6}
 .peep-grip .peep-icon{width:16px;height:16px}
