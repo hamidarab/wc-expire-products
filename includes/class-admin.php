@@ -30,6 +30,13 @@ final class Admin {
 	private $cron;
 
 	/**
+	 * Background check.
+	 *
+	 * @var Check_Job
+	 */
+	private $job;
+
+	/**
 	 * Settings page hook suffix.
 	 *
 	 * @var string
@@ -60,12 +67,14 @@ final class Admin {
 	/**
 	 * Register admin hooks.
 	 *
-	 * @param Settings $settings Settings service.
-	 * @param Cron     $cron     Expiration processing service.
+	 * @param Settings  $settings Settings service.
+	 * @param Cron      $cron     Expiration processing service.
+	 * @param Check_Job $job      Background check.
 	 */
-	public function __construct( Settings $settings, Cron $cron ) {
+	public function __construct( Settings $settings, Cron $cron, Check_Job $job ) {
 		$this->settings = $settings;
 		$this->cron     = $cron;
+		$this->job      = $job;
 
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ), 60 );
 		add_action( 'admin_post_peep_save_settings', array( $this, 'handle_settings_save' ) );
@@ -222,16 +231,20 @@ final class Admin {
 
 		check_admin_referer( 'peep_run_check', 'peep_run_check_nonce' );
 
-		$processed = $this->cron->run_check();
+		$job = $this->job->run_now( 'manual' );
 
-		if ( false === $processed ) {
+		if ( false === $job ) {
 			$this->redirect_to_settings( array( 'peep_notice' => 'check_locked' ) );
+		}
+
+		if ( 'running' === $job['status'] ) {
+			$this->redirect_to_settings( array( 'peep_notice' => 'check_running' ) );
 		}
 
 		$this->redirect_to_settings(
 			array(
 				'peep_notice' => 'check_done',
-				'peep_count'  => (int) $processed,
+				'peep_count'  => (int) $job['changed'],
 			)
 		);
 	}

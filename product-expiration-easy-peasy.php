@@ -70,9 +70,11 @@ function include_files() {
 		'includes/class-stats.php',
 		'includes/class-stock.php',
 		'includes/class-report.php',
+		'includes/class-check-job.php',
 		'includes/class-admin.php',
 		'includes/class-frontend.php',
 		'includes/class-cron.php',
+		'includes/class-ajax.php',
 		'includes/class-main.php',
 	);
 

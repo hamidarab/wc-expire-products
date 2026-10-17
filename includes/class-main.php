@@ -62,10 +62,12 @@ final class Main {
 		}
 
 		$this->settings = new Settings();
-		$cron           = new Cron( $this->settings );
+		$job            = new Check_Job( $this->settings );
+		$cron           = new Cron( $this->settings, $job );
 
 		if ( is_admin() ) {
-			new Admin( $this->settings, $cron );
+			new Admin( $this->settings, $cron, $job );
+			new Ajax( $job );
 		}
 
 		new Frontend( $this->settings );

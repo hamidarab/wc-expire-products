@@ -43,6 +43,7 @@ $notices = array(
 		),
 	),
 	'check_locked'         => array( 'warning', __( 'Another expiration check is already running. Try again in a few minutes.', 'product-expiration-easy-peasy' ) ),
+	'check_running'        => array( 'info', __( 'The check continues in the background. Reload this page later to see the result.', 'product-expiration-easy-peasy' ) ),
 	'test_sent'            => array( 'success', __( 'Test email sent to the saved recipients.', 'product-expiration-easy-peasy' ) ),
 	'test_failed'          => array( 'error', __( 'The test email could not be sent. Check the site email configuration.', 'product-expiration-easy-peasy' ) ),
 	'test_no_recipients'   => array( 'warning', __( 'No valid recipient is saved, so the test email was not sent.', 'product-expiration-easy-peasy' ) ),

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-11T13:35:17+00:00\n"
+"POT-Creation-Date: 2026-10-17T09:35:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: product-expiration-easy-peasy\n"
@@ -34,194 +34,141 @@ msgstr ""
 msgid "Hamid Arab"
 msgstr ""
 
+#. Author URI of the plugin
 #: product-expiration-easy-peasy.php
-msgid "Settings"
+msgid "https://hamidarab.ir"
 msgstr ""
 
-#: includes/class-admin.php:115
-#: views/settings-page.php:73
+#: includes/class-admin.php:124
+#: views/settings-page.php:74
 msgid "Product Expiration Settings"
 msgstr ""
 
-#: includes/class-admin.php:116
+#: includes/class-admin.php:125
 msgid "Expiration"
 msgstr ""
 
-#: includes/class-admin.php:130
+#: includes/class-admin.php:139
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
-#: includes/class-admin.php:186
-#: includes/class-admin.php:220
-#: includes/class-admin.php:246
+#: includes/class-admin.php:195
+#: includes/class-admin.php:229
+#: includes/class-admin.php:259
 msgid "You do not have sufficient permissions to perform this action."
 msgstr ""
 
-#: includes/class-admin.php:401
-#: includes/class-admin.php:462
-#: includes/class-admin.php:561
-#: includes/class-admin.php:765
+#: includes/class-admin.php:414
+#: includes/class-admin.php:478
+#: includes/class-admin.php:577
+#: includes/class-admin.php:781
 msgid "Expiration Date"
 msgstr ""
 
 #. translators: %s: example date in the expected input format.
-#: includes/class-admin.php:408
+#: includes/class-admin.php:421
 #, php-format
 msgid "Pick a date or type it, for example %s. Leave empty for no expiration date."
 msgstr ""
 
-#: includes/class-admin.php:468
+#: includes/class-admin.php:484
 msgid "Set an expiration date for this variation."
 msgstr ""
 
-#: includes/class-admin.php:519
+#: includes/class-admin.php:535
 msgid "Expiration Date: All"
 msgstr ""
 
-#: includes/class-admin.php:520
-#: includes/class-admin.php:627
-#: views/settings-page.php:113
+#: includes/class-admin.php:536
+#: includes/class-admin.php:643
+#: views/settings-page.php:102
 msgid "Expired"
 msgstr ""
 
-#: includes/class-admin.php:521
+#: includes/class-admin.php:537
 msgid "Not Expired"
 msgstr ""
 
-#: includes/class-admin.php:522
+#: includes/class-admin.php:538
 msgid "No Expiration Date"
 msgstr ""
 
-#: includes/class-admin.php:629
+#: includes/class-admin.php:645
 msgid "Near expiry"
 msgstr ""
 
-#: includes/class-admin.php:631
+#: includes/class-admin.php:647
 msgid "Not expired"
 msgstr ""
 
 #. translators: %s: number of variations.
-#: includes/class-admin.php:644
+#: includes/class-admin.php:660
 #, php-format
 msgid "%s variation auto out of stock"
 msgid_plural "%s variations auto out of stock"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-admin.php:645
+#: includes/class-admin.php:661
 msgid "Auto out of stock"
 msgstr ""
 
 #. translators: %s: example date in the expected input format.
-#: includes/class-admin.php:853
+#: includes/class-admin.php:869
 #, php-format
 msgid "Enter a valid date such as %s, or leave the field empty."
 msgstr ""
 
-#: includes/class-admin.php:879
+#: includes/class-admin.php:895
 msgid "You have unsaved changes"
 msgstr ""
 
-#: includes/class-admin.php:880
+#: includes/class-admin.php:896
 msgid "Saving…"
 msgstr ""
 
-#: includes/class-admin.php:881
+#: includes/class-admin.php:897
 msgid "Enter a whole number from 1 to 365."
 msgstr ""
 
-#: includes/class-admin.php:882
+#: includes/class-admin.php:898
 msgid "Enter an email address, or untick Custom email."
 msgstr ""
 
-#: includes/class-admin.php:883
+#: includes/class-admin.php:899
 msgid "Enter a valid email address, for example name@example.com."
 msgstr ""
 
-#: includes/class-admin.php:935
+#: includes/class-admin.php:951
 msgid "Choose date"
 msgstr ""
 
-#: includes/class-admin.php:936
+#: includes/class-admin.php:952
 msgid "Previous month"
 msgstr ""
 
-#: includes/class-admin.php:937
+#: includes/class-admin.php:953
 msgid "Next month"
 msgstr ""
 
-#: includes/class-admin.php:938
+#: includes/class-admin.php:954
 msgid "Month"
 msgstr ""
 
-#: includes/class-admin.php:939
+#: includes/class-admin.php:955
 msgid "Year"
 msgstr ""
 
-#: includes/class-admin.php:940
+#: includes/class-admin.php:956
 msgid "Today"
 msgstr ""
 
-#: includes/class-admin.php:941
+#: includes/class-admin.php:957
 msgid "Clear"
 msgstr ""
 
-#: includes/class-admin.php:1003
+#: includes/class-admin.php:1019
 msgid "Enter a valid expiration date. Persian sites accept Jalali Y-m-d; other locales use Gregorian Y-m-d."
-msgstr ""
-
-#. translators: %s: localized cutoff date.
-#: includes/class-cron.php:439
-#, php-format
-msgid "The following products expire by %s and were set to out of stock:"
-msgstr ""
-
-#: includes/class-cron.php:453
-msgid "Products near expiration"
-msgstr ""
-
-#: includes/class-cron.php:472
-msgid "This is a test message from Product Expiration Easy Peasy."
-msgstr ""
-
-#. translators: %s: localized cutoff date.
-#: includes/class-cron.php:475
-#, php-format
-msgid "With the current settings, products expiring on or before %s are set to out of stock and listed in the daily report sent to this address."
-msgstr ""
-
-#: includes/class-cron.php:481
-msgid "[Test] Products near expiration"
-msgstr ""
-
-#. translators: %s: product name.
-#: includes/class-cron.php:508
-#, php-format
-msgid "Product: %s"
-msgstr ""
-
-#. translators: %d: product or variation ID.
-#: includes/class-cron.php:510
-#, php-format
-msgid "Product ID: %d"
-msgstr ""
-
-#. translators: %s: localized expiration date.
-#: includes/class-cron.php:512
-#, php-format
-msgid "Expiration date: %s"
-msgstr ""
-
-#. translators: %s: parent product name.
-#: includes/class-cron.php:519
-#, php-format
-msgid "Parent product: %s"
-msgstr ""
-
-#. translators: %s: product edit URL.
-#: includes/class-cron.php:524
-#, php-format
-msgid "Edit product: %s"
 msgstr ""
 
 #: includes/class-license-check.php:68
@@ -249,22 +196,80 @@ msgstr ""
 msgid "The RTL-Theme license class could not be loaded."
 msgstr ""
 
-#: includes/class-main.php:88
+#: includes/class-main.php:90
 msgid "Product Expiration Easy Peasy requires WooCommerce to be installed and active."
 msgstr ""
 
-#: includes/class-main.php:104
+#: includes/class-main.php:106
 msgid "Product Expiration Easy Peasy requires WooCommerce 9.0 or newer."
 msgstr ""
 
-#: includes/class-main.php:121
+#: includes/class-main.php:123
 msgid "Please activate the RTL-Theme license to use Product Expiration Easy Peasy."
+msgstr ""
+
+#. translators: %s: localized cutoff date.
+#: includes/class-report.php:35
+#, php-format
+msgid "The following products expire by %s and were set to out of stock:"
+msgstr ""
+
+#: includes/class-report.php:49
+msgid "Products near expiration"
+msgstr ""
+
+#: includes/class-report.php:68
+msgid "This is a test message from Product Expiration Easy Peasy."
+msgstr ""
+
+#. translators: %s: localized cutoff date.
+#: includes/class-report.php:71
+#, php-format
+msgid "With the current settings, products expiring on or before %s are set to out of stock and listed in the daily report sent to this address."
+msgstr ""
+
+#: includes/class-report.php:77
+msgid "[Test] Products near expiration"
+msgstr ""
+
+#. translators: %s: product name.
+#: includes/class-report.php:140
+#, php-format
+msgid "Product: %s"
+msgstr ""
+
+#. translators: %d: product or variation ID.
+#: includes/class-report.php:142
+#, php-format
+msgid "Product ID: %d"
+msgstr ""
+
+#. translators: %s: localized expiration date.
+#: includes/class-report.php:144
+#, php-format
+msgid "Expiration date: %s"
+msgstr ""
+
+#. translators: %s: parent product name.
+#: includes/class-report.php:151
+#, php-format
+msgid "Parent product: %s"
+msgstr ""
+
+#. translators: %s: product edit URL.
+#: includes/class-report.php:156
+#, php-format
+msgid "Edit product: %s"
 msgstr ""
 
 #. translators: %date% is replaced with the localized product expiration date.
 #: includes/class-settings.php:99
 #, php-format
 msgid "Expires: %date%"
+msgstr ""
+
+#: product-expiration-easy-peasy.php:45
+msgid "Settings"
 msgstr ""
 
 #. translators: %s: number of products and variations.
@@ -280,313 +285,317 @@ msgid "Another expiration check is already running. Try again in a few minutes."
 msgstr ""
 
 #: views/settings-page.php:46
-msgid "Test email sent to the saved recipients."
+msgid "The check continues in the background. Reload this page later to see the result."
 msgstr ""
 
 #: views/settings-page.php:47
-msgid "The test email could not be sent. Check the site email configuration."
+msgid "Test email sent to the saved recipients."
 msgstr ""
 
 #: views/settings-page.php:48
-msgid "No valid recipient is saved, so the test email was not sent."
+msgid "The test email could not be sent. Check the site email configuration."
 msgstr ""
 
 #: views/settings-page.php:49
+msgid "No valid recipient is saved, so the test email was not sent."
+msgstr ""
+
+#: views/settings-page.php:50
 msgid "Custom email is selected, but the address was empty or invalid, so no custom email will receive reports."
 msgstr ""
 
-#: views/settings-page.php:53
-#: views/settings-page.php:160
+#: views/settings-page.php:54
+#: views/settings-page.php:149
 msgid "Automation rules"
 msgstr ""
 
-#: views/settings-page.php:54
-#: views/settings-page.php:228
+#: views/settings-page.php:55
+#: views/settings-page.php:217
 msgid "Storefront display"
 msgstr ""
 
-#: views/settings-page.php:55
-#: views/settings-page.php:326
+#: views/settings-page.php:56
+#: views/settings-page.php:315
 msgid "Notifications"
 msgstr ""
 
-#: views/settings-page.php:56
-#: views/settings-page.php:380
+#: views/settings-page.php:57
+#: views/settings-page.php:369
 msgid "Help & status"
 msgstr ""
 
 #. translators: %s: plugin version number.
-#: views/settings-page.php:77
+#: views/settings-page.php:78
 #, php-format
 msgid "Version %s"
 msgstr ""
 
-#: views/settings-page.php:97
+#: views/settings-page.php:86
 msgid "Settings saved successfully."
 msgstr ""
 
-#: views/settings-page.php:104
+#: views/settings-page.php:93
 msgid "Status overview"
 msgstr ""
 
-#: views/settings-page.php:108
+#: views/settings-page.php:97
 msgid "Products and variations with a date"
 msgstr ""
 
-#: views/settings-page.php:114
+#: views/settings-page.php:103
 msgid "View expired products"
 msgstr ""
 
-#: views/settings-page.php:119
+#: views/settings-page.php:108
 msgid "Set out of stock by the plugin"
 msgstr ""
 
-#: views/settings-page.php:128
+#: views/settings-page.php:117
 msgid "Not scheduled"
 msgstr ""
 
-#: views/settings-page.php:132
+#: views/settings-page.php:121
 msgid "Next check"
 msgstr ""
 
-#: views/settings-page.php:137
+#: views/settings-page.php:126
 msgid "Run check now"
 msgstr ""
 
-#: views/settings-page.php:147
+#: views/settings-page.php:136
 msgid "Settings sections"
 msgstr ""
 
-#: views/settings-page.php:161
+#: views/settings-page.php:150
 msgid "Choose when products near their expiration date are taken off sale."
 msgstr ""
 
-#: views/settings-page.php:164
+#: views/settings-page.php:153
 msgid "How long before expiry should a product go out of stock?"
 msgstr ""
 
-#: views/settings-page.php:166
+#: views/settings-page.php:155
 msgid "Amount"
 msgstr ""
 
-#: views/settings-page.php:168
+#: views/settings-page.php:157
 msgid "Unit"
 msgstr ""
 
-#: views/settings-page.php:170
+#: views/settings-page.php:159
 msgid "Days"
 msgstr ""
 
-#: views/settings-page.php:171
+#: views/settings-page.php:160
 msgid "Weeks"
 msgstr ""
 
-#: views/settings-page.php:172
+#: views/settings-page.php:161
 msgid "Months"
 msgstr ""
 
-#: views/settings-page.php:175
+#: views/settings-page.php:164
 msgid "A whole number from 1 to 365."
 msgstr ""
 
 #. translators: %s: cutoff date, wrapped in bold markup.
-#: views/settings-page.php:187
+#: views/settings-page.php:176
 #, php-format
 msgid "With the current setting, products expiring on or before %s are set out of stock and included in the email report."
 msgstr ""
 
-#: views/settings-page.php:199
+#: views/settings-page.php:188
 msgid "If you clear or extend a date, the previous stock status is restored automatically. This applies only to products this plugin set out of stock."
 msgstr ""
 
-#: views/settings-page.php:203
+#: views/settings-page.php:192
 msgid "Date picker calendar"
 msgstr ""
 
-#: views/settings-page.php:204
+#: views/settings-page.php:193
 msgid "Calendar used by the date picker on product and Quick Edit fields. Dates are always stored in a standard format, so you can switch at any time."
 msgstr ""
 
-#: views/settings-page.php:208
+#: views/settings-page.php:197
 msgid "Auto (follows the admin language)"
 msgstr ""
 
-#: views/settings-page.php:209
+#: views/settings-page.php:198
 msgid "Jalali (Shamsi)"
 msgstr ""
 
-#: views/settings-page.php:210
+#: views/settings-page.php:199
 msgid "Gregorian (Miladi)"
 msgstr ""
 
-#: views/settings-page.php:229
+#: views/settings-page.php:218
 msgid "Control how the expiration date appears to customers."
 msgstr ""
 
-#: views/settings-page.php:236
+#: views/settings-page.php:225
 msgid "Show the expiration date to customers"
 msgstr ""
 
-#: views/settings-page.php:238
+#: views/settings-page.php:227
 msgid "On product pages, in the cart and in the customer account."
 msgstr ""
 
-#: views/settings-page.php:246
+#: views/settings-page.php:235
 msgid "Show the date in order emails"
 msgstr ""
 
-#: views/settings-page.php:248
+#: views/settings-page.php:237
 msgid "Adds the purchase-time expiration date to each item in WooCommerce order emails."
 msgstr ""
 
-#: views/settings-page.php:253
+#: views/settings-page.php:242
 msgid "Display text"
 msgstr ""
 
-#: views/settings-page.php:255
+#: views/settings-page.php:244
 msgid "Insert a placeholder"
 msgstr ""
 
-#: views/settings-page.php:261
+#: views/settings-page.php:250
 msgid "Select a placeholder to insert it at the cursor."
 msgstr ""
 
-#: views/settings-page.php:263
+#: views/settings-page.php:252
 msgid "Available placeholders:"
 msgstr ""
 
-#: views/settings-page.php:270
+#: views/settings-page.php:259
 msgid "Date format"
 msgstr ""
 
-#: views/settings-page.php:278
+#: views/settings-page.php:267
 msgid "Site default"
 msgstr ""
 
-#: views/settings-page.php:289
+#: views/settings-page.php:278
 msgid "Preview (using today’s date)"
 msgstr ""
 
-#: views/settings-page.php:297
+#: views/settings-page.php:286
 msgid "Position on the product page"
 msgstr ""
 
-#: views/settings-page.php:301
+#: views/settings-page.php:290
 msgid "After title"
 msgstr ""
 
-#: views/settings-page.php:302
+#: views/settings-page.php:291
 msgid "After price"
 msgstr ""
 
-#: views/settings-page.php:327
+#: views/settings-page.php:316
 msgid "Choose who receives the report of products set out of stock by each daily check."
 msgstr ""
 
-#: views/settings-page.php:330
+#: views/settings-page.php:319
 msgid "Who should receive the expiry report?"
 msgstr ""
 
-#: views/settings-page.php:334
+#: views/settings-page.php:323
 msgid "Site admin"
 msgstr ""
 
-#: views/settings-page.php:339
+#: views/settings-page.php:328
 msgid "Shop managers"
 msgstr ""
 
 #. translators: %s: number of users with the Shop Manager role.
-#: views/settings-page.php:345
+#: views/settings-page.php:334
 #, php-format
 msgid "%s user"
 msgid_plural "%s users"
 msgstr[0] ""
 msgstr[1] ""
 
-#: views/settings-page.php:354
+#: views/settings-page.php:343
 msgid "Custom email"
 msgstr ""
 
-#: views/settings-page.php:360
+#: views/settings-page.php:349
 msgid "No recipient is selected, so no expiry report will be sent."
 msgstr ""
 
-#: views/settings-page.php:364
+#: views/settings-page.php:353
 msgid "Custom email address"
 msgstr ""
 
-#: views/settings-page.php:374
+#: views/settings-page.php:363
 msgid "Send test email"
 msgstr ""
 
-#: views/settings-page.php:375
+#: views/settings-page.php:364
 msgid "Sends a sample message to the saved recipients. Save your changes first."
 msgstr ""
 
-#: views/settings-page.php:381
+#: views/settings-page.php:370
 msgid "How to set expiration dates, and the status of the plugin and its requirements."
 msgstr ""
 
-#: views/settings-page.php:383
+#: views/settings-page.php:372
 msgid "Setting expiration dates"
 msgstr ""
 
-#: views/settings-page.php:385
+#: views/settings-page.php:374
 msgid "Simple product: open the product, go to Product data > General and fill in Expiration Date."
 msgstr ""
 
-#: views/settings-page.php:386
+#: views/settings-page.php:375
 msgid "Variable product: open Product data > Variations, expand a variation and fill in its Expiration Date."
 msgstr ""
 
-#: views/settings-page.php:387
+#: views/settings-page.php:376
 msgid "Quick Edit: in the product list, hover over a simple product, choose Quick Edit and fill in Expiration Date."
 msgstr ""
 
 #. translators: %s: example Jalali date, wrapped in code markup.
-#: views/settings-page.php:393
+#: views/settings-page.php:382
 #, php-format
 msgid "On Persian admin screens, enter a Jalali date such as %s. Persian, Arabic and Latin digits are accepted, with a hyphen or slash as the separator."
 msgstr ""
 
-#: views/settings-page.php:402
+#: views/settings-page.php:391
 msgid "System status"
 msgstr ""
 
-#: views/settings-page.php:405
+#: views/settings-page.php:394
 msgid "Plugin version"
 msgstr ""
 
-#: views/settings-page.php:407
+#: views/settings-page.php:396
 msgid "RTL-Theme license"
 msgstr ""
 
-#: views/settings-page.php:408
+#: views/settings-page.php:397
 msgid "Active"
 msgstr ""
 
-#: views/settings-page.php:408
+#: views/settings-page.php:397
 msgid "Not active"
 msgstr ""
 
-#: views/settings-page.php:412
+#: views/settings-page.php:401
 msgid "ionCube Loader"
 msgstr ""
 
 #. translators: %s: ionCube Loader version.
-#: views/settings-page.php:415
+#: views/settings-page.php:404
 #, php-format
 msgid "Loaded (%s)"
 msgstr ""
 
-#: views/settings-page.php:416
+#: views/settings-page.php:405
 msgid "Not loaded"
 msgstr ""
 
-#: views/settings-page.php:419
+#: views/settings-page.php:408
 msgid "Not detected"
 msgstr ""
 
-#: views/settings-page.php:447
+#: views/settings-page.php:436
 msgid "Save changes"
 msgstr ""

@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 define( 'ABSPATH', dirname( __DIR__ ) . '/' );
 define( 'MINUTE_IN_SECONDS', 60 );
+define( 'HOUR_IN_SECONDS', 3600 );
 define( 'ARRAY_A', 'ARRAY_A' );
 define( 'WP_LANG_DIR', '/srv/wp-content/languages' );
 
@@ -251,6 +252,61 @@ function wp_schedule_single_event( $timestamp, $hook ) {
 
 function wp_reset_postdata() {}
 
+$peep_test_queue = array();
+
+function as_enqueue_async_action( $hook, $args, $group ) {
+	global $peep_test_queue;
+	$peep_test_queue[] = array( $hook, $args, $group );
+	return count( $peep_test_queue );
+}
+
+function as_has_scheduled_action( $hook, $args = null, $group = '' ) {
+	global $peep_test_queue;
+
+	foreach ( $peep_test_queue as $queued ) {
+		if ( $hook === $queued[0] && ( null === $args || $args === $queued[1] ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Run queued batches the way Action Scheduler would, one after another.
+ */
+function peep_test_drain( $job ) {
+	global $peep_test_queue;
+	$runs = 0;
+
+	while ( $peep_test_queue ) {
+		list( , $args ) = array_shift( $peep_test_queue );
+		$job->run_batch( ...$args );
+		++$runs;
+	}
+
+	return $runs;
+}
+
+/**
+ * Dated products at or before the cutoff, as the job's SQL selects them.
+ */
+function peep_test_due_ids( $cutoff, $after = 0 ) {
+	global $peep_test_meta;
+	$ids = array();
+
+	foreach ( $peep_test_meta as $post_id => $meta ) {
+		$date = $meta['_expiration_date'] ?? '';
+
+		if ( '' !== $date && $date <= $cutoff && $post_id > $after ) {
+			$ids[] = $post_id;
+		}
+	}
+
+	sort( $ids );
+	return $ids;
+}
+
 function get_transient( $key ) {
 	return get_option( '_transient_' . $key );
 }
@@ -401,6 +457,16 @@ class Peep_Test_Wpdb {
 	public $postmeta = 'wp_postmeta';
 	public $reads    = 0;
 
+	public function get_var( $prepared ) {
+		list( , $arguments ) = $prepared;
+		return (string) count( peep_test_due_ids( $arguments[3] ) );
+	}
+
+	public function get_col( $prepared ) {
+		list( , $arguments ) = $prepared;
+		return array_map( 'strval', array_slice( peep_test_due_ids( $arguments[3], $arguments[4] ), 0, $arguments[8] ) );
+	}
+
 	public function get_row() {
 		++$this->reads;
 		return array(
@@ -423,7 +489,7 @@ class Peep_Test_Wpdb {
 			list( , $new_value, $option_name, $old_value ) = $arguments;
 
 			if ( isset( $peep_test_options[ $option_name ] ) && maybe_serialize( $peep_test_options[ $option_name ] ) === $old_value ) {
-				$peep_test_options[ $option_name ] = $new_value;
+				$peep_test_options[ $option_name ] = is_string( $new_value ) && 0 === strpos( $new_value, 'a:' ) ? unserialize( $new_value ) : $new_value;
 				return 1;
 			}
 
@@ -520,19 +586,6 @@ peep_test_expect( 'weeks' === $settings->get_setting( 'notification_period_type'
 $settings->save_settings( array() );
 peep_test_expect( array() === $settings->get_setting( 'email_recipients' ), 'Clearing every email recipient did not disable notifications.' );
 
-$first_worker  = new ProductExpirationEasyPeasy\Cron( $settings );
-$second_worker = new ProductExpirationEasyPeasy\Cron( $settings );
-$acquire_lock  = new ReflectionMethod( ProductExpirationEasyPeasy\Cron::class, 'acquire_lock' );
-$release_lock  = new ReflectionMethod( ProductExpirationEasyPeasy\Cron::class, 'release_lock' );
-$acquire_lock->setAccessible( true );
-$release_lock->setAccessible( true );
-
-peep_test_expect( true === $acquire_lock->invoke( $first_worker ), 'The first cron worker could not acquire its lock.' );
-peep_test_expect( false === $acquire_lock->invoke( $second_worker ), 'A second cron worker acquired an active lock.' );
-$release_lock->invoke( $first_worker );
-peep_test_expect( true === $acquire_lock->invoke( $second_worker ), 'The lock owner did not release its lock.' );
-$release_lock->invoke( $second_worker );
-
 // Settings keep every 3.2.0 key (plus datepicker_calendar) and ignore request-only fields.
 $settings->save_settings(
 	array(
@@ -585,23 +638,74 @@ for ( $peep_id = 1; $peep_id <= 120; $peep_id++ ) {
 $peep_test_products[500] = new Peep_Test_Product( 500 );
 update_post_meta( 500, '_expiration_date', $peep_late );
 
-$peep_worker = new ProductExpirationEasyPeasy\Cron( $settings );
-peep_test_expect( 120 === $peep_worker->run_check(), 'The worker did not process every batch.' );
-peep_test_expect( 1 === count( $peep_test_mail ), 'Expected one aggregated email per run, got ' . count( $peep_test_mail ) . '.' );
+$peep_job    = new ProductExpirationEasyPeasy\Check_Job( $settings );
+$peep_worker = new ProductExpirationEasyPeasy\Cron( $settings, $peep_job );
+
+// A check runs in queued 50-item batches until done, and sends one report.
+$peep_state = $peep_job->start( 'manual' );
+peep_test_expect( 'running' === $peep_state['status'] && 120 === $peep_state['total'] && 0 === $peep_state['processed'], 'A started check has the wrong initial state.' );
+peep_test_expect( 1 === count( $peep_test_queue ) && 'peep_check_batch' === $peep_test_queue[0][0] && 'peep' === $peep_test_queue[0][2], 'The first batch was not queued in the peep group.' );
+peep_test_expect( $peep_state['id'] === $peep_job->start( 'cron' )['id'] && 1 === count( $peep_test_queue ), 'A second start did not return the running job.' );
+peep_test_expect( array() === $peep_test_mail, 'A report was sent before the check finished.' );
+
+peep_test_expect( 3 === peep_test_drain( $peep_job ), 'Expected three batches for 120 products.' );
+$peep_state = ProductExpirationEasyPeasy\Check_Job::get();
+peep_test_expect( 'done' === $peep_state['status'] && 120 === $peep_state['processed'] && 120 === $peep_state['changed'], 'The check did not finish every batch.' );
+peep_test_expect( 1 === count( $peep_test_mail ), 'Expected one aggregated email per check, got ' . count( $peep_test_mail ) . '.' );
 peep_test_expect( array( 'ops@example.test' ) === $peep_test_mail[0]['to'], 'Report went to the wrong recipients.' );
 peep_test_expect( 120 === substr_count( $peep_test_mail[0]['body'], 'Product ID:' ), 'The aggregated report does not list every product.' );
 peep_test_expect( 'instock' === $peep_test_products[500]->get_stock_status(), 'A product beyond the cutoff was changed.' );
+peep_test_expect( ! isset( ProductExpirationEasyPeasy\Check_Job::public_state( $peep_state )['cutoff'] ) && false === get_option( 'peep_check_job_changed' ), 'Internal job data leaked or was not cleaned up.' );
 
+// The daily event starts the same background check.
 $peep_test_mail = array();
-peep_test_expect( 0 === $peep_worker->run_check(), 'A second run changed products again.' );
-peep_test_expect( array() === $peep_test_mail, 'A run without changes sent an email.' );
+$peep_worker->check_expired_products();
+peep_test_expect( 'cron' === ProductExpirationEasyPeasy\Check_Job::get()['source'] && 1 === count( $peep_test_queue ), 'The daily event did not start a background check.' );
+peep_test_drain( $peep_job );
+peep_test_expect( 0 === ProductExpirationEasyPeasy\Check_Job::get()['changed'] && array() === $peep_test_mail, 'A second check changed products again or sent an empty report.' );
 
-// A busy lock is reported distinctly from "nothing to do".
-$peep_other = new ProductExpirationEasyPeasy\Cron( $settings );
-$acquire_lock->invoke( $peep_other );
-peep_test_expect( false === $peep_worker->run_check(), 'A locked run must return false.' );
-peep_test_expect( 0 === $peep_worker->check_expired_products(), 'The cron callback must stay integer-typed.' );
-$release_lock->invoke( $peep_other );
+// Cancelling stops further batches; changed products stay out of stock and are reported once.
+for ( $peep_id = 1; $peep_id <= 120; $peep_id++ ) {
+	ProductExpirationEasyPeasy\Stock::restore( $peep_id );
+}
+
+$peep_state = $peep_job->start( 'manual' );
+list( , $peep_args ) = array_shift( $peep_test_queue );
+$peep_job->run_batch( ...$peep_args );
+peep_test_expect( 50 === ProductExpirationEasyPeasy\Check_Job::get()['processed'], 'The first batch did not process 50 items.' );
+peep_test_expect( 'cancelled' === $peep_job->cancel()['status'], 'Cancel did not stop the running check.' );
+peep_test_drain( $peep_job );
+$peep_state = ProductExpirationEasyPeasy\Check_Job::get();
+peep_test_expect( 'cancelled' === $peep_state['status'] && 50 === $peep_state['processed'] && 50 === $peep_state['changed'], 'A batch ran after the check was cancelled.' );
+peep_test_expect( 'outofstock' === $peep_test_products[50]->get_stock_status() && 'instock' === $peep_test_products[51]->get_stock_status(), 'Cancelling changed the wrong products.' );
+peep_test_expect( 1 === count( $peep_test_mail ) && 50 === substr_count( $peep_test_mail[0]['body'], 'Product ID:' ), 'A cancelled check did not report the products it changed.' );
+peep_test_expect( 'cancelled' === $peep_job->cancel()['status'], 'Cancelling a stopped check changed it.' );
+$peep_job->run_batch( $peep_args[0] );
+peep_test_expect( 1 === count( $peep_test_mail ), 'A late batch reported the cancelled check twice.' );
+$peep_test_mail = array();
+
+// A queued batch keeps a slow job alive; without one, a job that stopped moving is replaced.
+$peep_job->start( 'manual' );
+$peep_live               = ProductExpirationEasyPeasy\Check_Job::get();
+$peep_live['updated_at'] = time() - HOUR_IN_SECONDS;
+$peep_test_options['peep_check_job'] = $peep_live;
+peep_test_expect( ProductExpirationEasyPeasy\Check_Job::is_running() && $peep_live['id'] === $peep_job->start( 'cron' )['id'], 'A job with a queued batch was treated as dead.' );
+$peep_test_queue                       = array();
+$peep_stale                            = ProductExpirationEasyPeasy\Check_Job::get();
+$peep_stale['updated_at']              = time() - HOUR_IN_SECONDS;
+$peep_test_options['peep_check_job']   = $peep_stale;
+peep_test_expect( $peep_stale['id'] !== $peep_job->start( 'manual' )['id'], 'A stale job blocked a new check.' );
+peep_test_drain( $peep_job );
+peep_test_expect( 70 === ProductExpirationEasyPeasy\Check_Job::get()['changed'] && 1 === count( $peep_test_mail ), 'The restarted check did not finish the remaining products.' );
+
+// The no-JavaScript button runs the whole check in the request.
+$peep_test_mail = array();
+$peep_job->start( 'manual' );
+peep_test_expect( false === $peep_job->run_now( 'manual' ), 'run_now() ignored the running check.' );
+$peep_test_queue                     = array();
+$peep_test_options['peep_check_job'] = array( 'status' => 'done' ) + ProductExpirationEasyPeasy\Check_Job::get();
+$peep_state                          = $peep_job->run_now( 'manual' );
+peep_test_expect( 'done' === $peep_state['status'] && 120 === $peep_state['processed'] && array() === $peep_test_queue, 'run_now() did not finish synchronously.' );
 
 // Shortening the period restores products now beyond the new cutoff.
 update_post_meta( 7, '_expiration_date', $peep_today->modify( '+20 days' )->format( 'Y-m-d' ) );
@@ -641,13 +745,16 @@ foreach ( array_keys( $peep_items ) as $peep_id ) {
 	unset( $peep_test_meta[ $peep_id ], $peep_test_products[ $peep_id ] );
 }
 
-// Dashboard counts are cached and every worker run drops the cache.
+// Dashboard counts are cached and every finished check drops the cache.
+ProductExpirationEasyPeasy\Stats::flush();
+$peep_reads = $wpdb->reads;
 peep_test_expect( array( 'dated' => 12, 'expired' => 3, 'managed' => 2 ) === ProductExpirationEasyPeasy\Stats::get_counts(), 'Dashboard counts were not read.' );
 ProductExpirationEasyPeasy\Stats::get_counts();
-peep_test_expect( 1 === $wpdb->reads, 'Dashboard counts were not cached.' );
-$peep_worker->run_check();
+peep_test_expect( $peep_reads + 1 === $wpdb->reads, 'Dashboard counts were not cached.' );
+$peep_job->run_now( 'manual' );
+$peep_reads = $wpdb->reads;
 ProductExpirationEasyPeasy\Stats::get_counts();
-peep_test_expect( 2 === $wpdb->reads, 'A worker run did not flush the dashboard counts.' );
+peep_test_expect( $peep_reads + 1 === $wpdb->reads, 'A finished check did not flush the dashboard counts.' );
 
 // The public recipient resolver and test email share the same rules.
 peep_test_expect( 'no_recipients' === ProductExpirationEasyPeasy\Report::send_test( $settings ), 'Test email ignored the empty recipient list.' );
