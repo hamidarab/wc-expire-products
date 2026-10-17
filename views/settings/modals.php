@@ -55,9 +55,7 @@ $peep_bullets = array(
 			<span id="peep-check-count"></span>
 			<span class="peep-progress-pct" id="peep-check-pct" aria-hidden="true"></span>
 		</div>
-		<div class="peep-progress" role="progressbar" aria-labelledby="peep-check-count" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-			<span class="peep-progress-fill" id="peep-check-fill"></span>
-		</div>
+		<div class="peep-progress" id="peep-check-bar" role="progressbar" aria-labelledby="peep-check-count" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
 		<p class="peep-note" id="peep-check-note"></p>
 		<div class="peep-modal-actions">
 			<button type="button" class="peep-btn-soft" data-peep-close><?php esc_html_e( 'Close', 'product-expiration-easy-peasy' ); ?></button>

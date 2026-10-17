@@ -238,7 +238,6 @@
 
 .peep-dp-day--today {
 	border-color: var(--peep-dp-accent);
-	font-weight: 600;
 }
 
 /* Days inside a from–to range, used by the export tab. */
@@ -252,7 +251,6 @@
 	border-color: var(--peep-dp-accent);
 	background: var(--peep-dp-accent);
 	color: #fff;
-	font-weight: 600;
 }
 
 .peep-dp-nav:focus-visible,

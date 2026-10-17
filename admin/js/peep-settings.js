@@ -468,8 +468,8 @@
 
 			byId( 'peep-check-count' ).textContent = format( plural( i18n.progress, job.total ), num( job.processed ), num( job.total ) );
 			byId( 'peep-check-pct' ).textContent = percents.format( value / 100 );
-			byId( 'peep-check-fill' ).style.width = value + '%';
-			modal.querySelector( '[role="progressbar"]' ).setAttribute( 'aria-valuenow', value );
+			byId( 'peep-check-bar' ).style.setProperty( '--peep-pct', value );
+			byId( 'peep-check-bar' ).setAttribute( 'aria-valuenow', value );
 			byId( 'peep-check-note' ).textContent = format( plural( i18n.runningNote, changed ), num( changed ) );
 		} else if ( 'done' === view ) {
 			byId( 'peep-check-done' ).textContent = format( plural( i18n.doneChecked, job.processed ), num( job.processed ) ) + ' ' +
