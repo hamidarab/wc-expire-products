@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Product Expiration Easy Peasy 3.5.0\n"
 "Report-Msgid-Bugs-To: https://www.rtl-theme.com/\n"
-"POT-Creation-Date: 2026-10-17T12:20:43+00:00\n"
+"POT-Creation-Date: 2026-10-17T13:35:29+00:00\n"
 "PO-Revision-Date: 2026-10-11 13:00+0330\n"
 "Last-Translator: RTL-Theme Translation Team\n"
 "Language-Team: Persian\n"
@@ -133,12 +133,12 @@ msgstr "امروز"
 msgid "Clear"
 msgstr "پاک کردن"
 
-#: includes/class-export-controller.php:58 includes/class-settings-page.php:255
+#: includes/class-export-controller.php:58 includes/class-settings-page.php:265
 msgid "You do not have sufficient permissions to perform this action."
 msgstr "شما مجوز کافی برای انجام این عملیات را ندارید."
 
-#: includes/class-export-controller.php:82 includes/class-settings-page.php:370
-#: includes/class-settings-page.php:449
+#: includes/class-export-controller.php:82 includes/class-settings-page.php:380
+#: includes/class-settings-page.php:456
 msgid "Something went wrong. Please try again."
 msgstr "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
 
@@ -268,70 +268,70 @@ msgstr "تنظیمات انقضایار"
 msgid "Expiration"
 msgstr "انقضا"
 
-#: includes/class-settings-page.php:164
+#: includes/class-settings-page.php:174
 msgid "You do not have sufficient permissions to access this page."
 msgstr "شما مجوز کافی برای دسترسی به این صفحه را ندارید."
 
-#: includes/class-settings-page.php:357
+#: includes/class-settings-page.php:367
 msgid "You have unsaved changes"
 msgstr "تغییرات ذخیره‌نشده دارید"
 
-#: includes/class-settings-page.php:358
+#: includes/class-settings-page.php:368
 msgid "Saving…"
 msgstr "در حال ذخیره…"
 
-#: includes/class-settings-page.php:359
+#: includes/class-settings-page.php:369
 msgid "Enter a whole number from 1 to 365."
 msgstr "عددی صحیح بین ۱ تا ۳۶۵ وارد کنید."
 
-#: includes/class-settings-page.php:360
+#: includes/class-settings-page.php:370
 msgid "Enter an email address, or untick Custom email."
 msgstr "یک نشانی ایمیل وارد کنید یا تیک «ایمیل دلخواه» را بردارید."
 
-#: includes/class-settings-page.php:361
+#: includes/class-settings-page.php:371
 msgid "Enter a valid email address, for example name@example.com."
 msgstr "یک نشانی ایمیل معتبر وارد کنید؛ برای مثال name@example.com."
 
-#: includes/class-settings-page.php:362
+#: includes/class-settings-page.php:372
 msgid "Changes are not saved yet; the test email goes to the previously saved recipients."
 msgstr "تغییرات هنوز ذخیره نشده‌اند؛ ایمیل آزمایشی به گیرندگان ذخیره‌شدهٔ قبلی می‌رود."
 
-#: includes/class-settings-page.php:363
+#: includes/class-settings-page.php:373
 msgid "Sending…"
 msgstr "در حال ارسال…"
 
 #. translators: %s: percentage of the check that is done, without the percent sign.
-#: includes/class-settings-page.php:365
+#: includes/class-settings-page.php:375
 #, php-format
 msgid "Checking… %s%%"
 msgstr "در حال بررسی… %s٪"
 
-#: includes/class-settings-page.php:366
+#: includes/class-settings-page.php:376
 msgid "Checking…"
 msgstr "در حال بررسی…"
 
-#: includes/class-settings-page.php:367
+#: includes/class-settings-page.php:377
 msgid "Done"
 msgstr "انجام شد"
 
-#: includes/class-settings-page.php:368
+#: includes/class-settings-page.php:378
 msgid "Stopped"
 msgstr "متوقف شد"
 
-#: includes/class-settings-page.php:369
+#: includes/class-settings-page.php:379
 msgid "Last check: just now"
 msgstr "آخرین بررسی: همین حالا"
 
-#: includes/class-settings-page.php:371
+#: includes/class-settings-page.php:381
 msgid "No products needed to go out of stock."
 msgstr "محصولی برای ناموجود شدن پیدا نشد."
 
-#: includes/class-settings-page.php:372
+#: includes/class-settings-page.php:382
 msgid "No product had changed by then."
 msgstr "تا آن لحظه هیچ محصولی تغییر نکرده بود."
 
 #. translators: 1: products checked so far, 2: products to check.
-#: includes/class-settings-page.php:374
+#: includes/class-settings-page.php:384
 #, php-format
 msgid "%1$s of %2$s product checked"
 msgid_plural "%1$s of %2$s products checked"
@@ -339,7 +339,7 @@ msgstr[0] "%1$s از %2$s محصول بررسی شد"
 msgstr[1] "%1$s از %2$s محصول بررسی شد"
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:376
+#: includes/class-settings-page.php:386
 #, php-format
 msgid "%s product set out of stock so far. Closing this window does not stop the check."
 msgid_plural "%s products set out of stock so far. Closing this window does not stop the check."
@@ -347,7 +347,7 @@ msgstr[0] "تا این لحظه %s محصول ناموجود شده است. با
 msgstr[1] "تا این لحظه %s محصول ناموجود شده است. با بستن این پنجره، بررسی متوقف نمی‌شود."
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:378
+#: includes/class-settings-page.php:388
 #, php-format
 msgid "%s product checked."
 msgid_plural "%s products checked."
@@ -355,7 +355,7 @@ msgstr[0] "%s محصول بررسی شد."
 msgstr[1] "%s محصول بررسی شد."
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:380
+#: includes/class-settings-page.php:390
 #, php-format
 msgid "%s product went out of stock and the report was sent to the recipients."
 msgid_plural "%s products went out of stock and the report was sent to the recipients."
@@ -363,7 +363,7 @@ msgstr[0] "%s محصول ناموجود شد و گزارشش برای گیرند
 msgstr[1] "%s محصول ناموجود شد و گزارشش برای گیرندگان فرستاده شد."
 
 #. translators: 1: products checked, 2: products to check.
-#: includes/class-settings-page.php:382
+#: includes/class-settings-page.php:392
 #, php-format
 msgid "%1$s of %2$s product had been checked."
 msgid_plural "%1$s of %2$s products had been checked."
@@ -371,25 +371,25 @@ msgstr[0] "%1$s از %2$s محصول بررسی شده بود."
 msgstr[1] "%1$s از %2$s محصول بررسی شده بود."
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:384
+#: includes/class-settings-page.php:394
 #, php-format
 msgid "The %s product set out of stock before cancelling stays out of stock."
 msgid_plural "The %s products set out of stock before cancelling stay out of stock."
 msgstr[0] "%s محصولی که تا آن لحظه ناموجود شده بودند، ناموجود می‌مانند."
 msgstr[1] "%s محصولی که تا آن لحظه ناموجود شده بودند، ناموجود می‌مانند."
 
-#: includes/class-settings-page.php:385 views/settings/modals.php:31
+#: includes/class-settings-page.php:395 views/settings/modals.php:31
 #: views/settings/page.php:51
 msgid "Check product dates"
 msgstr "بررسی تاریخ محصولات"
 
-#: includes/class-settings-page.php:386 views/settings/modals.php:64
+#: includes/class-settings-page.php:396 views/settings/modals.php:62
 #: views/settings/page.php:54
 msgid "Cancel check"
 msgstr "لغو بررسی"
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:433 views/settings/export.php:61
+#: includes/class-settings-page.php:443 views/settings/export.php:69
 #, php-format
 msgid "%s product"
 msgid_plural "%s products"
@@ -397,7 +397,7 @@ msgstr[0] "%s محصول"
 msgstr[1] "%s محصول"
 
 #. translators: %s: number of rows.
-#: includes/class-settings-page.php:435
+#: includes/class-settings-page.php:445
 #, php-format
 msgid "%s row"
 msgid_plural "%s rows"
@@ -405,7 +405,7 @@ msgstr[0] "%s ردیف"
 msgstr[1] "%s ردیف"
 
 #. translators: %s: number of days.
-#: includes/class-settings-page.php:437 views/settings/export.php:31
+#: includes/class-settings-page.php:447 views/settings/export.php:31
 #, php-format
 msgid "%s day"
 msgid_plural "%s days"
@@ -413,7 +413,7 @@ msgstr[0] "%s روز"
 msgstr[1] "%s روز"
 
 #. translators: %s: number of days.
-#: includes/class-settings-page.php:439
+#: includes/class-settings-page.php:449
 #, php-format
 msgid "%s day ago"
 msgid_plural "%s days ago"
@@ -421,7 +421,7 @@ msgstr[0] "%s روز گذشته"
 msgstr[1] "%s روز گذشته"
 
 #. translators: %s: number of days.
-#: includes/class-settings-page.php:441 views/settings/export.php:24
+#: includes/class-settings-page.php:451 views/settings/export.php:24
 #, php-format
 msgid "Expire within the next %s day"
 msgid_plural "Expire within the next %s days"
@@ -429,97 +429,85 @@ msgstr[0] "تا %s روز آینده منقضی می‌شوند"
 msgstr[1] "تا %s روز آینده منقضی می‌شوند"
 
 #. translators: 1: first date, 2: last date.
-#: includes/class-settings-page.php:443
+#: includes/class-settings-page.php:453 views/settings/export.php:79
 #, php-format
 msgid "Expire between %1$s and %2$s"
 msgstr "بین %1$s و %2$s منقضی می‌شوند"
 
-#: includes/class-settings-page.php:444 views/settings/export.php:162
-msgid "Download Excel file"
-msgstr "دریافت فایل اکسل"
-
-#: includes/class-settings-page.php:445 views/settings/export.php:162
-msgid "Download CSV file"
-msgstr "دریافت فایل CSV"
-
-#: includes/class-settings-page.php:446
-msgid "Building file…"
-msgstr "در حال ساخت فایل…"
-
 #. translators: %s: file name.
-#: includes/class-settings-page.php:448
+#: includes/class-settings-page.php:455
 #, php-format
 msgid "File %s was downloaded."
 msgstr "فایل %s دانلود شد."
 
 #. translators: 1: date, 2: time of day.
-#: includes/class-settings-page.php:473
+#: includes/class-settings-page.php:480
 #, php-format
 msgid "%1$s, at %2$s"
 msgstr "%1$s، ساعت %2$s"
 
 #. translators: %s: human-readable time span, such as "5 hours".
-#: includes/class-settings-page.php:475
+#: includes/class-settings-page.php:482
 #, php-format
 msgid "Next check in about %s"
 msgstr "بررسی بعدی، حدود %s دیگر"
 
 #. translators: %s: number of products and variations.
-#: includes/class-settings-page.php:501
+#: includes/class-settings-page.php:508
 #, php-format
 msgid "Check complete. %s product was set out of stock."
 msgid_plural "Check complete. %s products were set out of stock."
 msgstr[0] "بررسی انجام شد. %s محصول ناموجود شد."
 msgstr[1] "بررسی انجام شد. %s محصول ناموجود شدند."
 
-#: includes/class-settings-page.php:503
+#: includes/class-settings-page.php:510
 msgid "Another expiration check is already running. Try again in a few minutes."
 msgstr "بررسی دیگری در حال اجراست. چند دقیقه دیگر دوباره امتحان کنید."
 
-#: includes/class-settings-page.php:505
+#: includes/class-settings-page.php:512
 msgid "The check continues in the background. Reload this page later to see the result."
 msgstr "بررسی در پس‌زمینه ادامه دارد. کمی بعد این صفحه را دوباره باز کنید تا نتیجه را ببینید."
 
-#: includes/class-settings-page.php:507
+#: includes/class-settings-page.php:514
 msgid "Some custom addresses were not valid and were removed. Check the list on the Notifications tab."
 msgstr "برخی از نشانی‌های دلخواه معتبر نبودند و حذف شدند. فهرست را در بخش اطلاع‌رسانی بررسی کنید."
 
-#: includes/class-settings-page.php:509
+#: includes/class-settings-page.php:516
 msgid "Custom email is selected, but the address was empty or invalid, so no custom email will receive reports."
 msgstr "گزینه «ایمیل دلخواه» انتخاب شده، اما نشانی خالی یا نامعتبر بود؛ بنابراین گزارشی به ایمیل دلخواه ارسال نمی‌شود."
 
-#: includes/class-settings-page.php:526
+#: includes/class-settings-page.php:533
 msgid "Plugin version"
 msgstr "نسخهٔ افزونه"
 
-#: includes/class-settings-page.php:527
+#: includes/class-settings-page.php:534
 msgid "RTL-Theme license"
 msgstr "لایسنس راست‌چین"
 
-#: includes/class-settings-page.php:527
+#: includes/class-settings-page.php:534
 msgid "Active"
 msgstr "فعال"
 
-#: includes/class-settings-page.php:527
+#: includes/class-settings-page.php:534
 msgid "Not active"
 msgstr "غیرفعال"
 
-#: includes/class-settings-page.php:529
+#: includes/class-settings-page.php:536
 msgid "ionCube Loader"
 msgstr "ionCube Loader"
 
 #. translators: %s: ionCube Loader version.
-#: includes/class-settings-page.php:531
+#: includes/class-settings-page.php:538
 #, php-format
 msgid "Loaded (%s)"
 msgstr "بارگذاری‌شده (%s)"
 
 #. translators: %s: ionCube Loader version.
-#: includes/class-settings-page.php:531
+#: includes/class-settings-page.php:538
 msgid "Not loaded"
 msgstr "بارگذاری نشده"
 
-#: includes/class-settings-page.php:534
+#: includes/class-settings-page.php:541
 msgid "Not detected"
 msgstr "شناسایی نشد"
 
@@ -624,71 +612,79 @@ msgstr "دلخواه"
 msgid "Excel"
 msgstr "اکسل"
 
-#: views/settings/export.php:36
-msgid "Opens directly in Excel"
-msgstr "مستقیم در اکسل باز می‌شود"
-
-#: views/settings/export.php:37
-msgid "Lightweight and works with most software"
-msgstr "سبک و سازگار با بیشتر نرم‌افزارها"
-
-#: views/settings/export.php:45 views/settings/page.php:24
-msgid "Export"
-msgstr "برون‌بری"
-
-#: views/settings/export.php:48
-msgid "Which products?"
-msgstr "کدام محصولات؟"
-
-#: views/settings/export.php:71
-msgid "Near-expiry range"
-msgstr "بازهٔ نزدیک به انقضا"
-
-#: views/settings/export.php:88
-msgid "From"
-msgstr "از"
-
-#: views/settings/export.php:88
-msgid "To"
-msgstr "تا"
-
-#: views/settings/export.php:95
-msgid "Output file settings"
-msgstr "تنظیمات فایل خروجی"
-
-#: views/settings/export.php:99
-msgid "File format"
-msgstr "قالب فایل"
-
-#: views/settings/export.php:115
-msgid "Excel export needs the PHP Zip extension, so only CSV is available."
-msgstr "خروجی اکسل به افزونهٔ Zip در PHP نیاز دارد؛ برای همین فقط CSV در دسترس است."
-
-#: views/settings/export.php:120
-msgid "Dates in the file"
-msgstr "تاریخ‌ها در فایل"
-
-#: views/settings/export.php:124 views/settings/general.php:24
+#: views/settings/export.php:40 views/settings/general.php:24
 msgid "Jalali"
 msgstr "شمسی"
 
-#: views/settings/export.php:125 views/settings/general.php:25
+#: views/settings/export.php:41 views/settings/general.php:25
 msgid "Gregorian"
 msgstr "میلادی"
 
-#: views/settings/export.php:139
+#: views/settings/export.php:49 views/settings/page.php:24
+msgid "Export"
+msgstr "برون‌بری"
+
+#: views/settings/export.php:54
+msgid "Choose products"
+msgstr "انتخاب محصولات"
+
+#: views/settings/export.php:58
+msgid "Which products?"
+msgstr "کدام محصولات؟"
+
+#: views/settings/export.php:94
+msgid "Near-expiry range"
+msgstr "بازهٔ نزدیک به انقضا"
+
+#: views/settings/export.php:110
+msgid "From"
+msgstr "از"
+
+#: views/settings/export.php:110
+msgid "To"
+msgstr "تا"
+
+#: views/settings/export.php:122
+msgid "Output file settings"
+msgstr "تنظیمات فایل خروجی"
+
+#: views/settings/export.php:127
+msgid "File format"
+msgstr "قالب فایل"
+
+#: views/settings/export.php:140
+msgid "Excel export needs the PHP Zip extension, so only CSV is available."
+msgstr "خروجی اکسل به افزونهٔ Zip در PHP نیاز دارد؛ برای همین فقط CSV در دسترس است."
+
+#: views/settings/export.php:145
+msgid "Dates in the file"
+msgstr "تاریخ‌ها در فایل"
+
+#: views/settings/export.php:161
 msgid "File columns"
 msgstr "ستون‌های فایل"
 
-#: views/settings/export.php:140
+#: views/settings/export.php:162
 msgid "Drag the columns to change their order. The product name is always included in the file."
 msgstr "برای تغییر ترتیب، ستون‌ها را بکشید و جابه‌جا کنید. نام محصول همیشه در فایل درج می‌شود."
 
-#: views/settings/export.php:145
+#: views/settings/export.php:167
 msgid "Drag to move"
 msgstr "برای جابه‌جایی بکشید"
 
-#: views/settings/export.php:164 views/settings/modals.php:101
+#: views/settings/export.php:186
+msgid "Download Excel file"
+msgstr "دریافت فایل اکسل"
+
+#: views/settings/export.php:187
+msgid "Download CSV file"
+msgstr "دریافت فایل CSV"
+
+#: views/settings/export.php:188
+msgid "Building file…"
+msgstr "در حال ساخت فایل…"
+
+#: views/settings/export.php:191 views/settings/modals.php:99
 msgid "File preview"
 msgstr "پیش‌نمایش فایل"
 
@@ -742,23 +738,15 @@ msgstr "واحد زمان"
 msgid "With this setting, any product that expires by %s goes out of stock today, and its details are included in the email reports."
 msgstr "با این تنظیم، هر محصولی که تا %s منقضی شود، از همین امروز ناموجود می‌شود و اطلاعات محصول در گزارش‌های ایمیلی هم درج می‌شود."
 
-#: views/settings/general.php:79
-msgid "Automatic stock restore"
-msgstr "برگشت خودکار موجودی"
-
-#: views/settings/general.php:80
-msgid "If you clear or extend a product's expiration date, its stock returns to the status it had before it went out of stock. This only applies to products the plugin itself set out of stock."
-msgstr "اگر تاریخ انقضای محصولی را پاک یا تمدید کنید، موجودی‌اش به همان حالت پیش از ناموجود شدن برمی‌گردد. این کار فقط برای محصولاتی انجام می‌شود که خود افزونه ناموجودشان کرده باشد."
-
-#: views/settings/general.php:86
+#: views/settings/general.php:78
 msgid "Calendar type"
 msgstr "انتخاب نوع تقویم"
 
-#: views/settings/general.php:87
+#: views/settings/general.php:79
 msgid "The calendar that opens in the product date field and in Quick Edit. Dates are always stored in a standard format, so you can switch the calendar at any time."
 msgstr "تقویمی که در فیلد تاریخ محصول و ویرایش سریع باز می‌شود. تاریخ‌ها همیشه با یک قالب استاندارد ذخیره می‌شوند، پس هر وقت خواستید می‌توانید تقویم را عوض کنید."
 
-#: views/settings/general.php:99
+#: views/settings/general.php:91
 msgid "Follows the dashboard language"
 msgstr "هماهنگ با زبان پیشخوان"
 
@@ -802,7 +790,15 @@ msgstr "راهنما و وضعیت"
 msgid "How to enter expiration dates, and whether the plugin's requirements are working."
 msgstr "روش ثبت تاریخ انقضا، و این‌که پیش‌نیازهای افزونه درست کار می‌کنند یا نه."
 
-#: views/settings/help.php:40
+#: views/settings/help.php:42
+msgid "Automatic stock restore"
+msgstr "برگشت خودکار موجودی"
+
+#: views/settings/help.php:43
+msgid "If you clear or extend a product's expiration date, its stock returns to the status it had before it went out of stock. This only applies to products the plugin itself set out of stock."
+msgstr "اگر تاریخ انقضای محصولی را پاک یا تمدید کنید، موجودی‌اش به همان حالت پیش از ناموجود شدن برمی‌گردد. این کار فقط برای محصولاتی انجام می‌شود که خود افزونه ناموجودشان کرده باشد."
+
+#: views/settings/help.php:48
 msgid "System status"
 msgstr "وضعیت سیستم"
 
@@ -832,9 +828,9 @@ msgstr "افزونه همین حالا تاریخ انقضای همهٔ محصو
 msgid "You can close this window; the check continues in the background and you can cancel it at any time."
 msgstr "می‌توانید این پنجره را ببندید؛ بررسی در پس‌زمینه ادامه پیدا می‌کند و هر وقت بخواهید می‌توانید لغوش کنید."
 
-#: views/settings/modals.php:48 views/settings/modals.php:63
-#: views/settings/modals.php:77 views/settings/modals.php:90
-#: views/settings/modals.php:104 views/settings/modals.php:114
+#: views/settings/modals.php:48 views/settings/modals.php:61
+#: views/settings/modals.php:75 views/settings/modals.php:88
+#: views/settings/modals.php:102 views/settings/modals.php:112
 msgid "Close"
 msgstr "بستن"
 
@@ -842,19 +838,19 @@ msgstr "بستن"
 msgid "Confirm and start the check"
 msgstr "تأیید و شروع بررسی"
 
-#: views/settings/modals.php:72
+#: views/settings/modals.php:70
 msgid "Check finished"
 msgstr "بررسی تمام شد"
 
-#: views/settings/modals.php:85
+#: views/settings/modals.php:83
 msgid "Check cancelled"
 msgstr "بررسی لغو شد"
 
-#: views/settings/modals.php:91
+#: views/settings/modals.php:89
 msgid "Start again"
 msgstr "شروع دوباره"
 
-#: views/settings/modals.php:112
+#: views/settings/modals.php:110
 msgid "No products found in this range."
 msgstr "در این بازه محصولی پیدا نشد."
 

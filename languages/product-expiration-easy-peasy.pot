@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-17T12:25:35+00:00\n"
+"POT-Creation-Date: 2026-10-17T13:35:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: product-expiration-easy-peasy\n"
@@ -136,13 +136,13 @@ msgid "Clear"
 msgstr ""
 
 #: includes/class-export-controller.php:58
-#: includes/class-settings-page.php:255
+#: includes/class-settings-page.php:265
 msgid "You do not have sufficient permissions to perform this action."
 msgstr ""
 
 #: includes/class-export-controller.php:82
-#: includes/class-settings-page.php:370
-#: includes/class-settings-page.php:449
+#: includes/class-settings-page.php:380
+#: includes/class-settings-page.php:456
 msgid "Something went wrong. Please try again."
 msgstr ""
 
@@ -274,70 +274,70 @@ msgstr ""
 msgid "Expiration"
 msgstr ""
 
-#: includes/class-settings-page.php:164
+#: includes/class-settings-page.php:174
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
-#: includes/class-settings-page.php:357
+#: includes/class-settings-page.php:367
 msgid "You have unsaved changes"
 msgstr ""
 
-#: includes/class-settings-page.php:358
+#: includes/class-settings-page.php:368
 msgid "Saving…"
 msgstr ""
 
-#: includes/class-settings-page.php:359
+#: includes/class-settings-page.php:369
 msgid "Enter a whole number from 1 to 365."
 msgstr ""
 
-#: includes/class-settings-page.php:360
+#: includes/class-settings-page.php:370
 msgid "Enter an email address, or untick Custom email."
 msgstr ""
 
-#: includes/class-settings-page.php:361
+#: includes/class-settings-page.php:371
 msgid "Enter a valid email address, for example name@example.com."
 msgstr ""
 
-#: includes/class-settings-page.php:362
+#: includes/class-settings-page.php:372
 msgid "Changes are not saved yet; the test email goes to the previously saved recipients."
 msgstr ""
 
-#: includes/class-settings-page.php:363
+#: includes/class-settings-page.php:373
 msgid "Sending…"
 msgstr ""
 
 #. translators: %s: percentage of the check that is done, without the percent sign.
-#: includes/class-settings-page.php:365
+#: includes/class-settings-page.php:375
 #, php-format
 msgid "Checking… %s%%"
 msgstr ""
 
-#: includes/class-settings-page.php:366
+#: includes/class-settings-page.php:376
 msgid "Checking…"
 msgstr ""
 
-#: includes/class-settings-page.php:367
+#: includes/class-settings-page.php:377
 msgid "Done"
 msgstr ""
 
-#: includes/class-settings-page.php:368
+#: includes/class-settings-page.php:378
 msgid "Stopped"
 msgstr ""
 
-#: includes/class-settings-page.php:369
+#: includes/class-settings-page.php:379
 msgid "Last check: just now"
 msgstr ""
 
-#: includes/class-settings-page.php:371
+#: includes/class-settings-page.php:381
 msgid "No products needed to go out of stock."
 msgstr ""
 
-#: includes/class-settings-page.php:372
+#: includes/class-settings-page.php:382
 msgid "No product had changed by then."
 msgstr ""
 
 #. translators: 1: products checked so far, 2: products to check.
-#: includes/class-settings-page.php:374
+#: includes/class-settings-page.php:384
 #, php-format
 msgid "%1$s of %2$s product checked"
 msgid_plural "%1$s of %2$s products checked"
@@ -345,7 +345,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:376
+#: includes/class-settings-page.php:386
 #, php-format
 msgid "%s product set out of stock so far. Closing this window does not stop the check."
 msgid_plural "%s products set out of stock so far. Closing this window does not stop the check."
@@ -353,7 +353,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:378
+#: includes/class-settings-page.php:388
 #, php-format
 msgid "%s product checked."
 msgid_plural "%s products checked."
@@ -361,7 +361,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:380
+#: includes/class-settings-page.php:390
 #, php-format
 msgid "%s product went out of stock and the report was sent to the recipients."
 msgid_plural "%s products went out of stock and the report was sent to the recipients."
@@ -369,7 +369,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: products checked, 2: products to check.
-#: includes/class-settings-page.php:382
+#: includes/class-settings-page.php:392
 #, php-format
 msgid "%1$s of %2$s product had been checked."
 msgid_plural "%1$s of %2$s products had been checked."
@@ -377,28 +377,28 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:384
+#: includes/class-settings-page.php:394
 #, php-format
 msgid "The %s product set out of stock before cancelling stays out of stock."
 msgid_plural "The %s products set out of stock before cancelling stay out of stock."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-settings-page.php:385
+#: includes/class-settings-page.php:395
 #: views/settings/modals.php:31
 #: views/settings/page.php:51
 msgid "Check product dates"
 msgstr ""
 
-#: includes/class-settings-page.php:386
-#: views/settings/modals.php:64
+#: includes/class-settings-page.php:396
+#: views/settings/modals.php:62
 #: views/settings/page.php:54
 msgid "Cancel check"
 msgstr ""
 
 #. translators: %s: number of products.
-#: includes/class-settings-page.php:433
-#: views/settings/export.php:61
+#: includes/class-settings-page.php:443
+#: views/settings/export.php:69
 #, php-format
 msgid "%s product"
 msgid_plural "%s products"
@@ -406,7 +406,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of rows.
-#: includes/class-settings-page.php:435
+#: includes/class-settings-page.php:445
 #, php-format
 msgid "%s row"
 msgid_plural "%s rows"
@@ -414,7 +414,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of days.
-#: includes/class-settings-page.php:437
+#: includes/class-settings-page.php:447
 #: views/settings/export.php:31
 #, php-format
 msgid "%s day"
@@ -423,7 +423,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of days.
-#: includes/class-settings-page.php:439
+#: includes/class-settings-page.php:449
 #, php-format
 msgid "%s day ago"
 msgid_plural "%s days ago"
@@ -431,7 +431,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of days.
-#: includes/class-settings-page.php:441
+#: includes/class-settings-page.php:451
 #: views/settings/export.php:24
 #, php-format
 msgid "Expire within the next %s day"
@@ -440,99 +440,86 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: first date, 2: last date.
-#: includes/class-settings-page.php:443
+#: includes/class-settings-page.php:453
+#: views/settings/export.php:79
 #, php-format
 msgid "Expire between %1$s and %2$s"
 msgstr ""
 
-#: includes/class-settings-page.php:444
-#: views/settings/export.php:162
-msgid "Download Excel file"
-msgstr ""
-
-#: includes/class-settings-page.php:445
-#: views/settings/export.php:162
-msgid "Download CSV file"
-msgstr ""
-
-#: includes/class-settings-page.php:446
-msgid "Building file…"
-msgstr ""
-
 #. translators: %s: file name.
-#: includes/class-settings-page.php:448
+#: includes/class-settings-page.php:455
 #, php-format
 msgid "File %s was downloaded."
 msgstr ""
 
 #. translators: 1: date, 2: time of day.
-#: includes/class-settings-page.php:473
+#: includes/class-settings-page.php:480
 #, php-format
 msgid "%1$s, at %2$s"
 msgstr ""
 
 #. translators: %s: human-readable time span, such as "5 hours".
-#: includes/class-settings-page.php:475
+#: includes/class-settings-page.php:482
 #, php-format
 msgid "Next check in about %s"
 msgstr ""
 
 #. translators: %s: number of products and variations.
-#: includes/class-settings-page.php:501
+#: includes/class-settings-page.php:508
 #, php-format
 msgid "Check complete. %s product was set out of stock."
 msgid_plural "Check complete. %s products were set out of stock."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-settings-page.php:503
+#: includes/class-settings-page.php:510
 msgid "Another expiration check is already running. Try again in a few minutes."
 msgstr ""
 
-#: includes/class-settings-page.php:505
+#: includes/class-settings-page.php:512
 msgid "The check continues in the background. Reload this page later to see the result."
 msgstr ""
 
-#: includes/class-settings-page.php:507
+#: includes/class-settings-page.php:514
 msgid "Some custom addresses were not valid and were removed. Check the list on the Notifications tab."
 msgstr ""
 
-#: includes/class-settings-page.php:509
+#: includes/class-settings-page.php:516
 msgid "Custom email is selected, but the address was empty or invalid, so no custom email will receive reports."
 msgstr ""
 
-#: includes/class-settings-page.php:526
+#: includes/class-settings-page.php:533
 msgid "Plugin version"
 msgstr ""
 
-#: includes/class-settings-page.php:527
+#: includes/class-settings-page.php:534
 msgid "RTL-Theme license"
 msgstr ""
 
-#: includes/class-settings-page.php:527
+#: includes/class-settings-page.php:534
 msgid "Active"
 msgstr ""
 
-#: includes/class-settings-page.php:527
+#: includes/class-settings-page.php:534
 msgid "Not active"
 msgstr ""
 
-#: includes/class-settings-page.php:529
+#: includes/class-settings-page.php:536
 msgid "ionCube Loader"
 msgstr ""
 
 #. translators: %s: ionCube Loader version.
-#: includes/class-settings-page.php:531
+#: includes/class-settings-page.php:538
 #, php-format
 msgid "Loaded (%s)"
 msgstr ""
 
 #. translators: %s: ionCube Loader version.
-#: includes/class-settings-page.php:531
+#: includes/class-settings-page.php:538
 msgid "Not loaded"
 msgstr ""
 
-#: includes/class-settings-page.php:534
+#: includes/class-settings-page.php:541
 msgid "Not detected"
 msgstr ""
 
@@ -638,75 +625,83 @@ msgstr ""
 msgid "Excel"
 msgstr ""
 
-#: views/settings/export.php:36
-msgid "Opens directly in Excel"
-msgstr ""
-
-#: views/settings/export.php:37
-msgid "Lightweight and works with most software"
-msgstr ""
-
-#: views/settings/export.php:45
-#: views/settings/page.php:24
-msgid "Export"
-msgstr ""
-
-#: views/settings/export.php:48
-msgid "Which products?"
-msgstr ""
-
-#: views/settings/export.php:71
-msgid "Near-expiry range"
-msgstr ""
-
-#: views/settings/export.php:88
-msgid "From"
-msgstr ""
-
-#: views/settings/export.php:88
-msgid "To"
-msgstr ""
-
-#: views/settings/export.php:95
-msgid "Output file settings"
-msgstr ""
-
-#: views/settings/export.php:99
-msgid "File format"
-msgstr ""
-
-#: views/settings/export.php:115
-msgid "Excel export needs the PHP Zip extension, so only CSV is available."
-msgstr ""
-
-#: views/settings/export.php:120
-msgid "Dates in the file"
-msgstr ""
-
-#: views/settings/export.php:124
+#: views/settings/export.php:40
 #: views/settings/general.php:24
 msgid "Jalali"
 msgstr ""
 
-#: views/settings/export.php:125
+#: views/settings/export.php:41
 #: views/settings/general.php:25
 msgid "Gregorian"
 msgstr ""
 
-#: views/settings/export.php:139
-msgid "File columns"
+#: views/settings/export.php:49
+#: views/settings/page.php:24
+msgid "Export"
+msgstr ""
+
+#: views/settings/export.php:54
+msgid "Choose products"
+msgstr ""
+
+#: views/settings/export.php:58
+msgid "Which products?"
+msgstr ""
+
+#: views/settings/export.php:94
+msgid "Near-expiry range"
+msgstr ""
+
+#: views/settings/export.php:110
+msgid "From"
+msgstr ""
+
+#: views/settings/export.php:110
+msgid "To"
+msgstr ""
+
+#: views/settings/export.php:122
+msgid "Output file settings"
+msgstr ""
+
+#: views/settings/export.php:127
+msgid "File format"
 msgstr ""
 
 #: views/settings/export.php:140
-msgid "Drag the columns to change their order. The product name is always included in the file."
+msgid "Excel export needs the PHP Zip extension, so only CSV is available."
 msgstr ""
 
 #: views/settings/export.php:145
+msgid "Dates in the file"
+msgstr ""
+
+#: views/settings/export.php:161
+msgid "File columns"
+msgstr ""
+
+#: views/settings/export.php:162
+msgid "Drag the columns to change their order. The product name is always included in the file."
+msgstr ""
+
+#: views/settings/export.php:167
 msgid "Drag to move"
 msgstr ""
 
-#: views/settings/export.php:164
-#: views/settings/modals.php:101
+#: views/settings/export.php:186
+msgid "Download Excel file"
+msgstr ""
+
+#: views/settings/export.php:187
+msgid "Download CSV file"
+msgstr ""
+
+#: views/settings/export.php:188
+msgid "Building file…"
+msgstr ""
+
+#: views/settings/export.php:191
+#: views/settings/modals.php:99
 msgid "File preview"
 msgstr ""
 
@@ -761,23 +756,15 @@ msgstr ""
 msgid "With this setting, any product that expires by %s goes out of stock today, and its details are included in the email reports."
 msgstr ""
 
-#: views/settings/general.php:79
-msgid "Automatic stock restore"
-msgstr ""
-
-#: views/settings/general.php:80
-msgid "If you clear or extend a product's expiration date, its stock returns to the status it had before it went out of stock. This only applies to products the plugin itself set out of stock."
-msgstr ""
-
-#: views/settings/general.php:86
+#: views/settings/general.php:78
 msgid "Calendar type"
 msgstr ""
 
-#: views/settings/general.php:87
+#: views/settings/general.php:79
 msgid "The calendar that opens in the product date field and in Quick Edit. Dates are always stored in a standard format, so you can switch the calendar at any time."
 msgstr ""
 
-#: views/settings/general.php:99
+#: views/settings/general.php:91
 msgid "Follows the dashboard language"
 msgstr ""
 
@@ -822,7 +809,15 @@ msgstr ""
 msgid "How to enter expiration dates, and whether the plugin's requirements are working."
 msgstr ""
 
-#: views/settings/help.php:40
+#: views/settings/help.php:42
+msgid "Automatic stock restore"
+msgstr ""
+
+#: views/settings/help.php:43
+msgid "If you clear or extend a product's expiration date, its stock returns to the status it had before it went out of stock. This only applies to products the plugin itself set out of stock."
+msgstr ""
+
+#: views/settings/help.php:48
 msgid "System status"
 msgstr ""
 
@@ -853,11 +848,11 @@ msgid "You can close this window; the check continues in the background and you 
 msgstr ""
 
 #: views/settings/modals.php:48
-#: views/settings/modals.php:63
-#: views/settings/modals.php:77
-#: views/settings/modals.php:90
-#: views/settings/modals.php:104
-#: views/settings/modals.php:114
+#: views/settings/modals.php:61
+#: views/settings/modals.php:75
+#: views/settings/modals.php:88
+#: views/settings/modals.php:102
+#: views/settings/modals.php:112
 msgid "Close"
 msgstr ""
 
@@ -865,19 +860,19 @@ msgstr ""
 msgid "Confirm and start the check"
 msgstr ""
 
-#: views/settings/modals.php:72
+#: views/settings/modals.php:70
 msgid "Check finished"
 msgstr ""
 
-#: views/settings/modals.php:85
+#: views/settings/modals.php:83
 msgid "Check cancelled"
 msgstr ""
 
-#: views/settings/modals.php:91
+#: views/settings/modals.php:89
 msgid "Start again"
 msgstr ""
 
-#: views/settings/modals.php:112
+#: views/settings/modals.php:110
 msgid "No products found in this range."
 msgstr ""
 

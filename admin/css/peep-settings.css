@@ -1166,36 +1166,132 @@
 }
 
 /* ------------------------------------------------------------------
- * Export tab.
+ * Export tab: two numbered blocks and a footer bar.
  * ------------------------------------------------------------------ */
 
-.peep-cards--2 {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+.peep-settings .peep-panel > .peep-block,
+.peep-settings .peep-panel > .peep-export-bar {
+	margin-block-start: 22px;
 }
 
-.peep-choice-t .peep-icon {
+.peep-block {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	padding: 22px 24px 24px;
+	border: 1px solid var(--peep-line);
+	border-radius: var(--peep-r-box);
+	background: #F7FAF8;
+}
+
+.peep-block-head {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.peep-block-num {
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	color: #FFFFFF;
+	font-weight: 900;
+	background: linear-gradient(135deg, #10A37A, #047857 55%, #064E3B);
+	box-shadow: 0 8px 16px -8px rgba(4, 120, 87, .9);
+}
+
+.peep-settings .peep-block-title {
+	font-size: 17px;
+	font-weight: 900;
+}
+
+.peep-sublabel {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-block-end: 10px;
+	padding: 0;
+	color: #2F4A40;
+	font-size: 14px;
+	font-weight: 800;
+}
+
+.peep-divider {
+	margin: 0;
+	border: 0;
+	border-block-start: 1px solid var(--peep-line);
+}
+
+.peep-block-part {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+/*
+ * The range and the custom dates hide with visibility, keeping their space,
+ * so switching scope or range never moves the content below them.
+ */
+#peep-export-form:has([name="scope"][value="expired"]:checked) #peep-range,
+#peep-export-form:not(:has([name="range"][value="custom"]:checked)) #peep-range-dates,
+#peep-export-form:has([name="range"][value="custom"]:checked) #peep-scope-sub-preset,
+#peep-export-form:not(:has([name="range"][value="custom"]:checked)) #peep-scope-sub-custom {
+	visibility: hidden;
+}
+
+/* Segmented controls on the tinted blocks: a white track, and a ring on hover. */
+.peep-block .peep-seg {
+	border: 1px solid var(--peep-line);
+	background: #FFFFFF;
+}
+
+.peep-block .peep-seg-btn:not(:has(:checked)):hover {
+	background: transparent;
+	box-shadow: inset 0 0 0 1px #BFE3D1;
+}
+
+.peep-seg-btn .peep-icon {
 	width: 18px;
 	height: 18px;
-	color: var(--peep-brand);
+	margin-inline-end: 6px;
+}
+
+/* Compact scope cards: dot, title and count on one row, the description below the title. */
+.peep-settings .peep-scope {
+	gap: 4px;
+	padding: 14px 16px;
+}
+
+.peep-scope-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+}
+
+.peep-scope-t {
+	font-size: 15px;
+	font-weight: 800;
 }
 
 .peep-count {
-	margin-inline-start: 0;
-	margin-block-start: 4px;
+	margin-inline-start: auto;
+	padding: 2px 10px;
+	border-radius: 999px;
+	background: #EEF4F1;
 	color: var(--peep-ink);
-	background: #FFFFFF;
-	border: 1px solid var(--peep-line-2);
+	font-size: 12px;
+	font-weight: 700;
+	white-space: nowrap;
 }
 
-.peep-range-row {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 12px 20px;
-}
-
-.peep-range-row .peep-label {
-	margin: 0;
+.peep-scope-sub {
+	padding-inline-start: 32px;
+	color: var(--peep-muted);
+	font-size: 13px;
 }
 
 .peep-range-dates {
@@ -1203,7 +1299,7 @@
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 12px;
-	margin-block-start: 16px;
+	margin-block-start: 14px;
 }
 
 [dir="ltr"] .peep-range-arrow {
@@ -1212,6 +1308,13 @@
 
 .peep-range-arrow {
 	color: var(--peep-muted);
+}
+
+.peep-file-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	align-items: start;
+	gap: 18px 24px;
 }
 
 .peep-date{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 16px;border:1.5px solid #D5E4DC;border-radius:var(--peep-r-chip);background:#FBFDFC;color:#0F2E24;font-size:15px;cursor:pointer;transition:border-color .2s ease,box-shadow .2s ease,background .2s ease}
@@ -1257,13 +1360,6 @@
 	box-shadow: none;
 }
 
-.peep-file-row {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) auto;
-	align-items: start;
-	gap: 24px;
-}
-
 .peep-cols {
 	display: flex;
 	flex-wrap: wrap;
@@ -1282,11 +1378,16 @@ body.peep-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 .peep-grip{flex:none;display:inline-flex;color:#9AB0A6}
 .peep-grip .peep-icon{width:16px;height:16px}
 
-.peep-export-actions {
+.peep-export-bar {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
+	justify-content: flex-start;
 	gap: 12px 16px;
+	padding: 16px 20px;
+	border: 1px solid #C9EBDA;
+	border-radius: var(--peep-r-box);
+	background: linear-gradient(135deg, #ECFDF5, #F4FBF8);
 }
 
 .peep-export-spinner,
@@ -1298,8 +1399,23 @@ body.peep-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 	display: block;
 }
 
+/* All three labels share one cell, so the button keeps one width; CSS shows the right one. */
+.peep-stack {
+	display: grid;
+}
+
+.peep-stack > span {
+	grid-area: 1 / 1;
+	visibility: hidden;
+}
+
+#peep-export-form:has([name="format"][value="xlsx"]:checked) .peep-btn:not(.is-busy) [data-peep-label="xlsx"],
+#peep-export-form:has([name="format"][value="csv"]:checked) .peep-btn:not(.is-busy) [data-peep-label="csv"],
+.peep-btn.is-busy [data-peep-label="busy"] {
+	visibility: visible;
+}
+
 .peep-export-status {
-	flex-basis: 100%;
 	color: var(--peep-ok-ink);
 	font-weight: 700;
 }
@@ -1418,25 +1534,42 @@ body.peep-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.peep-file-row,
-	.peep-cards--2 {
-		grid-template-columns: minmax(0, 1fr);
+	.peep-block {
+		padding: 18px 16px 20px;
 	}
 
-	/* Near the screen edge a centered tooltip would overflow; open it toward the content. */
+	.peep-block .peep-seg {
+		display: flex;
+		flex-wrap: nowrap;
+	}
+
+	.peep-block .peep-seg-btn {
+		flex: 1 1 0;
+		justify-content: center;
+		padding-inline: 8px;
+		white-space: nowrap;
+	}
+
+	/* On a phone a tooltip spans its label row, so it never runs off the screen. */
+	.peep-tip {
+		position: static;
+	}
+
+	.peep-label,
+	.peep-sublabel,
+	.peep-switch-row {
+		position: relative;
+	}
+
 	.peep-tip-box {
-		inset-inline: auto -10px;
-		max-width: min(290px, calc(100vw - 48px));
+		inset-inline: 0;
+		width: auto;
+		max-width: none;
 		transform: none;
 	}
 
 	.peep-tip-box::after {
-		inset-inline: auto 16px;
-		transform: translateY(-7px) rotate(45deg);
-	}
-
-	.peep-switch-row {
-		padding-inline: 14px;
+		display: none;
 	}
 }
 

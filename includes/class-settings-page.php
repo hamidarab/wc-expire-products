@@ -440,23 +440,20 @@ final class Settings_Page {
 			),
 			'i18n'  => array(
 				/* translators: %s: number of products. */
-				'products'     => $plural( _n_noop( '%s product', '%s products', 'product-expiration-easy-peasy' ) ),
+				'products'   => $plural( _n_noop( '%s product', '%s products', 'product-expiration-easy-peasy' ) ),
 				/* translators: %s: number of rows. */
-				'rows'         => $plural( _n_noop( '%s row', '%s rows', 'product-expiration-easy-peasy' ) ),
+				'rows'       => $plural( _n_noop( '%s row', '%s rows', 'product-expiration-easy-peasy' ) ),
 				/* translators: %s: number of days. */
-				'days'         => $plural( _n_noop( '%s day', '%s days', 'product-expiration-easy-peasy' ) ),
+				'days'       => $plural( _n_noop( '%s day', '%s days', 'product-expiration-easy-peasy' ) ),
 				/* translators: %s: number of days. */
-				'daysAgo'      => $plural( _n_noop( '%s day ago', '%s days ago', 'product-expiration-easy-peasy' ) ),
+				'daysAgo'    => $plural( _n_noop( '%s day ago', '%s days ago', 'product-expiration-easy-peasy' ) ),
 				/* translators: %s: number of days. */
-				'within'       => $plural( _n_noop( 'Expire within the next %s day', 'Expire within the next %s days', 'product-expiration-easy-peasy' ) ),
+				'within'     => $plural( _n_noop( 'Expire within the next %s day', 'Expire within the next %s days', 'product-expiration-easy-peasy' ) ),
 				/* translators: 1: first date, 2: last date. */
-				'between'      => __( 'Expire between %1$s and %2$s', 'product-expiration-easy-peasy' ),
-				'downloadXlsx' => __( 'Download Excel file', 'product-expiration-easy-peasy' ),
-				'downloadCsv'  => __( 'Download CSV file', 'product-expiration-easy-peasy' ),
-				'building'     => __( 'Building file…', 'product-expiration-easy-peasy' ),
+				'between'    => __( 'Expire between %1$s and %2$s', 'product-expiration-easy-peasy' ),
 				/* translators: %s: file name. */
-				'downloaded'   => __( 'File %s was downloaded.', 'product-expiration-easy-peasy' ),
-				'failed'       => __( 'Something went wrong. Please try again.', 'product-expiration-easy-peasy' ),
+				'downloaded' => __( 'File %s was downloaded.', 'product-expiration-easy-peasy' ),
+				'failed'     => __( 'Something went wrong. Please try again.', 'product-expiration-easy-peasy' ),
 			),
 		);
 	}

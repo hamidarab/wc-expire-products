@@ -110,12 +110,13 @@
 			input.dataset.rangeTo = isoOf( to );
 		} );
 
-		byId( 'peep-range' ).hidden = 'expired' === checked( 'scope' );
-		byId( 'peep-range-dates' ).hidden = 'custom' !== range;
-		byId( 'peep-scope-sub-soon' ).textContent = 'custom' === range
-			? format( i18n.between, from.value, to.value )
-			: format( plural( i18n.within, days ), num( days ) );
-		submit.querySelector( 'span' ).textContent = 'xlsx' === checked( 'format' ) ? i18n.downloadXlsx : i18n.downloadCsv;
+		// CSS shows the range, the date row and the right description from the checked
+		// radios, keeping their space so nothing below them moves.
+		byId( 'peep-scope-sub-custom' ).textContent = format( i18n.between, from.value, to.value );
+
+		if ( 'custom' !== range ) {
+			byId( 'peep-scope-sub-preset' ).textContent = format( plural( i18n.within, days ), num( days ) );
+		}
 		renderCounts();
 	}
 
@@ -321,16 +322,11 @@
 	 * Download without leaving the page.
 	 * ------------------------------------------------------------------ */
 
+	// The button's labels are stacked in one cell (CSS picks one), so its width never changes.
 	function busy( on ) {
 		isBusy = on;
-		submit.disabled = on;
 		submit.classList.toggle( 'is-busy', on );
-
-		if ( on ) {
-			submit.querySelector( 'span' ).textContent = i18n.building;
-		} else {
-			update();
-		}
+		renderCounts();
 	}
 
 	form.addEventListener( 'submit', ( event ) => {
