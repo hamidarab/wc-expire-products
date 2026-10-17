@@ -698,6 +698,13 @@ peep_test_expect( $peep_stale['id'] !== $peep_job->start( 'manual' )['id'], 'A s
 peep_test_drain( $peep_job );
 peep_test_expect( 70 === ProductExpirationEasyPeasy\Check_Job::get()['changed'] && 1 === count( $peep_test_mail ), 'The restarted check did not finish the remaining products.' );
 
+// A manual start from the dialog does the first batch at once and queues the rest.
+$peep_test_queue = array();
+$peep_state      = $peep_job->start( 'manual', true );
+peep_test_expect( 50 === $peep_state['processed'] && 1 === count( $peep_test_queue ), 'The first batch did not run in the start request.' );
+peep_test_drain( $peep_job );
+peep_test_expect( 'done' === ProductExpirationEasyPeasy\Check_Job::get()['status'], 'The rest of the check did not finish in the queue.' );
+
 // The no-JavaScript button runs the whole check in the request.
 $peep_test_mail = array();
 $peep_job->start( 'manual' );

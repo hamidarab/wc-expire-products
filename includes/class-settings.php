@@ -87,6 +87,18 @@ final class Settings {
 	}
 
 	/**
+	 * Keep the valid addresses of a comma-separated list.
+	 *
+	 * @param string $value Raw list.
+	 * @return string Valid addresses joined with ", ".
+	 */
+	private static function sanitize_email_list( $value ) {
+		$emails = array_map( 'sanitize_email', array_map( 'trim', explode( ',', $value ) ) );
+
+		return implode( ', ', array_unique( array_filter( $emails, 'is_email' ) ) );
+	}
+
+	/**
 	 * Translate the default storefront text when it is needed.
 	 *
 	 * Translating lazily keeps __() out of the bootstrap, before the text
@@ -248,7 +260,7 @@ final class Settings {
 		$recipients = array_values( array_intersect( $recipient_types, array_unique( $recipients ) ) );
 
 		$custom_email = isset( $data['custom_email'] ) && is_scalar( $data['custom_email'] )
-			? sanitize_email( (string) $data['custom_email'] )
+			? self::sanitize_email_list( (string) $data['custom_email'] )
 			: '';
 
 		$datepicker_calendar = isset( $data['datepicker_calendar'] ) && is_scalar( $data['datepicker_calendar'] )

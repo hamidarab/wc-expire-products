@@ -109,10 +109,10 @@ final class Report {
 		}
 
 		if ( in_array( 'custom', $selected, true ) ) {
-			$emails[] = $settings->get_setting( 'custom_email' );
+			$emails = array_merge( $emails, explode( ',', (string) $settings->get_setting( 'custom_email' ) ) );
 		}
 
-		$emails = array_map( 'sanitize_email', $emails );
+		$emails = array_map( 'sanitize_email', array_map( 'trim', $emails ) );
 		$emails = array_filter( $emails, 'is_email' );
 
 		return array_values( array_unique( $emails ) );

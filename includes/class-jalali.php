@@ -16,6 +16,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Jalali {
 	/**
+	 * One-letter weekday names, indexed like PHP's "w" (0 = Sunday).
+	 *
+	 * @var array<int, string>
+	 */
+	public const WEEKDAY_INITIALS = array( 'ی', 'د', 'س', 'چ', 'پ', 'ج', 'ش' );
+
+	/**
 	 * Convert a Jalali calendar date to Gregorian components.
 	 *
 	 * Invalid Jalali dates return an empty array. A round-trip check handles the

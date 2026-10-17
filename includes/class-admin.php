@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Registers product fields, list-table controls, and the settings page.
+ * Registers product fields and list-table controls.
  */
 final class Admin {
 	/**
@@ -23,39 +23,11 @@ final class Admin {
 	private $settings;
 
 	/**
-	 * Expiration processing service.
-	 *
-	 * @var Cron
-	 */
-	private $cron;
-
-	/**
-	 * Background check.
-	 *
-	 * @var Check_Job
-	 */
-	private $job;
-
-	/**
-	 * Settings page hook suffix.
-	 *
-	 * @var string
-	 */
-	private $settings_page_hook = '';
-
-	/**
 	 * Resolved date picker calendar, cached for the request.
 	 *
 	 * @var string
 	 */
 	private $input_calendar = '';
-
-	/**
-	 * Settings page tabs, in display order.
-	 *
-	 * @var array<int, string>
-	 */
-	private const TABS = array( 'rules', 'display', 'notifications', 'help' );
 
 	/**
 	 * Cutoff date cached for one product-list request.
@@ -67,19 +39,10 @@ final class Admin {
 	/**
 	 * Register admin hooks.
 	 *
-	 * @param Settings  $settings Settings service.
-	 * @param Cron      $cron     Expiration processing service.
-	 * @param Check_Job $job      Background check.
+	 * @param Settings $settings Settings service.
 	 */
-	public function __construct( Settings $settings, Cron $cron, Check_Job $job ) {
+	public function __construct( Settings $settings ) {
 		$this->settings = $settings;
-		$this->cron     = $cron;
-		$this->job      = $job;
-
-		add_action( 'admin_menu', array( $this, 'add_admin_menu' ), 60 );
-		add_action( 'admin_post_peep_save_settings', array( $this, 'handle_settings_save' ) );
-		add_action( 'admin_post_peep_run_check', array( $this, 'handle_run_check' ) );
-		add_action( 'admin_post_peep_send_test_email', array( $this, 'handle_send_test_email' ) );
 
 		add_action( 'woocommerce_product_options_general_product_data', array( $this, 'add_expiration_field' ) );
 		add_action( 'woocommerce_process_product_meta', array( $this, 'save_expiration_field' ) );
@@ -97,194 +60,6 @@ final class Admin {
 		add_action( 'quick_edit_custom_box', array( $this, 'add_to_quick_edit' ), 10, 2 );
 		add_action( 'save_post_product', array( $this, 'save_quick_edit_data' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
-		add_filter( 'removable_query_args', array( $this, 'add_removable_query_args' ) );
-	}
-
-	/**
-	 * Strip one-time notice arguments from the address bar after display.
-	 *
-	 * @param array<int, string> $args Removable query arguments.
-	 * @return array<int, string>
-	 */
-	public function add_removable_query_args( $args ) {
-		$args[] = 'peep_notice';
-		$args[] = 'peep_count';
-
-		return $args;
-	}
-
-	/**
-	 * Add the settings page below WooCommerce.
-	 *
-	 * @return void
-	 */
-	public function add_admin_menu() {
-		$this->settings_page_hook = (string) add_submenu_page(
-			'woocommerce',
-			__( 'Product Expiration Settings', 'product-expiration-easy-peasy' ),
-			__( 'Expiration', 'product-expiration-easy-peasy' ),
-			'manage_woocommerce',
-			'product-expiration-easy-peasy-settings',
-			array( $this, 'render_settings_page' )
-		);
-	}
-
-	/**
-	 * Render the settings view.
-	 *
-	 * @return void
-	 */
-	public function render_settings_page() {
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'product-expiration-easy-peasy' ) );
-		}
-
-		$current_settings = $this->settings->get_settings();
-		$is_persian       = Date::is_persian_locale();
-		$today            = Date::today();
-		$cutoff           = Cron::get_cutoff_date( $this->settings );
-		$format_samples   = array();
-
-		foreach ( Settings::get_date_formats() as $format ) {
-			$format_samples[ $format ] = Date::format( $today, $format );
-		}
-
-		$picker_samples = array();
-
-		foreach ( Settings::get_datepicker_calendars() as $calendar ) {
-			$picker_samples[ $calendar ] = Date::input_value( $today, Date::input_calendar( $calendar ) );
-		}
-
-		$view = array(
-			'is_persian'         => $is_persian,
-			'today'              => $today,
-			'cutoff'             => $cutoff,
-			'cutoff_label'       => Date::format( $cutoff, $is_persian ? 'j F Y' : 'default' ),
-			'format_samples'     => $format_samples,
-			'picker_samples'     => $picker_samples,
-			'today_parts'        => array(
-				'year'  => Date::format( $today, 'Y' ),
-				'month' => Date::format( $today, 'm' ),
-				'day'   => Date::format( $today, 'd' ),
-			),
-			'admin_email'        => (string) get_option( 'admin_email' ),
-			'counts'             => Stats::get_counts(),
-			'next_run'           => wp_next_scheduled( 'peep_check_expired_products' ),
-			'license_active'     => License_Check::is_active(),
-			'ioncube_version'    => function_exists( 'ioncube_loader_version' ) ? (string) ioncube_loader_version() : '',
-			'shop_manager_count' => count(
-				get_users(
-					array(
-						'role'   => 'shop_manager',
-						'fields' => 'ID',
-					)
-				)
-			),
-		);
-
-		require PRODUCT_EXPIRATION_EASY_PEASY_PATH . 'views/settings-page.php';
-	}
-
-	/**
-	 * Validate and save the settings form, then redirect safely.
-	 *
-	 * @return void
-	 */
-	public function handle_settings_save() {
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to perform this action.', 'product-expiration-easy-peasy' ) );
-		}
-
-		check_admin_referer( 'peep_save_settings', 'peep_settings_nonce' );
-
-		$previous_cutoff = Cron::get_cutoff_date( $this->settings );
-
-		// The settings service sanitizes and whitelists every submitted value.
-		$data = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$this->settings->save_settings( is_array( $data ) ? $data : array() );
-
-		// A shorter period must release products that are no longer inside it.
-		if ( Cron::get_cutoff_date( $this->settings ) < $previous_cutoff ) {
-			$this->cron->restore_beyond_cutoff();
-		}
-
-		Stats::flush();
-
-		$args = array( 'settings-updated' => 'true' );
-
-		if ( in_array( 'custom', (array) $this->settings->get_setting( 'email_recipients' ), true ) && '' === $this->settings->get_setting( 'custom_email' ) ) {
-			$args['peep_notice'] = 'custom_email_missing';
-		}
-
-		$this->redirect_to_settings( $args );
-	}
-
-	/**
-	 * Run the expiration check immediately from the settings page.
-	 *
-	 * @return void
-	 */
-	public function handle_run_check() {
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to perform this action.', 'product-expiration-easy-peasy' ) );
-		}
-
-		check_admin_referer( 'peep_run_check', 'peep_run_check_nonce' );
-
-		$job = $this->job->run_now( 'manual' );
-
-		if ( false === $job ) {
-			$this->redirect_to_settings( array( 'peep_notice' => 'check_locked' ) );
-		}
-
-		if ( 'running' === $job['status'] ) {
-			$this->redirect_to_settings( array( 'peep_notice' => 'check_running' ) );
-		}
-
-		$this->redirect_to_settings(
-			array(
-				'peep_notice' => 'check_done',
-				'peep_count'  => (int) $job['changed'],
-			)
-		);
-	}
-
-	/**
-	 * Send a sample report to the saved recipients.
-	 *
-	 * @return void
-	 */
-	public function handle_send_test_email() {
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to perform this action.', 'product-expiration-easy-peasy' ) );
-		}
-
-		check_admin_referer( 'peep_send_test_email', 'peep_test_email_nonce' );
-
-		$this->redirect_to_settings( array( 'peep_notice' => 'test_' . Report::send_test( $this->settings ) ) );
-	}
-
-	/**
-	 * Redirect back to the settings page, reopening the submitted tab.
-	 *
-	 * The caller must have verified a nonce before calling this method.
-	 *
-	 * @param array<string, string|int> $args Extra query arguments.
-	 * @return void
-	 */
-	private function redirect_to_settings( array $args = array() ) {
-		$tab = isset( $_POST['peep_tab'] ) && is_scalar( $_POST['peep_tab'] ) ? sanitize_key( wp_unslash( $_POST['peep_tab'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Every caller verifies its own nonce first.
-		$url = add_query_arg(
-			array_merge( array( 'page' => 'product-expiration-easy-peasy-settings' ), $args ),
-			admin_url( 'admin.php' )
-		);
-
-		if ( in_array( $tab, self::TABS, true ) ) {
-			$url .= '#' . $tab;
-		}
-
-		wp_safe_redirect( $url );
-		exit;
 	}
 
 	/**
@@ -320,82 +95,6 @@ final class Admin {
 			'data-calendar'        => $this->get_input_calendar(),
 			'autocomplete'         => 'off',
 			'spellcheck'           => 'false',
-		);
-	}
-
-	/**
-	 * Return an inline SVG icon used by the admin screens.
-	 *
-	 * Icons are static markup; print them through wp_kses() with
-	 * self::get_svg_allowed_html().
-	 *
-	 * @param string $name Icon name.
-	 * @return string
-	 */
-	public static function get_icon( $name ) {
-		if ( 'logo' === $name ) {
-			return '<svg class="peep-logo" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><rect width="120" height="120" rx="30" fill="#059669"/><path d="M46 28H86a9 9 0 0 1 9 9V83a9 9 0 0 1-9 9H46L22 60Z" fill="#fff"/><circle cx="42" cy="60" r="6.5" fill="#059669"/><circle cx="88" cy="88" r="21" fill="#EA580C" stroke="#fff" stroke-width="5"/><path d="M88 77v11l7 5" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-		}
-
-		$paths = array(
-			'calendar' => '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
-			'clock'    => '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-			'alert'    => '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
-			'check'    => '<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
-			'info'     => '<circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>',
-			'box'      => '<path d="M21 8 12 3 3 8v8l9 5 9-5Z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
-			'tag'      => '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
-			'zap'      => '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>',
-			'eye'      => '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
-			'mail'     => '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
-			'help'     => '<circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>',
-			'refresh'  => '<path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/>',
-			'x'        => '<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/>',
-		);
-
-		if ( ! isset( $paths[ $name ] ) ) {
-			return '';
-		}
-
-		return '<svg class="peep-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $paths[ $name ] . '</svg>';
-	}
-
-	/**
-	 * Allowed markup for the static admin SVG icons.
-	 *
-	 * @return array<string, array<string, bool>>
-	 */
-	public static function get_svg_allowed_html() {
-		$shape = array(
-			'd'               => true,
-			'x'               => true,
-			'y'               => true,
-			'cx'              => true,
-			'cy'              => true,
-			'r'               => true,
-			'rx'              => true,
-			'width'           => true,
-			'height'          => true,
-			'fill'            => true,
-			'stroke'          => true,
-			'stroke-width'    => true,
-			'stroke-linecap'  => true,
-			'stroke-linejoin' => true,
-		);
-
-		return array(
-			'svg'    => array_merge(
-				$shape,
-				array(
-					'class'       => true,
-					'viewbox'     => true,
-					'aria-hidden' => true,
-					'focusable'   => true,
-				)
-			),
-			'path'   => $shape,
-			'rect'   => $shape,
-			'circle' => $shape,
 		);
 	}
 
@@ -647,12 +346,12 @@ final class Admin {
 			$state = array( 'ok', 'check', __( 'Not expired', 'product-expiration-easy-peasy' ) );
 		}
 
-		$svg_html = self::get_svg_allowed_html();
+		$svg_html = Icons::allowed_html();
 
 		echo '<span class="expiration-formatted">' . esc_html( Date::format( $expiration_date, 'default' ) ) . '</span>';
 		echo '<span class="expiration-hidden" data-date="' . esc_attr( Date::input_value( $expiration_date, $this->get_input_calendar() ) ) . '"></span>';
 		echo '<span class="peep-status-list">';
-		echo '<span class="peep-status peep-status--' . esc_attr( $state[0] ) . '">' . wp_kses( self::get_icon( $state[1] ), $svg_html ) . '<span>' . esc_html( $state[2] ) . '</span></span>';
+		echo '<span class="peep-status peep-status--' . esc_attr( $state[0] ) . '">' . wp_kses( Icons::get( $state[1] ), $svg_html ) . '<span>' . esc_html( $state[2] ) . '</span></span>';
 
 		if ( $managed_count > 0 ) {
 			$managed_label = $product->is_type( 'variable' )
@@ -660,7 +359,7 @@ final class Admin {
 				? sprintf( _n( '%s variation auto out of stock', '%s variations auto out of stock', $managed_count, 'product-expiration-easy-peasy' ), number_format_i18n( $managed_count ) )
 				: __( 'Auto out of stock', 'product-expiration-easy-peasy' );
 
-			echo '<span class="peep-status peep-status--managed">' . wp_kses( self::get_icon( 'box' ), $svg_html ) . '<span>' . esc_html( $managed_label ) . '</span></span>';
+			echo '<span class="peep-status peep-status--managed">' . wp_kses( Icons::get( 'box' ), $svg_html ) . '<span>' . esc_html( $managed_label ) . '</span></span>';
 		}
 
 		echo '</span>';
@@ -821,17 +520,14 @@ final class Admin {
 	}
 
 	/**
-	 * Load admin assets only on the plugin or product screens.
+	 * Load the date picker and field scripts on product screens.
 	 *
-	 * @param string $hook_suffix Current admin page hook.
 	 * @return void
 	 */
-	public function enqueue_admin_assets( $hook_suffix ) {
-		$screen         = get_current_screen();
-		$is_product_ui  = $screen && 'product' === $screen->post_type;
-		$is_settings_ui = '' !== $this->settings_page_hook && $this->settings_page_hook === $hook_suffix;
+	public function enqueue_admin_assets() {
+		$screen = get_current_screen();
 
-		if ( ! $is_product_ui && ! $is_settings_ui ) {
+		if ( ! $screen || 'product' !== $screen->post_type ) {
 			return;
 		}
 
@@ -842,120 +538,22 @@ final class Admin {
 			PRODUCT_EXPIRATION_EASY_PEASY_VERSION
 		);
 
-		wp_register_script(
-			'product-expiration-easy-peasy-jalali',
-			PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/js/peep-jalali.js',
-			array(),
-			PRODUCT_EXPIRATION_EASY_PEASY_VERSION,
-			true
-		);
-
-		if ( $is_product_ui ) {
-			$this->enqueue_datepicker();
-
-			wp_enqueue_script(
-				'product-expiration-easy-peasy-admin',
-				PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/js/admin-script.js',
-				array( 'jquery', 'product-expiration-easy-peasy-jalali', 'product-expiration-easy-peasy-datepicker' ),
-				PRODUCT_EXPIRATION_EASY_PEASY_VERSION,
-				true
-			);
-
-			wp_localize_script(
-				'product-expiration-easy-peasy-admin',
-				'peepAdmin',
-				array(
-					/* translators: %s: example date in the expected input format. */
-					'invalid' => sprintf( __( 'Enter a valid date such as %s, or leave the field empty.', 'product-expiration-easy-peasy' ), $this->get_date_example() ),
-				)
-			);
-		}
-
-		if ( $is_settings_ui ) {
-			// The live badge preview uses the real storefront styles.
-			wp_enqueue_style(
-				'product-expiration-easy-peasy',
-				PRODUCT_EXPIRATION_EASY_PEASY_URL . 'assets/css/style.css',
-				array(),
-				PRODUCT_EXPIRATION_EASY_PEASY_VERSION
-			);
-
-			wp_enqueue_script(
-				'product-expiration-easy-peasy-settings',
-				PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/js/settings.js',
-				array( 'product-expiration-easy-peasy-jalali' ),
-				PRODUCT_EXPIRATION_EASY_PEASY_VERSION,
-				true
-			);
-
-			wp_localize_script(
-				'product-expiration-easy-peasy-settings',
-				'peepSettings',
-				array(
-					'unsaved'       => __( 'You have unsaved changes', 'product-expiration-easy-peasy' ),
-					'saving'        => __( 'Saving…', 'product-expiration-easy-peasy' ),
-					'periodInvalid' => __( 'Enter a whole number from 1 to 365.', 'product-expiration-easy-peasy' ),
-					'emailMissing'  => __( 'Enter an email address, or untick Custom email.', 'product-expiration-easy-peasy' ),
-					'emailInvalid'  => __( 'Enter a valid email address, for example name@example.com.', 'product-expiration-easy-peasy' ),
-				)
-			);
-		}
-	}
-
-	/**
-	 * Enqueue the date picker with its calendar data and strings.
-	 *
-	 * @return void
-	 */
-	private function enqueue_datepicker() {
-		global $wp_locale;
-
-		wp_enqueue_style(
-			'product-expiration-easy-peasy-datepicker',
-			PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/css/peep-datepicker.css',
-			array(),
-			PRODUCT_EXPIRATION_EASY_PEASY_VERSION
-		);
+		Assets::enqueue_datepicker();
 
 		wp_enqueue_script(
-			'product-expiration-easy-peasy-datepicker',
-			PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/js/peep-datepicker.js',
-			array( 'product-expiration-easy-peasy-jalali' ),
+			'product-expiration-easy-peasy-admin',
+			PRODUCT_EXPIRATION_EASY_PEASY_URL . 'admin/js/admin-script.js',
+			array( 'jquery', Assets::JALALI, Assets::DATEPICKER ),
 			PRODUCT_EXPIRATION_EASY_PEASY_VERSION,
 			true
 		);
 
-		$weekdays       = array();
-		$weekday_abbrev = array();
-
-		for ( $index = 0; $index < 7; $index++ ) {
-			$weekday          = $wp_locale->get_weekday( $index );
-			$weekdays[]       = $weekday;
-			$weekday_abbrev[] = $wp_locale->get_weekday_abbrev( $weekday );
-		}
-
 		wp_localize_script(
-			'product-expiration-easy-peasy-datepicker',
-			'peepDatepicker',
+			'product-expiration-easy-peasy-admin',
+			'peepAdmin',
 			array(
-				'today'         => Date::today(),
-				'persianDigits' => Date::is_persian_locale(),
-				'isRtl'         => is_rtl(),
-				'gregorian'     => array(
-					'months'      => array_values( $wp_locale->month ),
-					'weekdays'    => $weekdays,
-					'weekdaysMin' => $weekday_abbrev,
-					'startOfWeek' => (int) get_option( 'start_of_week', 0 ),
-				),
-				'strings'       => array(
-					'chooseDate'    => __( 'Choose date', 'product-expiration-easy-peasy' ),
-					'previousMonth' => __( 'Previous month', 'product-expiration-easy-peasy' ),
-					'nextMonth'     => __( 'Next month', 'product-expiration-easy-peasy' ),
-					'month'         => __( 'Month', 'product-expiration-easy-peasy' ),
-					'year'          => __( 'Year', 'product-expiration-easy-peasy' ),
-					'today'         => __( 'Today', 'product-expiration-easy-peasy' ),
-					'clear'         => __( 'Clear', 'product-expiration-easy-peasy' ),
-				),
+				/* translators: %s: example date in the expected input format. */
+				'invalid' => sprintf( __( 'Enter a valid date such as %s, or leave the field empty.', 'product-expiration-easy-peasy' ), $this->get_date_example() ),
 			)
 		);
 	}

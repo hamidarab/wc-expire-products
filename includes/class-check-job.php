@@ -114,25 +114,32 @@ final class Check_Job {
 	 * @return array<string, mixed>
 	 */
 	public static function public_state( array $job ) {
-		return array_intersect_key( $job, array_flip( array( 'id', 'status', 'total', 'processed', 'changed', 'managed', 'finished_at' ) ) );
+		$state         = array_intersect_key( $job, array_flip( array( 'id', 'status', 'total', 'processed', 'changed', 'managed', 'finished_at' ) ) );
+		$state['live'] = self::is_live( $job );
+
+		return $state;
 	}
 
 	/**
 	 * Start a background check, or return the one already running.
 	 *
-	 * @param string $source "manual" or "cron".
+	 * @param string $source      "manual" or "cron".
+	 * @param bool   $first_batch Process the first batch in this request, so the
+	 *                            person who clicked sees progress at once.
 	 * @return array<string, mixed> The job state.
 	 */
-	public function start( $source ) {
+	public function start( $source, $first_batch = false ) {
 		$job = $this->begin( $source );
 
 		if ( null === $job ) {
 			return self::get();
 		}
 
-		$this->queue( $job['id'] );
+		if ( ! $first_batch || $this->process_batch( $job['id'] ) ) {
+			$this->queue( $job['id'] );
+		}
 
-		return $job;
+		return self::get();
 	}
 
 	/**

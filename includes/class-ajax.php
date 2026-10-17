@@ -51,7 +51,7 @@ final class Ajax {
 		check_ajax_referer( self::CHECK_NONCE, 'nonce' );
 		self::require_capability();
 
-		wp_send_json_success( Check_Job::public_state( $this->job->start( 'manual' ) ) );
+		wp_send_json_success( Check_Job::public_state( $this->job->start( 'manual', true ) ) );
 	}
 
 	/**

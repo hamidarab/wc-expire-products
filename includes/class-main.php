@@ -66,7 +66,8 @@ final class Main {
 		$cron           = new Cron( $this->settings, $job );
 
 		if ( is_admin() ) {
-			new Admin( $this->settings, $cron, $job );
+			new Admin( $this->settings );
+			new Settings_Page( $this->settings, $cron, $job );
 			new Ajax( $job );
 		}
 
