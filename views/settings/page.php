@@ -118,17 +118,17 @@ $peep_tabs = array(
 				require __DIR__ . '/display.php';
 				require __DIR__ . '/notifications.php';
 				?>
-
-				<div class="peep-savebar" id="peep-savebar">
-					<p class="peep-save-status" id="peep-save-status" role="status"><?php esc_html_e( 'Settings saved', 'product-expiration-easy-peasy' ); ?></p>
-					<button type="submit" class="peep-btn" id="peep-save"><?php esc_html_e( 'Save changes', 'product-expiration-easy-peasy' ); ?></button>
-				</div>
 			</form>
 
 			<?php
 			require __DIR__ . '/export.php';
 			require __DIR__ . '/help.php';
 			?>
+
+			<div class="peep-savebar" id="peep-savebar">
+				<p class="peep-save-status" id="peep-save-status" role="status"><?php esc_html_e( 'Settings saved', 'product-expiration-easy-peasy' ); ?></p>
+				<button type="submit" class="peep-btn" id="peep-save" form="peep-settings-form"><?php esc_html_e( 'Save changes', 'product-expiration-easy-peasy' ); ?></button>
+			</div>
 		</div>
 	</div>
 

@@ -112,7 +112,17 @@ final class Settings_Page {
 	 */
 	public function load() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
+		add_action( 'admin_head', array( $this, 'print_head_style' ) );
 		add_filter( 'admin_body_class', array( $this, 'body_class' ) );
+	}
+
+	/**
+	 * Keep the scrollbar's space reserved, so switching tabs does not shift the page sideways.
+	 *
+	 * @return void
+	 */
+	public function print_head_style() {
+		echo '<style>html{scrollbar-gutter:stable}</style>' . "\n";
 	}
 
 	/**

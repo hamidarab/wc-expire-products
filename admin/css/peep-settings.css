@@ -528,8 +528,9 @@
 	backdrop-filter: blur(12px);
 }
 
-.peep-savebar[hidden] {
-	display: none;
+/* On tabs without settings the bar keeps its space, so the page height does not change. */
+.peep-savebar.is-idle {
+	visibility: hidden;
 }
 
 .peep-save-status {

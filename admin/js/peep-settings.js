@@ -66,6 +66,8 @@
 	const tabs = all( '.peep-nav' );
 	const tabInputs = all( '.peep-tab-input' );
 	const forms = all( '.peep-main > form' );
+	const saveBar = byId( 'peep-savebar' );
+	const reducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' );
 	const narrow = window.matchMedia( '(max-width: 782px)' );
 	const tabKey = ( tab ) => tab.dataset.peepTab;
 	const panelOf = ( tab ) => byId( 'peep-panel-' + tabKey( tab ) );
@@ -85,18 +87,37 @@
 			input.value = tabKey( tab );
 		} );
 
-		// A form without the selected panel is hidden, and the save bar with it.
+		// A form without the selected panel is hidden. The save bar only fades out,
+		// keeping its space so the page height stays the same.
 		forms.forEach( ( item ) => {
 			item.hidden = ! item.contains( panelOf( tab ) );
 		} );
+		saveBar.classList.toggle( 'is-idle', form.hidden );
+		saveBar.setAttribute( 'aria-hidden', form.hidden ? 'true' : 'false' );
 
 		if ( updateHash ) {
 			window.history.replaceState( null, '', '#' + tabKey( tab ) );
 		}
 
 		if ( moveFocus ) {
-			tab.focus();
-			tab.scrollIntoView( { block: 'nearest', inline: 'nearest' } );
+			tab.focus( { preventScroll: true } );
+
+			if ( narrow.matches ) {
+				tab.scrollIntoView( { block: 'nearest', inline: 'nearest' } );
+			}
+
+			revealPanel( panelOf( tab ) );
+		}
+	}
+
+	/** Scroll up to a panel whose top is hidden above the viewport, and no further. */
+	function revealPanel( panel ) {
+		const adminBar = byId( 'wpadminbar' );
+		const offset = ( adminBar ? adminBar.offsetHeight : 0 ) + 16;
+		const top = panel.getBoundingClientRect().top - offset;
+
+		if ( top < 0 ) {
+			window.scrollBy( { top, behavior: reducedMotion.matches ? 'auto' : 'smooth' } );
 		}
 	}
 
