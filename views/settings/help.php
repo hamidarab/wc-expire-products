@@ -36,6 +36,14 @@ $peep_steps = array(
 		<?php endforeach; ?>
 	</ol>
 
+	<div class="peep-box peep-box--info">
+		<span class="peep-tile peep-tile--info"><?php View::icon( 'refresh' ); ?></span>
+		<div>
+			<strong class="peep-box-title"><?php esc_html_e( 'Automatic stock restore', 'product-expiration-easy-peasy' ); ?></strong>
+			<p class="peep-muted"><?php esc_html_e( 'If you clear or extend a product\'s expiration date, its stock returns to the status it had before it went out of stock. This only applies to products the plugin itself set out of stock.', 'product-expiration-easy-peasy' ); ?></p>
+		</div>
+	</div>
+
 	<div>
 		<h3 class="peep-subtitle"><?php esc_html_e( 'System status', 'product-expiration-easy-peasy' ); ?></h3>
 		<ul class="peep-sys">
