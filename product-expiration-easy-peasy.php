@@ -3,7 +3,7 @@
  * Plugin Name: Product Expiration Easy Peasy
  * Plugin URI:  https://www.rtl-theme.com/?p=293806
  * Description: Manage WooCommerce product expiration dates, stock status, and notifications.
- * Version:     3.4.1
+ * Version:     3.5.0
  * Author:      Hamid Arab
  * Author URI:  https://hamidarab.ir
  * Update URI:  https://www.rtl-theme.com/?p=293806
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PRODUCT_EXPIRATION_EASY_PEASY_VERSION', '3.4.1' );
+define( 'PRODUCT_EXPIRATION_EASY_PEASY_VERSION', '3.5.0' );
 define( 'PRODUCT_EXPIRATION_EASY_PEASY_FILE', __FILE__ );
 define( 'PRODUCT_EXPIRATION_EASY_PEASY_PATH', plugin_dir_path( __FILE__ ) );
 define( 'PRODUCT_EXPIRATION_EASY_PEASY_URL', plugin_dir_url( __FILE__ ) );

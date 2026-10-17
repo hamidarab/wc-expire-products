@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Product Expiration Easy Peasy 3.4.1\n"
+"Project-Id-Version: Product Expiration Easy Peasy 3.5.0\n"
 "Report-Msgid-Bugs-To: https://www.rtl-theme.com/\n"
 "POT-Creation-Date: 2026-10-17T12:20:43+00:00\n"
 "PO-Revision-Date: 2026-10-11 13:00+0330\n"

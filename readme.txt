@@ -7,7 +7,7 @@ Requires PHP: 8.1
 Requires Plugins: woocommerce
 WC requires at least: 9.0
 WC tested up to: 9.7
-Stable tag: 3.4.1
+Stable tag: 3.5.0
 License: GPL v3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -85,6 +85,14 @@ The expiration feature itself sends no telemetry. The generated RTL-Theme licens
 
 == Changelog ==
 
+= 3.5.0 =
+
+* Redesigned settings page: status cards, tabbed navigation, live previews and a sticky save bar. It still works without JavaScript.
+* The expiration check now runs in the background in batches, with live progress and a Cancel button. The daily check uses the same path, and every run sends one combined report, cancelled runs included.
+* New Export tab: download expired and near-expiry products as Excel (XLSX) or CSV, with a choice of columns, column order, a date range and the Jalali or Gregorian calendar. A preview shows the first rows.
+* Custom report recipients: several addresses separated by commas.
+* Calendar cards show this month's preview; the date format cards show a real sample.
+
 = 3.4.1 =
 
 * Added a direct Settings link to the plugin row on the Plugins screen.
@@ -147,6 +155,10 @@ The expiration feature itself sends no telemetry. The generated RTL-Theme licens
 * Added configurable date formats and conditional asset loading.
 
 == Upgrade Notice ==
+
+= 3.5.0 =
+
+New settings page, a background expiration check you can follow and cancel, and Excel/CSV export. Settings and stored dates are kept as they are.
 
 = 3.4.1 =
 
