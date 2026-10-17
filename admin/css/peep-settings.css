@@ -321,14 +321,54 @@
 	gap: 6px;
 }
 
-.peep-nav{display:flex;align-items:center;gap:12px;width:100%;min-height:66px;padding:10px 12px;border:0;border-radius:calc(var(--peep-r-panel) - 10px);background:transparent;color:#0F2E24;cursor:pointer;text-align:start;text-decoration:none;transition:background .25s ease,box-shadow .25s ease,transform .25s ease}
-.peep-nav:hover{background:#EEF6F2;color:#0F2E24}
-.peep-nav-ico{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:calc(var(--peep-r-btn) - 2px);background:#E9F4EE;color:#047857}
+.peep-nav{position:relative;isolation:isolate;display:flex;align-items:center;gap:12px;width:100%;min-height:66px;padding:10px 12px;border:0;border-radius:calc(var(--peep-r-panel) - 10px);background:transparent;color:#0F2E24;cursor:pointer;text-align:start;text-decoration:none;transition:background-color .25s ease,box-shadow .35s ease,color .35s ease}
+.peep-nav:hover{background-color:#EEF6F2;color:#0F2E24}
+.peep-nav-ico{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:calc(var(--peep-r-btn) - 2px);background:#E9F4EE;color:#047857;transition:background .35s ease,color .35s ease}
 .peep-nav-t{display:block;font-size:15px;font-weight:800}
-.peep-nav-h{display:block;font-size:13px;font-weight:500;color:#4A5E56}
-.peep-nav.is-on,.peep-nav.is-on:hover{color:#FFFFFF;background:linear-gradient(120deg,#0B8F68 0%,#047857 40%,#064E3B 100%);box-shadow:-10px 14px 28px -16px rgba(16,185,129,.9),10px 16px 30px -16px rgba(6,78,59,.9)}
+.peep-nav-h{display:block;font-size:13px;font-weight:500;color:#4A5E56;transition:color .35s ease}
+.peep-nav.is-on,.peep-nav.is-on:hover{color:#FFFFFF;background-color:transparent;box-shadow:-10px 14px 28px -16px rgba(16,185,129,.9),10px 16px 30px -16px rgba(6,78,59,.9)}
 .peep-nav.is-on .peep-nav-ico{background:rgba(255,255,255,.16);color:#FFFFFF}
 .peep-nav.is-on .peep-nav-h{color:#D1FAE5}
+
+/* Gradients cannot be transitioned, so the active fill fades in on a layer of its own. */
+.peep-nav::before {
+	content: "";
+	position: absolute;
+	z-index: -1;
+	inset: 0;
+	border-radius: inherit;
+	background: linear-gradient(120deg, #0B8F68 0%, #047857 40%, #064E3B 100%);
+	opacity: 0;
+	transform: scale(.96);
+	transition: opacity .35s ease, transform .35s ease;
+}
+
+.peep-nav.is-on::before {
+	opacity: 1;
+	transform: none;
+}
+
+/* WordPress squares the corners of focused links (a:focus) and adds its own ring. */
+.peep-settings .peep-nav:focus {
+	border-radius: calc(var(--peep-r-panel) - 10px);
+	box-shadow: none;
+	color: #0F2E24;
+}
+
+.peep-settings .peep-nav.is-on:focus {
+	box-shadow: -10px 14px 28px -16px rgba(16, 185, 129, .9), 10px 16px 30px -16px rgba(6, 78, 59, .9);
+	color: #FFFFFF;
+}
+
+.peep-settings .peep-btn-danger:focus:not(:hover) {
+	border-radius: var(--peep-r-chip);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), -10px 12px 24px -12px rgba(239, 68, 68, .8), 10px 14px 26px -12px rgba(127, 29, 29, .85);
+}
+
+/* A newly selected tab's panel fades in. */
+.peep-settings.is-js .peep-panel:not([hidden]) {
+	animation: peep-fade .3s ease;
+}
 
 .peep-main {
 	display: flex;
