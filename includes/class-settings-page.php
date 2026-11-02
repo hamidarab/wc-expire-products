@@ -525,7 +525,7 @@ final class Settings_Page {
 	 * @return array<int, array{0: string, 1: string, 2: bool|null}>
 	 */
 	private function status_rows() {
-		$license = License_Check::is_active();
+		$license = product_expiration_easy_peasy_is_license_active();
 		$ioncube = function_exists( 'ioncube_loader_version' ) ? (string) ioncube_loader_version() : '';
 		$digits  = Date::is_persian_locale() ? array( Jalali::class, 'digits' ) : 'strval';
 

@@ -31,6 +31,17 @@ define( 'PRODUCT_EXPIRATION_EASY_PEASY_FILE', __FILE__ );
 define( 'PRODUCT_EXPIRATION_EASY_PEASY_PATH', plugin_dir_path( __FILE__ ) );
 define( 'PRODUCT_EXPIRATION_EASY_PEASY_URL', plugin_dir_url( __FILE__ ) );
 
+// The license runtime is ionCube-encoded; without the loader, requiring it is a fatal error.
+if ( extension_loaded( 'ionCube Loader' ) ) {
+	// phpcs:disable
+	$rtlLicenseFilePath = __DIR__ . DIRECTORY_SEPARATOR . 'RTL_License_ca50fd723e00b32e.php';
+
+	if (is_file($rtlLicenseFilePath)) {
+	    require_once $rtlLicenseFilePath;
+	}
+	// phpcs:enable
+}
+
 /**
  * Add a direct settings shortcut to the plugin row.
  *
@@ -54,15 +65,14 @@ add_filter( 'plugin_action_links_' . plugin_basename( PRODUCT_EXPIRATION_EASY_PE
 /**
  * Load the plugin classes in a deterministic order.
  *
- * The license adapter must be loaded before any license helper is called. This
- * ordering prevents the undefined-function fatal that affected the encoded
- * release build.
+ * The license check and its helpers load with functions.php, before anything
+ * calls them. This ordering prevents the undefined-function fatal that affected
+ * the encoded release build.
  *
  * @return void
  */
 function include_files() {
 	$files = array(
-		'includes/class-license-check.php',
 		'includes/functions.php',
 		'includes/class-jalali.php',
 		'includes/class-date.php',

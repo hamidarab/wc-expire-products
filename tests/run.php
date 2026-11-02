@@ -629,8 +629,67 @@ peep_test_expect(
 );
 peep_test_expect(
 	false === ProductExpirationEasyPeasy\product_expiration_easy_peasy_is_license_active(),
-	'License helper must fail closed without ionCube, not terminate the request.'
+	'License helper must fail closed without an activated license, not terminate the request.'
 );
+
+// License: every failure ends in an admin notice message, never a fatal. Each
+// case runs in its own process; a loaded class or constant cannot be unloaded.
+// Where the protected license check must not load, a stand-in that ends the
+// request replaces it, as an ionCube-encoded file does when it cannot run.
+const PEEP_TEST_HALTING_CHECK = "<?php\necho 'protected license check ran';\nexit( 3 );\n";
+
+function peep_test_license_case( $case, $plugin_dir, $php_args = '' ) {
+	$command = escapeshellarg( PHP_BINARY ) . ' ' . $php_args . ' ' . escapeshellarg( __DIR__ . '/license-case.php' ) . ' ' . escapeshellarg( $case ) . ' ' . escapeshellarg( $plugin_dir ) . ' 2>/dev/null';
+	exec( $command, $output, $status );
+	$result = json_decode( implode( "\n", $output ), true );
+	peep_test_expect( 0 === $status && is_array( $result ), "License case {$case} did not finish:\n" . implode( "\n", $output ) );
+	return $result;
+}
+
+function peep_test_license_copy_case( $license_check, $fake_runtime = null, $php_args = '' ) {
+	$dir = sys_get_temp_dir() . '/peep-license-' . bin2hex( random_bytes( 6 ) ) . '/';
+	mkdir( $dir . 'includes', 0777, true );
+
+	try {
+		copy( dirname( __DIR__ ) . '/product-expiration-easy-peasy.php', $dir . 'product-expiration-easy-peasy.php' );
+		copy( dirname( __DIR__ ) . '/includes/functions.php', $dir . 'includes/functions.php' );
+		file_put_contents( $dir . 'includes/class-license-check.php', $license_check );
+
+		if ( null !== $fake_runtime ) {
+			file_put_contents( $dir . 'RTL_License_ca50fd723e00b32e.php', $fake_runtime );
+		}
+
+		return peep_test_license_case( 'bootstrap', $dir, $php_args );
+	} finally {
+		array_map( 'unlink', glob( $dir . '{,includes/}*.php', GLOB_BRACE ) );
+		rmdir( $dir . 'includes' );
+		rmdir( $dir );
+	}
+}
+
+$peep_license = peep_test_license_copy_case( PEEP_TEST_HALTING_CHECK, null, '-n' );
+peep_test_expect( false === $peep_license['ioncube'] && false === $peep_license['runtime_loaded'] && false === $peep_license['check_loaded'], 'Without ionCube Loader, the runtime or the protected license check was required.' );
+peep_test_expect( false === $peep_license['active'] && 'ionCube Loader is required to validate the RTL-Theme license.' === $peep_license['error'], 'Missing ionCube must give the ionCube notice.' );
+
+if ( extension_loaded( 'ionCube Loader' ) ) {
+	$peep_license = peep_test_license_copy_case( PEEP_TEST_HALTING_CHECK );
+	peep_test_expect( false === $peep_license['check_loaded'], 'Without the license file, the protected license check was required.' );
+	peep_test_expect( false === $peep_license['active'] && 'The RTL-Theme license file is missing or unreadable.' === $peep_license['error'], 'A missing license file must give the missing-file notice.' );
+
+	$peep_license = peep_test_license_copy_case(
+		(string) file_get_contents( dirname( __DIR__ ) . '/includes/class-license-check.php' ),
+		"<?php\nclass RTL_License_ca50fd723e00b32e {\n\tpublic function __construct() {\n\t\t\$GLOBALS['peep_fake_constructed'] = true;\n\t}\n\n\tpublic function isActive() {\n\t\treturn true;\n\t}\n}\n"
+	);
+	peep_test_expect( true === $peep_license['runtime_loaded'] && false === $peep_license['fake_constructed'], 'A license file with the wrong SHA-1 was instantiated.' );
+	peep_test_expect( false === $peep_license['active'] && '' === $peep_license['error'], 'A license file with the wrong SHA-1 must leave the license inactive.' );
+
+	$peep_license = peep_test_license_case( 'runtime-throws', dirname( __DIR__ ) . '/' );
+	peep_test_expect( false === $peep_license['active'] && 'The RTL-Theme license runtime could not be initialized.' === $peep_license['error'], 'An exception from the license runtime must give the runtime notice.' );
+
+	echo "license-cases=passed (4 cases)\n";
+} else {
+	echo "license-cases=partial (ionCube Loader not loaded; 1 of 4 cases)\n";
+}
 
 $peep_plugin_links = ProductExpirationEasyPeasy\add_plugin_action_links( array( '<a href="#">Deactivate</a>' ) );
 peep_test_expect( 2 === count( $peep_plugin_links ), 'The plugin-row Settings link was not added.' );

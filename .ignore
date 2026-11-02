@@ -1,0 +1,2 @@
+# ripgrep/fd: keep search-and-replace away from the ionCube-protected copy.
+/protected/

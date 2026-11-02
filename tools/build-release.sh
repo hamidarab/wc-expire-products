@@ -8,7 +8,15 @@ PLUGIN_SLUG="product-expiration-easy-peasy"
 OUTPUT_ROOT="${PLUGIN_ROOT}/dist"
 PLUGIN_OUTPUT="${OUTPUT_ROOT}/Plugin"
 TEMP_DIR="$(mktemp -d)"
-EXPECTED_LICENSE_HASH="f1e5fcf95fe320f67ad54e9280173cc604afb5ce"
+LICENSE_FILE="RTL_License_ca50fd723e00b32e.php"
+EXPECTED_LICENSE_HASH="7e5cf81e7b51082f1f5e3fbc119fa2e8f98c57c6"
+# RTL-Theme's ionCube-protected copy of the license check; it replaces the
+# readable source in the ZIP. It is only copied as a file, never read or rewritten.
+LICENSE_CHECK_SOURCE="includes/class-license-check.php"
+LICENSE_CHECK_PROTECTED="protected/includes/class-license-check.php"
+# SHA-1 of the readable source that was sent for protection, written by
+# tools/record-protected-source.sh.
+LICENSE_CHECK_SOURCE_SHA1="${LICENSE_CHECK_PROTECTED}.source-sha1"
 
 cleanup() {
 	if [[ -n "${TEMP_DIR}" && -d "${TEMP_DIR}" && "${TEMP_DIR}" == /tmp/* ]]; then
@@ -22,14 +30,31 @@ if [[ ! -f "${PLUGIN_ROOT}/help.pdf" ]]; then
 	exit 1
 fi
 
-if [[ ! -f "${PLUGIN_ROOT}/RTL_License_700d86aad12a6fe9.php" ]]; then
-	printf 'Missing generated RTL-Theme license runtime.\n' >&2
+if [[ ! -f "${PLUGIN_ROOT}/${LICENSE_FILE}" ]]; then
+	printf 'Missing RTL-Theme license runtime %s.\n' "${LICENSE_FILE}" >&2
 	exit 1
 fi
 
-ACTUAL_LICENSE_HASH="$(sha1sum "${PLUGIN_ROOT}/RTL_License_700d86aad12a6fe9.php" | awk '{print $1}')"
+ACTUAL_LICENSE_HASH="$(sha1sum "${PLUGIN_ROOT}/${LICENSE_FILE}" | awk '{print $1}')"
 if [[ "${ACTUAL_LICENSE_HASH}" != "${EXPECTED_LICENSE_HASH}" ]]; then
 	printf 'RTL-Theme license runtime failed its SHA-1 integrity check.\n' >&2
+	exit 1
+fi
+
+if [[ ! -f "${PLUGIN_ROOT}/${LICENSE_CHECK_PROTECTED}" ]]; then
+	printf 'Missing %s. Send %s to RTL-Theme for protection first.\n' "${LICENSE_CHECK_PROTECTED}" "${LICENSE_CHECK_SOURCE}" >&2
+	exit 1
+fi
+
+if [[ ! -f "${PLUGIN_ROOT}/${LICENSE_CHECK_SOURCE_SHA1}" ]]; then
+	printf 'Missing %s. Run tools/record-protected-source.sh right after sending %s for protection.\n' "${LICENSE_CHECK_SOURCE_SHA1}" "${LICENSE_CHECK_SOURCE}" >&2
+	exit 1
+fi
+
+RECORDED_SOURCE_HASH="$(tr -d '[:space:]' < "${PLUGIN_ROOT}/${LICENSE_CHECK_SOURCE_SHA1}")"
+ACTUAL_SOURCE_HASH="$(sha1sum "${PLUGIN_ROOT}/${LICENSE_CHECK_SOURCE}" | awk '{print $1}')"
+if [[ "${RECORDED_SOURCE_HASH}" != "${ACTUAL_SOURCE_HASH}" ]]; then
+	printf '%s changed since it was sent for protection. Send it to RTL-Theme again, then run tools/record-protected-source.sh.\n' "${LICENSE_CHECK_SOURCE}" >&2
 	exit 1
 fi
 
@@ -69,6 +94,13 @@ rsync -a \
 	--exclude-from="${PLUGIN_ROOT}/.distignore" \
 	"${PLUGIN_ROOT}/" \
 	"${TEMP_DIR}/${PLUGIN_SLUG}/"
+
+cp "${PLUGIN_ROOT}/${LICENSE_CHECK_PROTECTED}" "${TEMP_DIR}/${PLUGIN_SLUG}/${LICENSE_CHECK_SOURCE}"
+
+if [[ "$(sha1sum "${TEMP_DIR}/${PLUGIN_SLUG}/${LICENSE_FILE}" | awk '{print $1}')" != "${EXPECTED_LICENSE_HASH}" ]]; then
+	printf 'The staged license runtime does not match its expected SHA-1.\n' >&2
+	exit 1
+fi
 
 (
 	cd "${TEMP_DIR}"

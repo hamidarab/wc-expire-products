@@ -121,7 +121,7 @@ final class Main {
 			return;
 		}
 
-		$message = License_Check::get_error();
+		$message = product_expiration_easy_peasy_license_error();
 
 		if ( '' === $message ) {
 			$message = __( 'Please activate the RTL-Theme license to use Product Expiration Easy Peasy.', 'product-expiration-easy-peasy' );

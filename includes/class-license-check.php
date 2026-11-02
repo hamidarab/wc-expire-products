@@ -1,6 +1,11 @@
 <?php
 /**
- * Safe adapter for the RTL-Theme license runtime.
+ * RTL-Theme license check.
+ *
+ * This file is sent to RTL-Theme for ionCube protection. The release ZIP ships
+ * the protected copy from protected/includes/class-license-check.php; this
+ * readable copy is the source. The plugin's main file loads the license
+ * runtime; this class only queries it.
  *
  * @package ProductExpirationEasyPeasy
  */
@@ -12,23 +17,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Loads and queries the generated RTL-Theme license class.
+ * Queries the RTL-Theme license runtime with RTL-Theme's own check block.
  */
 final class License_Check {
-	/**
-	 * Generated license class name.
-	 *
-	 * @var string
-	 */
-	private const CLASS_NAME = 'RTL_License_700d86aad12a6fe9';
-
-	/**
-	 * Expected SHA-1 supplied with the generated license file.
-	 *
-	 * @var string
-	 */
-	private const FILE_HASH = 'f1e5fcf95fe320f67ad54e9280173cc604afb5ce';
-
 	/**
 	 * Cached activation result.
 	 *
@@ -55,23 +46,59 @@ final class License_Check {
 
 		self::$active = false;
 
-		if ( ! self::load_runtime() ) {
+		if ( ! extension_loaded( 'ionCube Loader' ) ) {
+			self::$error = __( 'ionCube Loader is required to validate the RTL-Theme license.', 'product-expiration-easy-peasy' );
 			return false;
 		}
 
-		$class_name = self::CLASS_NAME;
+		if ( ! is_file( PRODUCT_EXPIRATION_EASY_PEASY_PATH . 'RTL_License_ca50fd723e00b32e.php' ) ) {
+			self::$error = __( 'The RTL-Theme license file is missing or unreadable.', 'product-expiration-easy-peasy' );
+			return false;
+		}
+
+		if ( ! class_exists( 'RTL_License_ca50fd723e00b32e', false ) ) {
+			self::$error = __( 'The RTL-Theme license class could not be loaded.', 'product-expiration-easy-peasy' );
+			return false;
+		}
 
 		try {
-			$license = new $class_name();
+			// phpcs:disable
+			// --------------------------------------------------------------------------------------------------- Start RTL License
 
-			if ( ! method_exists( $license, 'isActive' ) ) {
-				self::$error = __( 'The RTL-Theme license runtime is missing its activation method.', 'product-expiration-easy-peasy' );
-				return false;
+			$rtlLicenseClassName = 'RTL_License_ca50fd723e00b32e';
+
+			if (
+			    class_exists($rtlLicenseClassName, false)
+			    && method_exists($rtlLicenseClassName, 'isActive')
+			) {
+			    try {
+			        $rtlLicenseReflection = new \ReflectionClass($rtlLicenseClassName);
+			        $rtlLicenseFilePath   = $rtlLicenseReflection->getFileName();
+
+			        if (is_string($rtlLicenseFilePath) && is_file($rtlLicenseFilePath)) {
+			            $rtlLicenseFileHash = @sha1_file($rtlLicenseFilePath);
+
+			            if (
+			                is_string($rtlLicenseFileHash)
+			                && hash_equals('7e5cf81e7b51082f1f5e3fbc119fa2e8f98c57c6', $rtlLicenseFileHash)
+			            ) {
+			                $rtlLicenseClass = new $rtlLicenseClassName();
+
+			                if ($rtlLicenseClass->{'isActive'}() === true) {
+			                    self::$active = true;
+			                }
+			            }
+			        }
+			    } catch (\ReflectionException $e) {
+			        // بررسی لایسنس ناموفق بود.
+			    }
 			}
 
-			self::$active = true === $license->isActive();
+			// ----------------------------------------------------------------------------------------------------- End RTL License
+			// phpcs:enable
 		} catch ( \Throwable $throwable ) {
-			self::$error = __( 'The RTL-Theme license runtime could not be initialized.', 'product-expiration-easy-peasy' );
+			self::$active = false;
+			self::$error  = __( 'The RTL-Theme license runtime could not be initialized.', 'product-expiration-easy-peasy' );
 		}
 
 		return self::$active;
@@ -84,51 +111,5 @@ final class License_Check {
 	 */
 	public static function get_error() {
 		return self::$error;
-	}
-
-	/**
-	 * Validate and load the generated ionCube file.
-	 *
-	 * @return bool
-	 */
-	private static function load_runtime() {
-		$class_name = self::CLASS_NAME;
-
-		if ( class_exists( $class_name, false ) ) {
-			return true;
-		}
-
-		$license_file = PRODUCT_EXPIRATION_EASY_PEASY_PATH . self::CLASS_NAME . '.php';
-
-		if ( ! is_readable( $license_file ) ) {
-			self::$error = __( 'The RTL-Theme license file is missing or unreadable.', 'product-expiration-easy-peasy' );
-			return false;
-		}
-
-		$actual_hash = sha1_file( $license_file );
-
-		if ( ! is_string( $actual_hash ) || ! hash_equals( self::FILE_HASH, $actual_hash ) ) {
-			self::$error = __( 'The RTL-Theme license file failed its integrity check.', 'product-expiration-easy-peasy' );
-			return false;
-		}
-
-		if ( ! extension_loaded( 'ionCube Loader' ) ) {
-			self::$error = __( 'ionCube Loader is required to validate the RTL-Theme license.', 'product-expiration-easy-peasy' );
-			return false;
-		}
-
-		try {
-			require_once $license_file;
-		} catch ( \Throwable $throwable ) {
-			self::$error = __( 'The RTL-Theme license runtime could not be initialized.', 'product-expiration-easy-peasy' );
-			return false;
-		}
-
-		if ( ! class_exists( $class_name, false ) ) {
-			self::$error = __( 'The RTL-Theme license class could not be loaded.', 'product-expiration-easy-peasy' );
-			return false;
-		}
-
-		return true;
 	}
 }

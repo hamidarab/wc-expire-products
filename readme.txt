@@ -35,7 +35,7 @@ Features include:
 * RTL-Theme license integration that fails safely instead of breaking wp-admin.
 * WooCommerce High-Performance Order Storage compatibility declaration.
 
-The distributed RTL-Theme license runtime is protected with ionCube. The readable bootstrap validates the runtime path and integrity before loading it. A missing loader, missing SDK file, damaged SDK, inactive license, or license exception results in an administrator notice rather than a PHP fatal error.
+The distributed RTL-Theme license runtime is protected with ionCube. The readable main plugin file loads the runtime only when ionCube Loader is present, and the ionCube-protected license check verifies the runtime's integrity before using it. A missing loader, missing SDK file, SDK file with the wrong checksum, inactive license, or license exception results in an administrator notice rather than a PHP fatal error. A damaged SDK file is reported by ionCube itself; reinstall the plugin package to fix it.
 
 == Installation ==
 

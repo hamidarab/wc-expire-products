@@ -17,3 +17,6 @@
 *.log
 *.tmp
 .DS_Store
+/protected/
+/.gitattributes
+/.ignore

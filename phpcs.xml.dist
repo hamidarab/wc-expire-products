@@ -7,6 +7,9 @@
 	<file>views</file>
 	<file>uninstall.php</file>
 
+	<!-- RTL-Theme's ionCube-protected copy is never linted or fixed. -->
+	<exclude-pattern>/protected/*</exclude-pattern>
+
 	<arg name="extensions" value="php"/>
 	<arg value="sp"/>
 
